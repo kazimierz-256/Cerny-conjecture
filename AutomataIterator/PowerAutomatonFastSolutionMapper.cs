@@ -58,10 +58,10 @@ namespace AutomataIterator
             var precomputedStateTransitioningMatrix = new uint[maxAutomatonSize];
             var transitionMatrixCombined = new uint[twoToPowerBits * iMax];
 
-            foreach (var problem in problemsToSolve)
+            foreach (var automaton in problemsToSolve)
             {
-                var transitionA = problem.TransitionFunctionsA;
-                var transitionB = problem.TransitionFunctionsB;
+                var transitionA = automaton.TransitionFunctionsA;
+                var transitionB = automaton.TransitionFunctionsB;
                 max = (byte)transitionB.Length;
 
                 localProblemId += 1;
@@ -238,7 +238,7 @@ namespace AutomataIterator
                     }
                 }
 
-                yield return problem.CreateSolvedObject(discoveredSingleton, currentNextDistance);
+                yield return new SolvedOptionalAutomaton(automaton, discoveredSingleton, currentNextDistance);
             }
         }
     }

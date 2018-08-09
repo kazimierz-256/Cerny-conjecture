@@ -45,11 +45,13 @@ namespace AutomataIterator
             bool discoveredSingleton;
             byte vertex;
             ushort mask;
+            int max;
 
-            foreach (var problem in problemsToSolve)
+            foreach (var automaton in problemsToSolve)
             {
-                var transitionA = problem.TransitionFunctionsA;
-                var transitionB = problem.TransitionFunctionsB;
+                var transitionA = automaton.TransitionFunctionsA;
+                var transitionB = automaton.TransitionFunctionsB;
+                max = (byte)transitionB.Length;
 
                 localProblemId += 1;
 
@@ -65,7 +67,7 @@ namespace AutomataIterator
                 writingIndex = 1;
 
                 initialVertex = 0;
-                for (vertex = 0; vertex < maxAutomatonSize; vertex += 1)
+                for (vertex = 0; vertex < max; vertex += 1)
                 {
                     if (transitionB[vertex] != byte.MaxValue)
                     {
@@ -155,7 +157,7 @@ namespace AutomataIterator
                     }
                 }
 
-                yield return problem.CreateSolvedObject(discoveredSingleton, currentNextDistance);
+                yield return new SolvedOptionalAutomaton(automaton, discoveredSingleton, currentNextDistance);
             }
         }
     }

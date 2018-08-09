@@ -25,9 +25,6 @@ namespace CoreDefinitions
         public ref readonly byte GetTransitionB(in byte vertex) => ref TransitionFunctionsB[vertex];
         public bool IsDefinedVertex(in byte vertex) => vertex >= 0 && vertex < TransitionFunctionsB.Length && TransitionFunctionsB[vertex] != byte.MaxValue;
 
-        public ISolvedOptionalAutomaton CreateSolvedObject(bool isSynchronizable, ushort synchronizingWordLength)
-            => new SolvedOptionalAutomaton(TransitionFunctionsA, TransitionFunctionsB, isSynchronizable, synchronizingWordLength);
-
         public override string ToString()
         {
             var builder = new StringBuilder("[[");

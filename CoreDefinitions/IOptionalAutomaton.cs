@@ -4,8 +4,9 @@ using System.Text;
 
 namespace CoreDefinitions
 {
-    public interface IOptionalAutomaton : IOptionalAlgorithmDefinition
+    public interface IOptionalAutomaton
     {
-        ISolvedOptionalAutomaton CreateSolvedObject(bool isSynchronizable, ushort synchronizingWordLength);
+        byte[] TransitionFunctionsB { get; }
+        byte[] TransitionFunctionsA { get; }
     }
 }

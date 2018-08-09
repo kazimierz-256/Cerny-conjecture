@@ -6,7 +6,7 @@ namespace CoreDefinitions
 {
     public class SolvedOptionalAutomaton : OptionalAutomaton, ISolvedOptionalAutomaton
     {
-        public SolvedOptionalAutomaton(byte[] TransitionFunctionsA, byte[] TransitionFunctionsB, bool isSynchronizable, ushort synchronizingWordLength) : base(TransitionFunctionsA, TransitionFunctionsB)
+        public SolvedOptionalAutomaton(IOptionalAutomaton automaton, bool isSynchronizable, ushort synchronizingWordLength) : base(automaton.TransitionFunctionsA, automaton.TransitionFunctionsB)
         {
             IsSynchronizable = isSynchronizable;
             SynchronizingWordLength = synchronizingWordLength;

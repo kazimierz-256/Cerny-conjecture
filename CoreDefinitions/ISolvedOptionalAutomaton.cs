@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CoreDefinitions
 {
-    public interface ISolvedOptionalAutomaton : IOptionalAlgorithmDefinition
+    public interface ISolvedOptionalAutomaton : IOptionalAutomaton
     {
         ushort SynchronizingWordLength { get; }
         bool IsSynchronizable { get; }
