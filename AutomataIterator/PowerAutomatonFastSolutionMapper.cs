@@ -25,7 +25,7 @@ namespace AutomataIterator
         private readonly ushort[] queue = new ushort[powerSetCount];
 
         /// <summary>
-        /// Maps automata to their solutions (are they synchronizable?, what is the length of synchronizing word?)
+        /// Maps automata to their solutions (are they synchronizable?, what is the length of synchronizing word?) 
         /// Initial vertex is designed to be the superposition of all defined vertices (and only them)
         /// </summary>
         /// <param name="problemsToSolve"></param>
