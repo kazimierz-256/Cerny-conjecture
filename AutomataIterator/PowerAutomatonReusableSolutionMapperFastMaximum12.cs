@@ -7,7 +7,7 @@ namespace AutomataIterator
     /// <summary>
     /// This class is and should be reused whenever possible to avoid the cost of array reallocation
     /// </summary>
-    public class PowerAutomatonSolutionMapperFastMaximum12 : ISolutionMapperReusable
+    public class PowerAutomatonReusableSolutionMapperFastMaximum12 : ISolutionMapperReusable
     {
         /// <summary>
         /// Purposefully this is a constant! The performance is greatly increased!

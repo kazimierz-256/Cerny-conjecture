@@ -17,14 +17,14 @@ namespace AutomataIteratorExperimentalBenchmark
         {
             var solvers = new ISolutionMapperReusable[]
             {
-                new PowerAutomatonSolutionMapper(),
-                new PowerAutomatonSolutionMapperFastMaximum12(),
+                new PowerAutomatonReusableSolutionMapperMaximum12(),
+                new PowerAutomatonReusableSolutionMapperFastMaximum12(),
             };
 
             var factories = new Func<ISolutionMapperReusable>[]
             {
-                () =>  new PowerAutomatonSolutionMapper(),
-                () =>  new PowerAutomatonSolutionMapperFastMaximum12()
+                () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
+                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12()
             };
 
             #region Serial Benchmark

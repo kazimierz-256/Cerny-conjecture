@@ -11,8 +11,8 @@ namespace AutomataIteratorTests
     {
         private readonly ISolutionMapperReusable[] solvers = new ISolutionMapperReusable[]
         {
-            new PowerAutomatonSolutionMapper(),
-            new PowerAutomatonSolutionMapperFastMaximum12()
+            new PowerAutomatonReusableSolutionMapperMaximum12(),
+            new PowerAutomatonReusableSolutionMapperFastMaximum12()
         };
 
         [Fact]
@@ -68,7 +68,7 @@ namespace AutomataIteratorTests
             const int seed = 87654321;
             for (int n = 12; n >= 1; n -= 1)
             {
-                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).MapToPowerAutomatonSolution<PowerAutomatonSolutionMapperFastMaximum12>();
+                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).MapToPowerAutomatonSolution<PowerAutomatonReusableSolutionMapperFastMaximum12>();
                 Assert.Equal(problemCountPerN, solutions.Count());
             }
         }

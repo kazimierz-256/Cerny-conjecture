@@ -7,12 +7,12 @@ namespace AutomataIterator
     /// <summary>
     /// This class is and should be reused whenever possible to avoid the cost of array reallocation
     /// </summary>
-    public class PowerAutomatonSolutionMapper : ISolutionMapperReusable
+    public class PowerAutomatonReusableSolutionMapperMaximum12 : ISolutionMapperReusable
     {
         /// <summary>
         /// Purposefully this is a constant! The performance is greatly increased!
         /// </summary>
-        private const int maxAutomatonSize = 13;
+        private const int maxAutomatonSize = 12;
         private readonly static byte n2 = maxAutomatonSize << 1;
         private readonly static byte n2m1 = (byte)(n2 - 1);
         private readonly static int powerSetCount = 1 << maxAutomatonSize;
