@@ -49,6 +49,7 @@ namespace AutomataIterator
             bool discoveredSingleton;
             byte i;
             byte iPower;
+            byte max;
 
             var twoToPowerBits = (byte)(1 << bits);
             byte iMax = ((maxAutomatonSize + bits - 1) / bits);
@@ -59,6 +60,9 @@ namespace AutomataIterator
 
             foreach (var problem in problemsToSolve)
             {
+                var transitionA = problem.TransitionFunctionsA;
+                var transitionB = problem.TransitionFunctionsB;
+                max = (byte)problem.GetMaxCapacitySize();
 
                 localProblemId += 1;
 
@@ -75,15 +79,16 @@ namespace AutomataIterator
 
                 initialVertex = 0;
 
-                for (i = 0; i < maxAutomatonSize; i += 1)
+
+                for (i = 0; i < max; i += 1)
                 {
-                    if (problem.IsDefinedVertex(i))
+                    if (transitionB[i] != byte.MaxValue)
                     {
                         initialVertex += (ushort)(1 << i);
 
                         precomputedStateTransitioningMatrix[i] = (uint)(
-                        (powerSetCount << problem.GetTransitionA(i))
-                        + (1 << problem.GetTransitionB(i))
+                        (powerSetCount << transitionA[i])
+                        + (1 << transitionB[i])
                         );
                     }
                     else
@@ -93,7 +98,7 @@ namespace AutomataIterator
                     }
                 }
 
-                for (i = 0, iPower = 0; i < maxAutomatonSize; i += bits, iPower += twoToPowerBits)
+                for (i = 0, iPower = 0; i < max; i += bits, iPower += twoToPowerBits)
                 {
                     transitionMatrixCombined[iPower + 0b0001]
                       = transitionMatrixCombined[iPower + 0b0011]

@@ -6,8 +6,8 @@ namespace CoreDefinitions
 {
     public class OptionalAutomaton : IOptionalAutomaton
     {
-        protected readonly byte[] TransitionFunctionsA;
-        protected readonly byte[] TransitionFunctionsB;
+        public byte[] TransitionFunctionsB { get; }
+        public byte[] TransitionFunctionsA { get; }
 
         /// <summary>
         /// Requirements:
