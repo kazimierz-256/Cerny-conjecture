@@ -29,13 +29,14 @@ namespace AutomataIteratorExperimentalBenchmark
 
             #region Serial Benchmark
             Console.WriteLine("Single thread benchmarks:");
-            for (int exercise = 0; exercise < 10; exercise++)
+            const int problems= 200_000;
+            for (int exercise = 0; exercise < 4; exercise++)
             {
                 Console.WriteLine();
 
                 foreach (var solver in solvers)
                 {
-                    var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(100_000);
+                    var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(problems);
 
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();
@@ -57,9 +58,9 @@ namespace AutomataIteratorExperimentalBenchmark
             #region Parallel Benchmark
             Console.WriteLine("Multiple thread benchmarks:");
             var threadCount = Environment.ProcessorCount;
-            const int problemsPerThread = 100_000;
+            const int problemsPerThread = 200_000;
 
-            for (int exercise = 0; exercise < 10; exercise++)
+            for (int exercise = 0; exercise < 20; exercise++)
             {
                 Console.WriteLine();
 
