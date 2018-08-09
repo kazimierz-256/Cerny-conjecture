@@ -48,6 +48,9 @@ namespace AutomataIterator
 
             foreach (var problem in problemsToSolve)
             {
+                var transitionA = problem.TransitionFunctionsA;
+                var transitionB = problem.TransitionFunctionsB;
+
                 localProblemId += 1;
 
                 // that's unprobable since 2^32-1 is a very large number of problems
@@ -64,11 +67,11 @@ namespace AutomataIterator
                 initialVertex = 0;
                 for (vertex = 0; vertex < maxAutomatonSize; vertex += 1)
                 {
-                    if (problem.IsDefinedVertex(vertex))
+                    if (transitionB[vertex] != byte.MaxValue)
                     {
                         initialVertex += (ushort)(1 << vertex);
-                        precomputedStateTransitioningMatrixA[vertex] = (ushort)(1 << problem.GetTransitionA(vertex));
-                        precomputedStateTransitioningMatrixB[vertex] = (ushort)(1 << problem.GetTransitionB(vertex));
+                        precomputedStateTransitioningMatrixA[vertex] = (ushort)(1 << transitionA[vertex]);
+                        precomputedStateTransitioningMatrixB[vertex] = (ushort)(1 << transitionB[vertex]);
                     }
                 }
 

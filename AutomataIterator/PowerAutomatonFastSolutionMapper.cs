@@ -62,7 +62,7 @@ namespace AutomataIterator
             {
                 var transitionA = problem.TransitionFunctionsA;
                 var transitionB = problem.TransitionFunctionsB;
-                max = (byte)problem.GetMaxCapacitySize();
+                max = (byte)transitionB.Length;
 
                 localProblemId += 1;
 

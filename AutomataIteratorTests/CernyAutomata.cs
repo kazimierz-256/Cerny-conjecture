@@ -25,7 +25,7 @@ namespace AutomataIteratorTests
             {
                 foreach (var automaton in solver.MapToSolvedAutomaton(cernyProblems.Take(11)))
                 {
-                    var n = automaton.GetMaxCapacitySize();
+                    var n = automaton.TransitionFunctionsB.Length;
                     Assert.True(automaton.IsSynchronizable);
                     Assert.Equal((n - 1) * (n - 1), automaton.SynchronizingWordLength);
                 }
