@@ -12,18 +12,18 @@ namespace AutomataIteratorTests
         private readonly ISolutionMapperReusable[] solvers = new ISolutionMapperReusable[]
         {
             new PowerAutomatonSolutionMapper(),
-            new PowerAutomatonFastSolutionMapper()
+            new PowerAutomatonSolutionMapperFastMaximum12()
         };
 
         [Fact]
         public void CernyAutomataTestSmall()
         {
-
+            const int nMax = 12;
             // if internal const in solver is 13 then cerny problem generator is allowed to take only 11 first automata
-            var cernyProblems = CernyProblemGenerator.Generate();
+            var cernyProblems = CernyProblemGenerator.Generate().Take(nMax - 2);
             foreach (var solver in solvers)
             {
-                foreach (var automaton in solver.MapToSolvedAutomaton(cernyProblems.Take(11)))
+                foreach (var automaton in solver.MapToSolvedAutomaton(cernyProblems))
                 {
                     var n = automaton.TransitionFunctionsB.Length;
                     Assert.True(automaton.IsSynchronizable);
@@ -55,7 +55,7 @@ namespace AutomataIteratorTests
         {
             const int problemCountPerN = 100_000;
             const int seed = 1234567;
-            for (int n = 13; n >= 1; n -= 1)
+            for (int n = 12; n >= 1; n -= 1)
             {
                 VerifyIntegrity(RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN));
             }
@@ -66,9 +66,9 @@ namespace AutomataIteratorTests
         {
             const int problemCountPerN = 10_000;
             const int seed = 87654321;
-            for (int n = 13; n >= 1; n -= 1)
+            for (int n = 12; n >= 1; n -= 1)
             {
-                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).MapToPowerAutomatonSolution<PowerAutomatonFastSolutionMapper>();
+                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).MapToPowerAutomatonSolution<PowerAutomatonSolutionMapperFastMaximum12>();
                 Assert.Equal(problemCountPerN, solutions.Count());
             }
         }

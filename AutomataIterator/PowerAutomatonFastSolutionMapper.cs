@@ -1,6 +1,4 @@
-﻿#define optimizeFor16
-
-using CoreDefinitions;
+﻿using CoreDefinitions;
 using System;
 using System.Collections.Generic;
 
@@ -9,12 +7,12 @@ namespace AutomataIterator
     /// <summary>
     /// This class is and should be reused whenever possible to avoid the cost of array reallocation
     /// </summary>
-    public class PowerAutomatonFastSolutionMapper : ISolutionMapperReusable
+    public class PowerAutomatonSolutionMapperFastMaximum12 : ISolutionMapperReusable
     {
         /// <summary>
         /// Purposefully this is a constant! The performance is greatly increased!
         /// </summary>
-        private const byte maxAutomatonSize = 13;
+        private const byte maxAutomatonSize = 12;
         private const byte bits = 4;
 
         private readonly static byte n2 = maxAutomatonSize << 1;
@@ -52,6 +50,7 @@ namespace AutomataIterator
             byte max;
 
             var twoToPowerBits = (byte)(1 << bits);
+            var twoToPowerBitsM1 = (byte)((1 << bits) - 1);
             byte iMax = ((maxAutomatonSize + bits - 1) / bits);
             uint tmpTransition;
             uint vertexAfterTransition;
@@ -63,6 +62,10 @@ namespace AutomataIterator
                 var transitionA = automaton.TransitionFunctionsA;
                 var transitionB = automaton.TransitionFunctionsB;
                 max = (byte)transitionB.Length;
+                if (max > maxAutomatonSize)
+                {
+                    throw new Exception($"Automaton is too large (maximum supported: {maxAutomatonSize}, given: {max})");
+                }
 
                 localProblemId += 1;
 
@@ -86,10 +89,7 @@ namespace AutomataIterator
                     {
                         initialVertex += (ushort)(1 << i);
 
-                        precomputedStateTransitioningMatrix[i] = (uint)(
-                        (powerSetCount << transitionA[i])
-                        + (1 << transitionB[i])
-                        );
+                        precomputedStateTransitioningMatrix[i] = (uint)((powerSetCount << transitionA[i]) + (1 << transitionB[i]));
                     }
                     else
                     {
@@ -166,26 +166,11 @@ namespace AutomataIterator
                         seekingFirstNext = true;
                     }
 
-#if (optimizeFor16)
-                    vertexAfterTransition = transitionMatrixCombined[15 & consideringVertex]
-                    | transitionMatrixCombined[16 + (15 & (consideringVertex >> 4))]
-                    | transitionMatrixCombined[32 + (15 & (consideringVertex >> 8))]
-                    | transitionMatrixCombined[48 + (15 & (consideringVertex >> 12))];
-#else
-                    vertexAfterTransition = transitionMatrixCombined[twoToPowerBitsM1 & consideringVertex];
-                    if (1 < iMax)
-                    {
-                        vertexAfterTransition |= transitionMatrixCombined[16 + (twoToPowerBitsM1 & (consideringVertex >> 4))];
-                        if (2 < iMax)
-                        {
-                            vertexAfterTransition |= transitionMatrixCombined[32 + (twoToPowerBitsM1 & (consideringVertex >> 8))];
-                            if (3 < iMax)
-                            {
-                                vertexAfterTransition |= transitionMatrixCombined[48 + (twoToPowerBitsM1 & (consideringVertex >> 12))];
-                            }
-                        }
-                    }
-#endif
+                    vertexAfterTransition =
+                      transitionMatrixCombined[twoToPowerBitsM1 & consideringVertex]
+                    | transitionMatrixCombined[twoToPowerBits + (twoToPowerBitsM1 & (consideringVertex >> bits))]
+                    | transitionMatrixCombined[2 * twoToPowerBits + (twoToPowerBitsM1 & (consideringVertex >> (2 * bits)))];
+
                     vertexAfterTransitionA = (ushort)(vertexAfterTransition >> maxAutomatonSize);
                     vertexAfterTransitionB = (ushort)(vertexAfterTransition & initialVertex);
 

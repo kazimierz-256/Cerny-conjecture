@@ -18,13 +18,13 @@ namespace AutomataIteratorExperimentalBenchmark
             var solvers = new ISolutionMapperReusable[]
             {
                 new PowerAutomatonSolutionMapper(),
-                new PowerAutomatonFastSolutionMapper(),
+                new PowerAutomatonSolutionMapperFastMaximum12(),
             };
 
             var factories = new Func<ISolutionMapperReusable>[]
             {
                 () =>  new PowerAutomatonSolutionMapper(),
-                () =>  new PowerAutomatonFastSolutionMapper()
+                () =>  new PowerAutomatonSolutionMapperFastMaximum12()
             };
 
             #region Serial Benchmark
@@ -35,7 +35,7 @@ namespace AutomataIteratorExperimentalBenchmark
 
                 foreach (var solver in solvers)
                 {
-                    var problemGenerator = RandomProblemGenerator.Generate(13, 12345).Take(100_000);
+                    var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(100_000);
 
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();
@@ -70,7 +70,7 @@ namespace AutomataIteratorExperimentalBenchmark
                     for (int i = 0; i < threadCount; i++)
                     {
                         threadSolvers[i] = factory();
-                        threadProducers[i] = RandomProblemGenerator.Generate(13, i).Take(problemsPerThread);
+                        threadProducers[i] = RandomProblemGenerator.Generate(12, i).Take(problemsPerThread);
                     }
 
                     var stopWatch = new Stopwatch();
