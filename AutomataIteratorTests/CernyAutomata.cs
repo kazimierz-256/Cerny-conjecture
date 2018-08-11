@@ -68,7 +68,13 @@ namespace AutomataIteratorTests
             const int seed = 87654321;
             for (int n = 12; n >= 1; n -= 1)
             {
-                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).SelectAsSolved();
+                var solutions = RandomProblemGenerator.Generate(n, seed).SelectAsSolved().Take(problemCountPerN);
+                Assert.Equal(problemCountPerN, solutions.Count());
+
+                solutions = RandomProblemGenerator.Generate(n, seed + 1).Take(problemCountPerN).SelectAsSolved();
+                Assert.Equal(problemCountPerN, solutions.Count());
+
+                solutions = RandomProblemGenerator.Generate(16, seed).SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum16>().Take(problemCountPerN);
                 Assert.Equal(problemCountPerN, solutions.Count());
             }
         }
