@@ -26,7 +26,7 @@ namespace AutomataIterator
         /// </summary>
         /// <param name="problemsToSolve"></param>
         /// <returns></returns>
-        public IEnumerable<ISolvedOptionalAutomaton> MapToSolvedAutomaton(IEnumerable<IOptionalAutomaton> problemsToSolve)
+        public IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(IEnumerable<IOptionalAutomaton> problemsToSolve)
         {
             ushort readingIndex = 0;
             ushort writingIndex = 0;

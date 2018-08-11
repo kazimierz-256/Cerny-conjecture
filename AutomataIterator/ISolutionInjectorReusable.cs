@@ -5,6 +5,6 @@ namespace AutomataIterator
 {
     public interface ISolutionMapperReusable
     {
-        IEnumerable<ISolvedOptionalAutomaton> MapToSolvedAutomaton(IEnumerable<IOptionalAutomaton> problemsToSolve);
+        IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(IEnumerable<IOptionalAutomaton> problemsToSolve);
     }
 }

@@ -7,8 +7,20 @@ namespace AutomataIterator
 {
     public static class ExtensionMapProblemsToSolutions
     {
-        public static IEnumerable<ISolvedOptionalAutomaton> MapToPowerAutomatonSolution<T>(this IEnumerable<IOptionalAutomaton> problemsToSolve) where T : ISolutionMapperReusable, new()
-            => new T().MapToSolvedAutomaton(problemsToSolve);
+        private static Dictionary<Type, ISolutionMapperReusable> cachedSet = new Dictionary<Type, ISolutionMapperReusable>();
+
+        public static IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved<T>(this IEnumerable<IOptionalAutomaton> problemsToSolve) where T : ISolutionMapperReusable, new()
+        {
+            if (!cachedSet.ContainsKey(typeof(T)))
+            {
+                cachedSet.Add(typeof(T), new T());
+            }
+
+            return cachedSet[typeof(T)].SelectAsSolved(problemsToSolve);
+        }
+
+        public static IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(this IEnumerable<IOptionalAutomaton> problemsToSolve)
+            => SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum12>(problemsToSolve);
 
     }
 }

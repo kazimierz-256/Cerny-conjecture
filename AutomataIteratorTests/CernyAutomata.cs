@@ -23,7 +23,7 @@ namespace AutomataIteratorTests
             var cernyProblems = CernyProblemGenerator.Generate().Take(nMax - 2);
             foreach (var solver in solvers)
             {
-                foreach (var automaton in solver.MapToSolvedAutomaton(cernyProblems))
+                foreach (var automaton in solver.SelectAsSolved(cernyProblems))
                 {
                     var n = automaton.TransitionFunctionsB.Length;
                     Assert.True(automaton.IsSynchronizable);
@@ -34,7 +34,7 @@ namespace AutomataIteratorTests
 
         private void VerifyIntegrity(IEnumerable<IOptionalAutomaton> problems)
         {
-            var iterators = solvers.Select(solver => solver.MapToSolvedAutomaton(problems).GetEnumerator()).ToArray();
+            var iterators = solvers.Select(solver => solver.SelectAsSolved(problems).GetEnumerator()).ToArray();
             while (iterators[0].MoveNext())
             {
                 var referenceResult = iterators[0].Current;
@@ -68,7 +68,7 @@ namespace AutomataIteratorTests
             const int seed = 87654321;
             for (int n = 12; n >= 1; n -= 1)
             {
-                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).MapToPowerAutomatonSolution<PowerAutomatonReusableSolutionMapperFastMaximum12>();
+                var solutions = RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN).SelectAsSolved();
                 Assert.Equal(problemCountPerN, solutions.Count());
             }
         }

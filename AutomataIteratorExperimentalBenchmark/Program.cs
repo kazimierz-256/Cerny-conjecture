@@ -41,7 +41,7 @@ namespace AutomataIteratorExperimentalBenchmark
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();
                     int problemCount = 0;
-                    foreach (var result in solver.MapToSolvedAutomaton(problemGenerator))
+                    foreach (var result in solver.SelectAsSolved(problemGenerator))
                     {
                         problemCount += 1;
                     }
@@ -80,7 +80,7 @@ namespace AutomataIteratorExperimentalBenchmark
                     Parallel.For(0, threadCount, threadIndex =>
                     {
                         int totalPerThread = 0;
-                        foreach (var solution in threadSolvers[threadIndex].MapToSolvedAutomaton(threadProducers[threadIndex]))
+                        foreach (var solution in threadSolvers[threadIndex].SelectAsSolved(threadProducers[threadIndex]))
                         {
                             totalPerThread += 1;
                         }
