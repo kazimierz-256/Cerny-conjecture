@@ -85,7 +85,7 @@ namespace AutomataIterator
 
                 for (i = 0; i < max; i += 1)
                 {
-                    if (transitionB[i] != byte.MaxValue)
+                    if (transitionB[i] != OptionalAutomaton.MissingTransition)
                     {
                         initialVertex += (ushort)(1 << i);
 

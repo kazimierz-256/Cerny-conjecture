@@ -69,7 +69,7 @@ namespace AutomataIterator
                 initialVertex = 0;
                 for (vertex = 0; vertex < max; vertex += 1)
                 {
-                    if (transitionB[vertex] != byte.MaxValue)
+                    if (transitionB[vertex] != OptionalAutomaton.MissingTransition)
                     {
                         initialVertex += (ushort)(1 << vertex);
                         precomputedStateTransitioningMatrixA[vertex] = (ushort)(1 << transitionA[vertex]);
