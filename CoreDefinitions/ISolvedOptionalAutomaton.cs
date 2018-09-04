@@ -6,7 +6,6 @@ namespace CoreDefinitions
 {
     public interface ISolvedOptionalAutomaton : IOptionalAutomaton
     {
-        ushort SynchronizingWordLength { get; }
-        bool IsSynchronizable { get; }
+        ushort? SynchronizingWordLength { get; }
     }
 }

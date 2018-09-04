@@ -26,8 +26,8 @@ namespace AutomataIteratorTests
                 foreach (var automaton in solver.SelectAsSolved(cernyProblems))
                 {
                     var n = automaton.TransitionFunctionsB.Length;
-                    Assert.True(automaton.IsSynchronizable);
-                    Assert.Equal((n - 1) * (n - 1), automaton.SynchronizingWordLength);
+                    Assert.True(automaton.SynchronizingWordLength.HasValue);
+                    Assert.Equal((n - 1) * (n - 1), automaton.SynchronizingWordLength.Value);
                 }
             }
         }
@@ -41,8 +41,8 @@ namespace AutomataIteratorTests
                 for (int iteratorIndex = 1; iteratorIndex < iterators.Length; iteratorIndex++)
                 {
                     iterators[iteratorIndex].MoveNext();
-                    Assert.Equal(referenceResult.IsSynchronizable, iterators[iteratorIndex].Current.IsSynchronizable);
-                    if (referenceResult.IsSynchronizable)
+                    Assert.Equal(referenceResult.SynchronizingWordLength.HasValue, iterators[iteratorIndex].Current.SynchronizingWordLength.HasValue);
+                    if (referenceResult.SynchronizingWordLength.HasValue)
                     {
                         Assert.Equal(referenceResult.SynchronizingWordLength, iterators[iteratorIndex].Current.SynchronizingWordLength);
                     }

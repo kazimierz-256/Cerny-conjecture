@@ -224,7 +224,10 @@ namespace AutomataIterator
                     }
                 }
 
-                yield return new SolvedOptionalAutomaton(automaton, discoveredSingleton, currentNextDistance);
+                if (discoveredSingleton)
+                    yield return new SolvedOptionalAutomaton(automaton, currentNextDistance);
+                else
+                    yield return new SolvedOptionalAutomaton(automaton, null);
             }
         }
     }
