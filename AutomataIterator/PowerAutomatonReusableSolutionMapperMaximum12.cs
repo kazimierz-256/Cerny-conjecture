@@ -9,6 +9,7 @@ namespace AutomataIterator
     /// </summary>
     public class PowerAutomatonReusableSolutionMapperMaximum12 : ISolutionMapperReusable
     {
+        private readonly SolvedOptionalAutomaton automatonToYield = new SolvedOptionalAutomaton();
         /// <summary>
         /// Purposefully this is a constant! The performance is greatly increased!
         /// </summary>
@@ -158,9 +159,11 @@ namespace AutomataIterator
                 }
 
                 if (discoveredSingleton)
-                    yield return new SolvedOptionalAutomaton(automaton, currentNextDistance);
+                    automatonToYield.SetSolution(automaton, currentNextDistance);
                 else
-                    yield return new SolvedOptionalAutomaton(automaton, null);
+                    automatonToYield.SetSolution(automaton, null);
+
+                yield return automatonToYield;
             }
         }
     }
