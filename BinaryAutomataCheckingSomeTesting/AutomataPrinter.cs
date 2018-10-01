@@ -6,7 +6,7 @@ namespace BinaryAutomataCheckingSomeTesting
 {
     static class AutomataPrinter
     {
-        public static void PrintA(BinaryAutomataChecking.IUnaryAutomata automata)
+        public static void PrintA(CoreDefinitions.IOptionalAutomaton automata)
         {
             PrintAPart(automata.TransitionFunctionsA);
         }
@@ -15,6 +15,15 @@ namespace BinaryAutomataCheckingSomeTesting
         {
             PrintAPart(automata.TransitionFunctionsA);
             PrintBPart(automata.TransitionFunctionsB);
+        }
+
+        public static void PrintABSolved(CoreDefinitions.ISolvedOptionalAutomaton automata)
+        {
+            Console.WriteLine($"Dlugosc slowa synchronizującego: {automata.SynchronizingWordLength}");
+            Console.WriteLine("Automat:");
+            PrintAPart(automata.TransitionFunctionsA);
+            PrintBPart(automata.TransitionFunctionsB);
+            Console.WriteLine();
         }
 
         private static void PrintAPart(byte[] transitionFunctionsA)

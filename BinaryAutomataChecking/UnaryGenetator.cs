@@ -6,7 +6,7 @@ namespace BinaryAutomataChecking
 {
     public class UnaryGenetator
     {
-        static public IEnumerable<IUnaryAutomata> Generate(int n)
+        static public IEnumerable<int[]> Generate(int n)
         {
             UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
             IEnumerator<int[][]> enumerator = endofunctorsGenerator.GetAllUniqueAutomataOfSize().GetEnumerator();
@@ -20,7 +20,7 @@ namespace BinaryAutomataChecking
             foreach (var endo in endofunctors)
             {
                 //może wszystko z jednego, tylko zmieniać tablicę a?
-                yield return new BinaryAutomata(endo);
+                yield return endo;
             }
             
         }

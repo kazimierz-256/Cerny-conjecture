@@ -4,46 +4,67 @@ using System.Text;
 
 namespace BinaryAutomataChecking
 {
-    class MakingFullAutomata
+    public class MakingFullAutomata
     {
-        public static IEnumerable<IBinaryAutomata> Generate(BinaryAutomata a, List<byte>[] helpList)
+        private int n;
+        public List<byte>[] TransitionsFromA;
+        private List<byte>[] helpList;
+        private CoreDefinitions.IOptionalAutomaton automata;
+
+        public MakingFullAutomata(CoreDefinitions.IOptionalAutomaton optionalAutomata)
         {
-            for (int i = 0; i < a.n; i++)
+            automata = optionalAutomata;
+            n = optionalAutomata.TransitionFunctionsA.Length;
+            //List<byte>[] 
+                TransitionsFromA = new List<byte>[n];
+            for (byte i = 0; i < n; i++)
             {
-                helpList[i] = a.TransitionFunctionsB[i] == Byte.MaxValue ? null : a.TransitionsFromA[a.TransitionFunctionsB[i]];
+                TransitionsFromA[i] = new List<byte>();
             }
-            return Generate_rec(a, 0, helpList);
+            for (byte i = 0; i < n; i++)
+            {
+                TransitionsFromA[automata.TransitionFunctionsA[i]].Add(i);
+            }
+
+            helpList = new List<byte>[n];
+            for (int i = 0; i < n; i++)
+            {
+                helpList[i] = automata.TransitionFunctionsB[i] == Byte.MaxValue ? null : TransitionsFromA[automata.TransitionFunctionsB[i]];
+            }
         }
 
-        public static IEnumerable<IBinaryAutomata> Generate_rec(BinaryAutomata a, int place, List<byte>[] helpList)
+        public IEnumerable<CoreDefinitions.IOptionalAutomaton> Generate()
         {
-            if (place >= a.n)
+            return Generate_rec(0);
+        }
+
+        private IEnumerable<CoreDefinitions.IOptionalAutomaton> Generate_rec(int place)
+        {
+            if (place >= n)
             {
-                yield return a;
+                yield return automata;
             }
-            else if (a.TransitionFunctionsB[place] == Byte.MaxValue)
+            else if (helpList[place] == null)//(automata.TransitionFunctionsB[place] == Byte.MaxValue)//
             {
-                for (byte i = 0; i < a.n; i++)
+                for (byte i = 0; i < n; i++)
                 {
-                    a.TransitionFunctionsB[place] = i;
-                    foreach (var aut in Generate_rec(a, place + 1, helpList))
+                    automata.TransitionFunctionsB[place] = i;
+                    foreach (var aut in Generate_rec(place + 1))
                     {
                         yield return aut;
                     }
                 }
-
             }
             else
             {
-                foreach (byte b in helpList[place]) //a.TransformFromA[a.TransformB[place]]
+                foreach (byte b in helpList[place])//TransitionsFromA[automata.TransitionFunctionsB[place]])
                 {
-                    a.TransitionFunctionsB[place] = b;
-                    foreach (var aut in Generate_rec(a, place + 1, helpList))
+                    automata.TransitionFunctionsB[place] = b;
+                    foreach (var aut in Generate_rec(place + 1))
                     {
                         yield return aut;
                     }
                 }
-
             }
         }
     }
