@@ -12,7 +12,7 @@ using Xunit;
 namespace AutomataIteratorExperimentalBenchmark
 {
     class Program
-    {
+    { 
         static void Main(string[] args)
         {
             var solvers = new ISolutionMapperReusable[]
