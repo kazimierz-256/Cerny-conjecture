@@ -20,7 +20,7 @@ namespace AutomataIterator
         }
 
         public static IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(this IEnumerable<IOptionalAutomaton> problemsToSolve)
-            => SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum12>(problemsToSolve);
+            => SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum16>(problemsToSolve);
 
     }
 }

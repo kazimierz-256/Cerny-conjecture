@@ -38,6 +38,15 @@ namespace UniqueUnaryAutomata
 
         private GeneratorHelper generatorHelper;
 
+        public IEnumerable<int[]> GetAllUniqueAutomataOfSize(int size)
+        {
+            var automataGenerator = GetAllUniqueAutomataOfSize();
+            // first endofunction is of size 1
+            // second is of size 2
+            // third is of size 3...
+            return automataGenerator.Skip(size - 1).First();
+        }
+
         public IEnumerable<int[][]> GetAllUniqueAutomataOfSize()
         {
             generatorHelper = new GeneratorHelper();

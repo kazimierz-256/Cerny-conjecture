@@ -7,47 +7,21 @@ namespace BinaryAutomataChecking
 {
     static public class BinaryAutomataIterator
     {
-        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(int minimalLenght, int size)
+        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(int minimalLenght, int size, int startIndex, int count)
         {
-            AutomataIterator.ISolutionMapperReusable solutionMapperReusable;
-            if (size <= 12)
-            {
-                solutionMapperReusable = new AutomataIterator.PowerAutomatonReusableSolutionMapperFastMaximum12();
-            }
-            else if (size <= 16)
-            {
-                solutionMapperReusable = new AutomataIterator.PowerAutomatonReusableSolutionMapperFastMaximum16();
-            }
-            else
-            {
-                throw new ArgumentException();
-            }
             return
-                from automata in solutionMapperReusable.SelectAsSolved(GetAllFullAutomatasToCheck(size))
+                from automata in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllFullAutomatasToCheck(size, startIndex, count))
                 where automata.SynchronizingWordLength != null
                 where automata.SynchronizingWordLength > minimalLenght
                 select automata;
         }
 
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomatasToCheck(int size)
+        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomatasToCheck(int size, int startIndex, int count)
         {
-            AutomataIterator.ISolutionMapperReusable solutionMapperReusable;
-            if (size <= 12)
-            {
-                solutionMapperReusable = new AutomataIterator.PowerAutomatonReusableSolutionMapperFastMaximum12();
-            }
-            else if (size <= 16)
-            {
-                solutionMapperReusable = new AutomataIterator.PowerAutomatonReusableSolutionMapperFastMaximum16();
-            }
-            else
-            {
-                throw new ArgumentException();
-            }
-            int maxLenght = (size - 1) * (size - 1);
+            int maxLength = (size - 1) * (size - 1);
             IEnumerable<CoreDefinitions.IOptionalAutomaton> AcAutomatas = 
-                from automata in solutionMapperReusable.SelectAsSolved(GetAllAcAutomatasToCheck(size))
-                where automata.SynchronizingWordLength==null || 2 * automata.SynchronizingWordLength + 1 > maxLenght
+                from automata in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllAcAutomatasToCheck(size, startIndex, count))
+                where automata.SynchronizingWordLength==null || 2 * automata.SynchronizingWordLength + 1 > maxLength
                 select automata;
 
             foreach (var AcAutomat in AcAutomatas)
@@ -60,11 +34,14 @@ namespace BinaryAutomataChecking
             }
         }
 
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomatasToCheck (int size)
+        // start inclusive
+        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomatasToCheck (int size, int startIndex, int count)
         {
             byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
-            foreach (int[] endoFunctor in UnaryGenetator.Generate(size))
+
+            UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
+            foreach (int[] endoFunctor in endofunctorsGenerator.GetAllUniqueAutomataOfSize(size).Skip(startIndex).Take(count))
             {
                 bool[] isVertInAcTab;
                 int AcSize = AddingBTransition.MakeIsVertInAcTabAndGetAcSize(endoFunctor, out isVertInAcTab);               
@@ -81,6 +58,26 @@ namespace BinaryAutomataChecking
                     }
                 }
             }
+        }
+
+        public static int UnaryCount(int size, int startIndex, int count = -1)
+        {
+            int unaryCount = 0;
+            UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
+            var endofunctors = endofunctorsGenerator.GetAllUniqueAutomataOfSize(size).Skip(startIndex);
+            if (count >= 0)
+                endofunctors = endofunctors.Take(count);
+            foreach (int[] endoFunctor in endofunctors)
+            {
+                bool[] isVertInAcTab;
+                int AcSize = AddingBTransition.MakeIsVertInAcTabAndGetAcSize(endoFunctor, out isVertInAcTab);
+                if (IsAcSizeInRange(size, AcSize))
+                {
+                    unaryCount++;
+                }
+
+            }
+            return unaryCount;
         }
 
         private static bool IsAcSizeInRange(int size, int AcSize)

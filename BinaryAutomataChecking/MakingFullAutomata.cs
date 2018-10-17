@@ -51,7 +51,7 @@ namespace BinaryAutomataChecking
                     automata.TransitionFunctionsB[place] = i;
                     foreach (var aut in Generate_rec(place + 1))
                     {
-                        yield return aut;
+                        yield return aut;// todo: performance
                     }
                 }
             }
