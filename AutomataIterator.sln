@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutomataIterator", "AutomataIterator\AutomataIterator.csproj", "{EA9331F3-972D-44C8-B42E-593A3C6B3846}"
 EndProject
@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutomataIteratorTests", "Au
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutomataIteratorExperimentalBenchmark", "AutomataIteratorExperimentalBenchmark\AutomataIteratorExperimentalBenchmark.csproj", "{5FDA731A-9FEA-4716-BC1B-C84A537E9832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonisomorphicEndofunctors", "NonisomorphicEndofunctors\NonisomorphicEndofunctors.csproj", "{BC677C89-E305-45A7-A438-0C0F28047A08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NonisomorphicEndofunctors", "NonisomorphicEndofunctors\NonisomorphicEndofunctors.csproj", "{BC677C89-E305-45A7-A438-0C0F28047A08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryAutomataChecking", "BinaryAutomataChecking\BinaryAutomataChecking.csproj", "{ECFC086F-E806-420B-9C30-08C595D727B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryAutomataCheckingSomeTesting", "BinaryAutomataCheckingSomeTesting\BinaryAutomataCheckingSomeTesting.csproj", "{6757A3F4-FB9C-4477-86E6-233DAA2C94B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryAutomataCheckingTests", "BinaryAutomataCheckingTests\BinaryAutomataCheckingTests.csproj", "{C96EC376-075A-46B8-879C-742D6FB1F974}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +45,18 @@ Global
 		{BC677C89-E305-45A7-A438-0C0F28047A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC677C89-E305-45A7-A438-0C0F28047A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC677C89-E305-45A7-A438-0C0F28047A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFC086F-E806-420B-9C30-08C595D727B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFC086F-E806-420B-9C30-08C595D727B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFC086F-E806-420B-9C30-08C595D727B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFC086F-E806-420B-9C30-08C595D727B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6757A3F4-FB9C-4477-86E6-233DAA2C94B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6757A3F4-FB9C-4477-86E6-233DAA2C94B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6757A3F4-FB9C-4477-86E6-233DAA2C94B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6757A3F4-FB9C-4477-86E6-233DAA2C94B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C96EC376-075A-46B8-879C-742D6FB1F974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C96EC376-075A-46B8-879C-742D6FB1F974}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C96EC376-075A-46B8-879C-742D6FB1F974}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C96EC376-075A-46B8-879C-742D6FB1F974}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
