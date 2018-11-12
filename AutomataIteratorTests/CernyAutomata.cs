@@ -12,13 +12,14 @@ namespace AutomataIteratorTests
         private readonly ISolutionMapperReusable[] solvers = new ISolutionMapperReusable[]
         {
             new PowerAutomatonReusableSolutionMapperMaximum12(),
-            new PowerAutomatonReusableSolutionMapperFastMaximum12()
+            new PowerAutomatonReusableSolutionMapperFastMaximum12(),
+            new PowerAutomatonReusableSolutionMapperMaximum12()
         };
 
-        [Fact]
-        public void CernyAutomataTestSmall()
+        [Theory]
+        [InlineData(12)]
+        public void CernyAutomataTestSmall(int nMax)
         {
-            const int nMax = 12;
             // if internal const in solver is 13 then cerny problem generator is allowed to take only 11 first automata
             var cernyProblems = CernyProblemGenerator.Generate().Take(nMax - 2);
             foreach (var solver in solvers)
@@ -32,7 +33,7 @@ namespace AutomataIteratorTests
             }
         }
 
-        private void VerifyIntegrity(IEnumerable<IOptionalAutomaton> problems)
+        private void VerifyIntegrity(IEnumerable<ISolutionMapperReusable> solvers, IEnumerable<IOptionalAutomaton> problems)
         {
             var iterators = solvers.Select(solver => solver.SelectAsSolved(problems).GetEnumerator()).ToArray();
             while (iterators[0].MoveNext())
@@ -50,16 +51,22 @@ namespace AutomataIteratorTests
             }
         }
 
-        [Fact]
-        public void RandomAutomataIntegrityTest()
+        [Theory]
+        [InlineData(12, 20_000, 1234567)]
+        public void RandomAutomataIntegrityTest(int n, int problemCountPerN, int seed)
         {
-            const int problemCountPerN = 100_000;
-            const int seed = 1234567;
-            for (int n = 12; n >= 1; n -= 1)
-            {
-                VerifyIntegrity(RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN));
-            }
+            for (; n >= 1; n -= 1)
+                VerifyIntegrity(solvers, RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN));
         }
+
+        [Theory]
+        [InlineData(5, 50, 1234567)]
+        public void RandomExactAutomataIntegrityTest(int n, int problemCountPerN, int seed)
+        {
+            for (; n >= 1; n -= 1)
+                VerifyIntegrity(solvers.Append(new PowerAutomatonReusableSolutionMapperSlowBruteForce()), RandomProblemGenerator.Generate(n, seed).Take(problemCountPerN));
+        }
+
 
         [Fact]
         public void BasicCountMatch()

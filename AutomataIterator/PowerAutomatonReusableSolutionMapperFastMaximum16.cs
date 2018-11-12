@@ -33,7 +33,7 @@ namespace AutomataIterator
         {
             ushort readingIndex = 0;
             ushort writingIndex = 0;
-            
+
             ushort consideringVertex;
             ushort vertexAfterTransitionA;
             ushort vertexAfterTransitionB;
@@ -94,6 +94,13 @@ namespace AutomataIterator
                         // not sure if this is necessary?
                         //precomputedStateTransitioningMatrix[i] = 0;
                     }
+                }
+
+                if (0 == (initialVertex & (initialVertex - 1)))
+                {
+                    automatonToYield.SetSolution(automaton, 0);
+                    yield return automatonToYield;
+                    continue;
                 }
 
                 for (i = 0, iPower = 0; i < max; i += bits, iPower += twoToPowerBits)

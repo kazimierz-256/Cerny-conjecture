@@ -78,6 +78,13 @@ namespace AutomataIterator
                     }
                 }
 
+                if (0 == (initialVertex & (initialVertex - 1)))
+                {
+                    automatonToYield.SetSolution(automaton, 0);
+                    yield return automatonToYield;
+                    continue;
+                }
+
                 isDiscovered[initialVertex] = localProblemId;
                 queue[0] = initialVertex;
                 currentNextDistance = 1;

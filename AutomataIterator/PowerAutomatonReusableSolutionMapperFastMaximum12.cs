@@ -96,6 +96,13 @@ namespace AutomataIterator
                     }
                 }
 
+                if (0 == (initialVertex & (initialVertex - 1)))
+                {
+                    automatonToYield.SetSolution(automaton, 0);
+                    yield return automatonToYield;
+                    continue;
+                }
+
                 for (i = 0, iPower = 0; i < max; i += bits, iPower += twoToPowerBits)
                 {
                     transitionMatrixCombined[iPower + 0b0001]
