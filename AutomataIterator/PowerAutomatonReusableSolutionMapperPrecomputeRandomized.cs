@@ -1,13 +1,11 @@
 ﻿using CoreDefinitions;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AutomataIterator
 {
-    /// <summary>
-    /// This class is and should be reused whenever possible to avoid the cost of array reallocation
-    /// </summary>
-    public class PowerAutomatonReusableSolutionMapperFastMaximum16 : ISolutionMapperReusable
+    public class PowerAutomatonReusableSolutionMapperPrecomputeRandomizedFastMaximum16 : ISolutionMapperReusable
     {
         private readonly SolvedOptionalAutomaton automatonToYield = new SolvedOptionalAutomaton();
         /// <summary>
@@ -33,7 +31,10 @@ namespace AutomataIterator
         {
             ushort readingIndex = 0;
             ushort writingIndex = 0;
-            
+
+            var precomputedStateTransitioningMatrixA = new ushort[maxAutomatonSize];
+            var precomputedStateTransitioningMatrixB = new ushort[maxAutomatonSize];
+
             ushort consideringVertex;
             ushort vertexAfterTransitionA;
             ushort vertexAfterTransitionB;
@@ -55,6 +56,7 @@ namespace AutomataIterator
             var precomputedStateTransitioningMatrix = new uint[maxAutomatonSize];
             var transitionMatrixCombined = new uint[twoToPowerBits * iMax];
 
+            var random = new Random(0);
             foreach (var automaton in problemsToSolve)
             {
                 var transitionA = automaton.TransitionFunctionsA;
@@ -64,6 +66,7 @@ namespace AutomataIterator
                 {
                     throw new Exception($"Automaton is too large (maximum supported: {maxAutomatonSize}, given: {max})");
                 }
+
 
                 localProblemId += 1;
 
@@ -86,7 +89,69 @@ namespace AutomataIterator
                     if (transitionB[i] != OptionalAutomaton.MissingTransition)
                     {
                         initialVertex += (ushort)(1 << i);
+                    }
+                    else
+                    {
+                        // not sure if this is necessary?
+                        //precomputedStateTransitioningMatrix[i] = 0;
+                    }
+                }
 
+                var automatonRealSize = 0;
+                for (i = 0; i < max; i += 1)
+                {
+                    if (transitionB[i] != OptionalAutomaton.MissingTransition)
+                    {
+                        automatonRealSize += 1;
+                        initialVertex += (ushort)(1 << i);
+                        precomputedStateTransitioningMatrixA[i] = (ushort)(1 << transitionA[i]);
+                        precomputedStateTransitioningMatrixB[i] = (ushort)(1 << transitionB[i]);
+                    }
+                }
+
+                var beginningState = initialVertex;
+                var wordUpperBound = (automatonRealSize - 1) * (automatonRealSize - 1);
+                var foundLength = ushort.MaxValue;
+                for (ushort step = 1; step <= wordUpperBound; step++)
+                {
+                    ushort nextState = 0;
+                    if (random.Next(0, 1) == 1)
+                    {
+                        for (i = 0; i < max; i += 1)
+                        {
+                            if ((beginningState & 1) == 1)
+                                nextState |= precomputedStateTransitioningMatrixA[i];
+                            beginningState >>= 1;
+                        }
+                    }
+                    else
+                    {
+                        for (i = 0; i < max; i += 1)
+                        {
+                            if ((beginningState & 1) == 1)
+                                nextState |= precomputedStateTransitioningMatrixB[i];
+                            beginningState >>= 1;
+                        }
+                    }
+                    beginningState = nextState;
+                    if (0 == (nextState & (nextState - 1)))
+                    {
+                        foundLength = step;
+                        break;
+                    }
+                }
+                if (foundLength != ushort.MaxValue)
+                {
+                    automatonToYield.SetSolution(automaton, foundLength);
+                    yield return automatonToYield;
+                    continue;
+                }
+
+
+                for (i = 0; i < max; i += 1)
+                {
+                    if (transitionB[i] != OptionalAutomaton.MissingTransition)
+                    {
                         precomputedStateTransitioningMatrix[i] = (uint)((powerSetCount << transitionA[i]) + (1 << transitionB[i]));
                     }
                     else
@@ -232,4 +297,3 @@ namespace AutomataIterator
         }
     }
 }
-

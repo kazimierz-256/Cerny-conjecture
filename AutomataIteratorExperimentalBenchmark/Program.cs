@@ -12,29 +12,24 @@ using Xunit;
 namespace AutomataIteratorExperimentalBenchmark
 {
     class Program
-    { 
+    {
         static void Main(string[] args)
         {
-            var solvers = new ISolutionMapperReusable[]
-            {
-                new PowerAutomatonReusableSolutionMapperMaximum12(),
-                new PowerAutomatonReusableSolutionMapperFastMaximum12(),
-            };
-
             var factories = new Func<ISolutionMapperReusable>[]
             {
                 () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
-                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12()
+                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12(),
+                () => new PowerAutomatonReusableSolutionMapperPrecomputeRandomizedFastMaximum16()
             };
 
             #region Serial Benchmark
             Console.WriteLine("Single thread benchmarks:");
-            const int problems= 200_000;
+            const int problems = 200_000;
             for (int exercise = 0; exercise < 4; exercise++)
             {
                 Console.WriteLine();
 
-                foreach (var solver in solvers)
+                foreach (var solver in factories.Select(generator => generator()))
                 {
                     var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(problems);
 

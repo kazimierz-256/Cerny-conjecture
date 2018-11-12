@@ -34,9 +34,6 @@ namespace AutomataIterator
             ushort readingIndex = 0;
             ushort writingIndex = 0;
 
-            var precomputedStateTransitioningMatrixA = new ushort[maxAutomatonSize];
-            var precomputedStateTransitioningMatrixB = new ushort[maxAutomatonSize];
-
             ushort consideringVertex;
             ushort vertexAfterTransitionA;
             ushort vertexAfterTransitionB;
