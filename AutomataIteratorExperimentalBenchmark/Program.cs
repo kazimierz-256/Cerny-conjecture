@@ -18,8 +18,7 @@ namespace AutomataIteratorExperimentalBenchmark
             var factories = new Func<ISolutionMapperReusable>[]
             {
                 () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
-                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12(),
-                () => new PowerAutomatonReusableSolutionMapperPrecomputeRandomizedFastMaximum16()
+                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12()
             };
 
             #region Serial Benchmark
