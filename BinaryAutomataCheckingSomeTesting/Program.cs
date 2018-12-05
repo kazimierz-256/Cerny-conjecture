@@ -21,18 +21,26 @@ namespace BinaryAutomataCheckingSomeTesting
             //{
             //    AutomataPrinter.PrintABSolved(automata);
             //}
-            for (int i = 3; i < 14; i++)
+
+
+            //for (int i = 3; i < 14; i++)
+            int i = 11;
             {
+                Console.WriteLine($"For size {i} there is {BinaryAutomataIterator.UnaryCount(i, 0, 10)} unaryAutomata to check.");
+                Console.WriteLine($"For size {i} there is {BinaryAutomataIterator.UnaryCount(i, 0)} unaryAutomata to check.");
                 DateTime dateTimeStart = DateTime.Now;
                 Console.WriteLine($"Start time: {dateTimeStart}");
                 ulong count = 0;
-                foreach (var automata in BinaryAutomataIterator.GetAllFullAutomatasToCheck(i))
+
+
+                foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(20, i, 4550, 4))
                 {
+                    // todo: gromadzimy statystyki o tym co sie poszczesci tzn. dlugosc slowa synchr + ile takich automatow
                     count++;
-                    if (count % 100000000 == 0)
+                    if (count % 1000000 == 0)
                     {
                         Console.WriteLine($"i = {i}, Count = {count}");
-                        if (count % 1000000000 == 0)
+                        if (count % 20000000 == 0)
                         {
                             Console.WriteLine($"Time {DateTime.Now}");
                             AutomataPrinter.PrintAB(automata);

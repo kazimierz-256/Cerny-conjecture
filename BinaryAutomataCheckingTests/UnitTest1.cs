@@ -10,23 +10,23 @@ namespace BinaryAutomataCheckingTests
     public class MakingFullAutomataTesting
     {
 
-        [Theory]
-        [InlineData(2,
-            new int[] { 0, 0 },
-            new int[] { 1, 0 },
-            new int[] { 0, 1 })]
-        public void MakeUnaryAutomata(int n, params int[][] tabs)
-        {
-            List<int[]> expectedList = new List<int[]>(tabs);
+        //[Theory]
+        //[InlineData(2,
+        //    new int[] { 0, 0 },
+        //    new int[] { 1, 0 },
+        //    new int[] { 0, 1 })]
+        //public void MakeUnaryAutomata(int n, params int[][] tabs)
+        //{
+        //    List<int[]> expectedList = new List<int[]>(tabs);
 
-            IEnumerable<int[]> UnaryAutomatas = UnaryGenetator.Generate(n);
+        //    IEnumerable<int[]> UnaryAutomatas = UnaryGenetator.Generate(n);
 
-            IEnumerable<int[]> AutomatasATransform =
-                from automata in UnaryAutomatas
-                select automata;
+        //    IEnumerable<int[]> AutomatasATransform =
+        //        from automata in UnaryAutomatas
+        //        select automata;
 
-            Assert.Equal(expectedList, AutomatasATransform);
-        }
+        //    Assert.Equal(expectedList, AutomatasATransform);
+        //}
 
         [Theory]
         [InlineData(new byte[] { 1, 2, 2 }, new byte[] { Byte.MaxValue, 1, 1 },
