@@ -7,7 +7,7 @@ namespace BinaryAutomataChecking
 {
     static public class BinaryAutomataIterator
     {
-        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(int minimalLenght, int size, int startIndex, int count)
+        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(int minimalLenght, int size, int startIndex, int count=1)
         {
             return
                 from automata in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllFullAutomatasToCheck(size, startIndex, count))
@@ -60,13 +60,12 @@ namespace BinaryAutomataChecking
             }
         }
 
-        public static int UnaryCount(int size, int startIndex, int count = -1)
+        public static int UnaryCount(int size, int startIndex, int count = 1)
         {
             int unaryCount = 0;
             UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
             var endofunctors = endofunctorsGenerator.GetAllUniqueAutomataOfSize(size).Skip(startIndex);
-            if (count >= 0)
-                endofunctors = endofunctors.Take(count);
+            endofunctors = endofunctors.Take(count);
             foreach (int[] endoFunctor in endofunctors)
             {
                 bool[] isVertInAcTab;
@@ -75,7 +74,6 @@ namespace BinaryAutomataChecking
                 {
                     unaryCount++;
                 }
-
             }
             return unaryCount;
         }
