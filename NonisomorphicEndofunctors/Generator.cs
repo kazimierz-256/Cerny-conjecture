@@ -99,7 +99,7 @@ namespace UniqueUnaryAutomata
             var automataToReturn = new int[targetCount][];
             int pasteCounter = 0;
             var hashSet = new ConcurrentDictionary<long, object>();
-            Parallel.ForEach(multipleTransitionFunctions, oldTransitionFunction =>
+            foreach (var oldTransitionFunction in multipleTransitionFunctions)
             {
                 var verticesIncludingNew = newPosition + 1;
                 var temporary = new long[verticesIncludingNew];
@@ -121,7 +121,7 @@ namespace UniqueUnaryAutomata
                         }
                     }
                 }
-            });
+            }
 
 #if diagnostics
             if (pasteCounter != automataToReturn.Length)
