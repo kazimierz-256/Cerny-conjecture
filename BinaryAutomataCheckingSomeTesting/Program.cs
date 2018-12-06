@@ -25,9 +25,9 @@ namespace BinaryAutomataCheckingSomeTesting
             DateTime dateTimeStart = DateTime.Now;
             Console.WriteLine($"Start time: {dateTimeStart}");
             ulong count = 0;
+            int wordLength  = (size - 1) * (size - 1) / 7;
 
-
-            foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord((size-1)*(size-1)/8, size, startIndex, countIndex))
+            foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(wordLength, size, startIndex, countIndex))
             {
                 // todo: gromadzimy statystyki o tym co sie poszczesci tzn. dlugosc slowa synchr + ile takich automatow
                 count++;
@@ -38,11 +38,12 @@ namespace BinaryAutomataCheckingSomeTesting
                     {
                         Console.WriteLine($"Time {DateTime.Now}");
                         AutomataPrinter.PrintAB(automata);
+                        Console.WriteLine($"Synchronizing word length: {automata.SynchronizingWordLength}");
                     }
                 }
             }
             DateTime dateTimeEnd = DateTime.Now;
-            Console.WriteLine($"For size {size} there is {count} fullAutomata to check.");
+            Console.WriteLine($"For size {size}, start index {startIndex} and count {countIndex}\nthere is {count} fullAutomata with word length at least {wordLength}.");
             Console.WriteLine($"Time to generate them is {dateTimeEnd - dateTimeStart}");
         }
 
