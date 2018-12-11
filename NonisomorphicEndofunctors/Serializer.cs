@@ -11,7 +11,7 @@ namespace UniqueUnaryAutomata
     {
         public static void SerializeAutomataOfSize(int n, string filename)
         {
-            var uniqueUnaryAutomatons = new Generator().GetAllUniqueAutomataOfSize().Skip(n - 1).First();
+            var uniqueUnaryAutomatons = Generator.EnumerateCollectionsOfNonisomorphicUnaryAutomata().Skip(n - 1).First();
             using (var stream = File.Create(filename))
             {
                 var serializer = new XmlSerializer(typeof(int[][]));

@@ -39,9 +39,8 @@ namespace BinaryAutomataChecking
         {
             byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
-
-            UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
-            foreach (int[] endoFunctor in endofunctorsGenerator.GetAllUniqueAutomataOfSize(size).Skip(startIndex).Take(count))
+            
+            foreach (int[] endoFunctor in UniqueUnaryAutomata.Generator.GetAllUniqueAutomataOfSize(size).Skip(startIndex).Take(count))
             {
                 bool[] isVertInAcTab;
                 int AcSize = AddingBTransition.MakeIsVertInAcTabAndGetAcSize(endoFunctor, out isVertInAcTab);               
@@ -63,8 +62,7 @@ namespace BinaryAutomataChecking
         public static int UnaryCount(int size, int startIndex, int count = 1)
         {
             int unaryCount = 0;
-            UniqueUnaryAutomata.Generator endofunctorsGenerator = new UniqueUnaryAutomata.Generator();
-            var endofunctors = endofunctorsGenerator.GetAllUniqueAutomataOfSize(size).Skip(startIndex);
+            var endofunctors = UniqueUnaryAutomata.Generator.GetAllUniqueAutomataOfSize(size).Skip(startIndex);
             endofunctors = endofunctors.Take(count);
             foreach (int[] endoFunctor in endofunctors)
             {

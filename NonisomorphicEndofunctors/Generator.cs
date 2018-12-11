@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace UniqueUnaryAutomata
 {
-    public class Generator
+    public static class Generator
     {
         private readonly static long[] theory = new long[]
         {
@@ -35,21 +35,18 @@ namespace UniqueUnaryAutomata
             4
         };
 
-
-        private GeneratorHelper generatorHelper;
-
-        public IEnumerable<int[]> GetAllUniqueAutomataOfSize(int size)
+        public static IEnumerable<int[]> GetAllUniqueAutomataOfSize(int size)
         {
-            var automataGenerator = GetAllUniqueAutomataOfSize();
+            var automataGenerator = EnumerateCollectionsOfNonisomorphicUnaryAutomata();
             // first endofunction is of size 1
             // second is of size 2
             // third is of size 3...
             return automataGenerator.Skip(size - 1).First();
         }
 
-        public IEnumerable<int[][]> GetAllUniqueAutomataOfSize()
+        public static IEnumerable<int[][]> EnumerateCollectionsOfNonisomorphicUnaryAutomata()
         {
-            generatorHelper = new GeneratorHelper();
+            var generatorHelper = new GeneratorHelper();
 
             var initialAutomata = new int[][]
             {
@@ -70,11 +67,11 @@ namespace UniqueUnaryAutomata
                 if (newPosition < integrityTable.Length)
                 {
                     integrityLevelEstimation = Math.Max(integrityLevelEstimation, integrityTable[newPosition]);
-                    result = GenerateOneStepFurtherExactly(result, newPosition, theory[newPosition], integrityLevelEstimation);
+                    result = GenerateOneStepFurtherExactly(result, newPosition, theory[newPosition], integrityLevelEstimation, generatorHelper);
                 }
                 else
                 {
-                    result = GenerateOneStepFurther(result, newPosition, theory[newPosition], ref integrityLevelEstimation);
+                    result = GenerateOneStepFurther(result, newPosition, theory[newPosition], ref integrityLevelEstimation, generatorHelper);
                 }
 
                 yield return result;
@@ -94,7 +91,7 @@ namespace UniqueUnaryAutomata
             }
         }
 
-        private int[][] GenerateOneStepFurtherExactly(IEnumerable<int[]> multipleTransitionFunctions, int newPosition, long targetCount, int precomputedIntegrityLevel)
+        private static int[][] GenerateOneStepFurtherExactly(IEnumerable<int[]> multipleTransitionFunctions, int newPosition, long targetCount, int precomputedIntegrityLevel, GeneratorHelper generatorHelper)
         {
             var automataToReturn = new int[targetCount][];
             int pasteCounter = 0;
@@ -161,7 +158,7 @@ namespace UniqueUnaryAutomata
             public int agreedIterations = 0;
         }
 
-        private int[][] GenerateOneStepFurther(IEnumerable<int[]> multipleTransitionFunctions, int newPosition, long targetCount, ref int maximumEstimatedIntegrityLevel)
+        private static int[][] GenerateOneStepFurther(IEnumerable<int[]> multipleTransitionFunctions, int newPosition, long targetCount, ref int maximumEstimatedIntegrityLevel, GeneratorHelper generatorHelper)
         {
             var automataCandidates = multipleTransitionFunctions
                 .Select(transitionFunctions => GenerateNewMutableClonesFromSmart(transitionFunctions, newPosition))
