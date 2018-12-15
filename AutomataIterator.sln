@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryAutomataCheckingSomeT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryAutomataCheckingTests", "BinaryAutomataCheckingTests\BinaryAutomataCheckingTests.csproj", "{C96EC376-075A-46B8-879C-742D6FB1F974}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonisomorphicEndofunctorsTests", "NonisomorphicEndofunctorsTests\NonisomorphicEndofunctorsTests.csproj", "{3E74F002-83B7-4E4C-9AF7-8985EB516FF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NonisomorphicEndofunctorsTests", "NonisomorphicEndofunctorsTests\NonisomorphicEndofunctorsTests.csproj", "{3E74F002-83B7-4E4C-9AF7-8985EB516FF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreServer", "CoreServer\CoreServer.csproj", "{0E2C8A28-839C-4F8A-83B5-666325EEABE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{3E74F002-83B7-4E4C-9AF7-8985EB516FF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E74F002-83B7-4E4C-9AF7-8985EB516FF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E74F002-83B7-4E4C-9AF7-8985EB516FF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2C8A28-839C-4F8A-83B5-666325EEABE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2C8A28-839C-4F8A-83B5-666325EEABE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2C8A28-839C-4F8A-83B5-666325EEABE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2C8A28-839C-4F8A-83B5-666325EEABE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
