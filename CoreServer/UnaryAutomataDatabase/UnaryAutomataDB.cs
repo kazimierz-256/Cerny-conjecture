@@ -16,6 +16,15 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; }
         private readonly HashSet<int> leftoverAutomata
             = new HashSet<int>();
+
+        public string DumpStatistics()
+        {
+            lock (synchronizingObject)
+            {
+                return $"Computed {finishedAutomata.Count} out of {leftoverAutomata.Count + processingAutomata.Count + finishedAutomata.Count}. Found interesting {interestingAutomata.Count} automata.";
+            }
+        }
+
         private readonly HashSet<int> processingAutomata
             = new HashSet<int>();
         private readonly HashSet<int> finishedAutomata

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using CoreServer.UnaryAutomataDatabase;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,16 @@ namespace CoreServer.Hubs
 {
     public class SummarizingHub : Hub
     {
-        //public async Task SendStatistics(string user, string message)
-        //{
-        //    await Clients.All.ReceiveMessage(user, message);
-        //}
+        private readonly UnaryAutomataDB database;
+
+        public SummarizingHub(UnaryAutomataDB database)
+        {
+            this.database = database;
+        }
+
+        public async Task SendStatistics()
+        {
+            await Clients.Caller.SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
+        }
     }
 }
