@@ -1,5 +1,4 @@
-﻿using CoreServer.SignalRInterfaces;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace CoreServer.Hubs
 {
-    public class SummarizingHub : Hub<IPresentation>
+    public class SummarizingHub : Hub
     {
-        public async Task SendStatistics(string user, string message)
-        {
-            await Clients.All.ReceiveMessage(user, message);
-        }
+        //public async Task SendStatistics(string user, string message)
+        //{
+        //    await Clients.All.ReceiveMessage(user, message);
+        //}
     }
 }

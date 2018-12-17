@@ -1,4 +1,4 @@
-﻿using CoreServer.SignalRInterfaces;
+﻿using CoreDefinitions;
 using CoreServer.UnaryAutomataDatabase;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CoreServer.Hubs
 {
-    public class UnaryAutomataHub : Hub<IComputingClient>
+    public class UnaryAutomataHub : Hub
     {
         private readonly UnaryAutomataDB database;
 
@@ -16,27 +16,50 @@ namespace CoreServer.Hubs
         {
             this.database = database;
         }
-        public override async Task OnConnectedAsync()
+
+        public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(long uniqueID, List<ISolvedOptionalAutomaton> solvedInterestingAutomata, int nextQuantity)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "SignalR Users");
-            await base.OnConnectedAsync();
+            var validID = database.MarkAsSolvedAutomata(uniqueID);
+            if (validID)
+            {
+                // add solved automata to some database or something
+                foreach (var automaton in solvedInterestingAutomata)
+                {
+                    database.AddInterestingAutomaton(automaton);
+                }
+
+                if (nextQuantity > 0)
+                    await SendUnaryAutomataIndices(nextQuantity);
+            }
+            else
+            {
+                // wrong id, suspicious...
+                await Clients.Caller.SendAsync("NoMoreAutomataThankYou");
+            }
         }
 
-        public async Task ReceiveSolvedUnaryAutomaton(int automatonIndex, string solution)
+        public async Task SendUnaryAutomataIndices(int quantity)
         {
-            database.MarkAutomatonAsDone(automatonIndex);
-            // save results...
-        }
+            // no need to limit the quantity (in case of overflow automata are being recomputed)
+            var limitedQuantity = quantity;//Math.Min(512, quantity);
+            database.GenerateNewPacket(
+                limitedQuantity,
+                out var newPacketID,
+                out var automataPacket
+                );
 
-        public async Task SendUnaryAutomataIndices(string user, string message)
-        {
-            await Clients.All.ReceiveMessage(user, message);
-        }
-
-        public override async Task OnDisconnectedAsync(Exception exception)
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
-            await base.OnDisconnectedAsync(exception);
+            if (automataPacket.Length > 0)
+            {
+                await Clients.Caller.SendAsync("ComputeAutomata",
+                    newPacketID,
+                    database.Size,
+                    automataPacket
+                    );
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("NoMoreAutomataThankYou");
+            }
         }
     }
 }

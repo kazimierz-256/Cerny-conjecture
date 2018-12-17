@@ -16,6 +16,10 @@ namespace CoreServer
 {
     public class Startup
     {
+        #region Important parameter
+        private const int AutomatonProblemSize = 9;
+        #endregion
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,11 +31,11 @@ namespace CoreServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddSignalRCore();
+            services.AddSignalR();
 
             #region Unary automata database singleton
             services.AddSingleton(
-                new UnaryAutomataDB(12)
+                    new UnaryAutomataDB(AutomatonProblemSize)
                 );
             #endregion
         }
@@ -53,8 +57,8 @@ namespace CoreServer
 
             app.UseSignalR(routes =>
             {
-                routes.MapHub<UnaryAutomataHub>("/unaryautomata");
-                routes.MapHub<SummarizingHub>("/summarize");
+                routes.MapHub<UnaryAutomataHub>("/ua");
+                routes.MapHub<SummarizingHub>("/s");
             });
             app.UseMvc();
         }

@@ -55,5 +55,50 @@ namespace CoreDefinitions
             builder.Append("]]");
             return builder.ToString();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is OptionalAutomaton)
+            {
+                var other = obj as OptionalAutomaton;
+                if (other.TransitionFunctionsA.Length != TransitionFunctionsA.Length || other.TransitionFunctionsB.Length != TransitionFunctionsB.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < TransitionFunctionsA.Length; i++)
+                {
+                    if (other.TransitionFunctionsA[i] != TransitionFunctionsA[i]
+                        || other.TransitionFunctionsB[i] != TransitionFunctionsB[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private const int multiplier = 0b1010000010001010001010001010111;
+        public override int GetHashCode()
+        {
+            var code = 1;
+            for (int i = 0; i < TransitionFunctionsB.Length; i++)
+            {
+                if (TransitionFunctionsB[i] != MissingTransition
+                    && TransitionFunctionsA[i] != MissingTransition)
+                {
+                    code += TransitionFunctionsB[i];
+                    code |= 1;
+                    code *= multiplier;
+
+                    code += TransitionFunctionsA[i];
+                    code |= 1;
+                    code *= multiplier;
+                }
+            }
+            return code;
+        }
     }
 }
