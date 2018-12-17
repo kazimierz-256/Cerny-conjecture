@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using MaterialSkin;
+using MaterialSkin.Controls;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,12 +13,16 @@ using System.Windows.Forms;
 
 namespace Presentation
 {
-    public partial class Form1 : Form
+    public partial class Presentation : MaterialForm
     {
-        public Form1()
+        public Presentation()
         {
             InitializeComponent();
-            RefreshConnection();
+
+            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
+            materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE);
         }
 
         HubConnection connection = null;
@@ -24,9 +30,9 @@ namespace Presentation
 
         private async void prompt_Click(object sender, EventArgs e)
         {
+            await RefreshConnection();
             if (connection != null)
             {
-                await RefreshConnection();
                 await connection.InvokeAsync("SendStatistics");
             }
         }
@@ -37,7 +43,7 @@ namespace Presentation
         {
             if (!addressBox.Text.Equals(connectionAddress))
             {
-                addressBox.BackColor = Color.Yellow;
+                addressBox.BackColor = Color.OrangeRed;
                 if (connection != null && connection.State == HubConnectionState.Connected)
                 {
                     await connection.StopAsync();
@@ -56,14 +62,18 @@ namespace Presentation
                         }));
                     }
                     );
-                addressBox.BackColor = Color.LawnGreen;
+                addressBox.BackColor = Color.YellowGreen;
             }
         }
 
         private async void close_Click(object sender, EventArgs e)
         {
-            await connection.StopAsync();
-            addressBox.BackColor = Color.Yellow;
+            if (connection != null)
+            {
+                await connection.StopAsync();
+                addressBox.BackColor = Color.OrangeRed;
+            }
         }
+        
     }
 }
