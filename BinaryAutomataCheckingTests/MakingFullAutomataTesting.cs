@@ -9,25 +9,6 @@ namespace BinaryAutomataCheckingTests
 {
     public class MakingFullAutomataTesting
     {
-
-        //[Theory]
-        //[InlineData(2,
-        //    new int[] { 0, 0 },
-        //    new int[] { 1, 0 },
-        //    new int[] { 0, 1 })]
-        //public void MakeUnaryAutomata(int n, params int[][] tabs)
-        //{
-        //    List<int[]> expectedList = new List<int[]>(tabs);
-
-        //    IEnumerable<int[]> UnaryAutomatas = UnaryGenetator.Generate(n);
-
-        //    IEnumerable<int[]> AutomatasATransform =
-        //        from automata in UnaryAutomatas
-        //        select automata;
-
-        //    Assert.Equal(expectedList, AutomatasATransform);
-        //}
-
         [Theory]
         [InlineData(new byte[] { 1, 2, 2 }, new byte[] { Byte.MaxValue, 1, 1 },
             new byte[] { },
@@ -83,10 +64,9 @@ namespace BinaryAutomataCheckingTests
             new byte[] { Byte.MaxValue, 1, 2 },
             new byte[] { Byte.MaxValue, 2, 1 },
             new byte[] { Byte.MaxValue, 2, 2 })]
-        public void MakeAcAutomata(byte[] a_tab, byte[] b_tab, params byte[][] tabs)
+        public void MakeAcAutomata(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
-            List<byte[]> expectedList = new List<byte[]>(tabs);
 
             bool[] isVertTab ;
             AddingBTransition.MakeIsVertInAcTabAndGetAcSize(a_tab, out isVertTab);
@@ -99,7 +79,7 @@ namespace BinaryAutomataCheckingTests
                 from automata in AcAutomatas
                 select CopyArray(automata.TransitionFunctionsB);
 
-            Assert.Equal(expectedList, AcAutomatasBTransform);
+            IsTheSame(expectedTabs, AcAutomatasBTransform);
         }
 
 
@@ -110,10 +90,9 @@ namespace BinaryAutomataCheckingTests
             new byte[] { 0, 0, 0 },
             new byte[] { 1, 0, 0 },
             new byte[] { 2, 0, 0 })]
-        public void MakeFullAutomata(byte[] a_tab, byte[] b_tab, params byte[][] tabs)
+        public void MakeFullAutomata(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
-            List<byte[]> expectedList = new List<byte[]>(tabs);
 
             MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
 
@@ -123,7 +102,7 @@ namespace BinaryAutomataCheckingTests
                 from automata in FullAutomatas
                 select CopyArray(automata.TransitionFunctionsB);
 
-            Assert.Equal(expectedList, AcAutomatasBTransform);
+            IsTheSame(expectedTabs, AcAutomatasBTransform);
         }
 
         byte[] CopyArray(byte[] tab)
@@ -134,6 +113,14 @@ namespace BinaryAutomataCheckingTests
                 newArray[i] = tab[i];
             }
             return newArray;
+        }
+
+        private bool IsTheSame (IEnumerable<byte[]> expected, IEnumerable<byte[]> actual)
+        {
+            Assert.Equal(expected.Count(), actual.Count());
+            foreach (var tab in expected)
+                Assert.Contains(tab,actual);
+            return true;
         }
     }
 }
