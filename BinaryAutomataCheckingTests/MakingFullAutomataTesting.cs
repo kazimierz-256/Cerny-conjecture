@@ -10,11 +10,11 @@ namespace BinaryAutomataCheckingTests
     public class MakingFullAutomataTesting
     {
         [Theory]
-        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { Byte.MaxValue, 1, 1 },
+        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
             new byte[] { },
             new byte[] { 0 },
             new byte[] { 1, 2 })]
-        [InlineData(new byte[] { 1, 2, 1, 3 }, new byte[] { Byte.MaxValue, 1, 1, 3 },
+        [InlineData(new byte[] { 1, 2, 1, 3 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1, 3 },
             new byte[] { },
             new byte[] { 0, 2 },
             new byte[] { 1 },
@@ -60,10 +60,10 @@ namespace BinaryAutomataCheckingTests
             new byte[] { 1, 0 },
             new byte[] { 1, 1 })]
         [InlineData(new byte[] { 1, 2, 2 }, new byte[] { 0, 0, 0 },
-            new byte[] { Byte.MaxValue, 1, 1 },
-            new byte[] { Byte.MaxValue, 1, 2 },
-            new byte[] { Byte.MaxValue, 2, 1 },
-            new byte[] { Byte.MaxValue, 2, 2 })]
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 2 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 1 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 2 })]
         public void MakeAcAutomata(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
@@ -86,7 +86,7 @@ namespace BinaryAutomataCheckingTests
         [Theory]
         [InlineData(new byte[] { 1, 0 }, new byte[] { 0, 0 },
             new byte[] { 1, 1 })]
-        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { Byte.MaxValue, 1, 1 },
+        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
             new byte[] { 0, 0, 0 },
             new byte[] { 1, 0, 0 },
             new byte[] { 2, 0, 0 })]

@@ -29,7 +29,7 @@ namespace BinaryAutomataChecking
             helpList = new List<byte>[n];
             for (int i = 0; i < n; i++)
             {
-                helpList[i] = automata.TransitionFunctionsB[i] == Byte.MaxValue ? null : TransitionsFromA[automata.TransitionFunctionsB[i]];
+                helpList[i] = automata.TransitionFunctionsB[i] == CoreDefinitions.OptionalAutomaton.MissingTransition ? null : TransitionsFromA[automata.TransitionFunctionsB[i]];
             }
         }
 
@@ -44,7 +44,7 @@ namespace BinaryAutomataChecking
             {
                 yield return automata;
             }
-            else if (helpList[place] == null)//(automata.TransitionFunctionsB[place] == Byte.MaxValue)//
+            else if (helpList[place] == null)//(automata.TransitionFunctionsB[place] == CoreDefinitions.OptionalAutomaton.MissingTransition)//
             {
                 for (byte i = 0; i < n; i++)
                 {

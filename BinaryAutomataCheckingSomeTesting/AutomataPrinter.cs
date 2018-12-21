@@ -35,7 +35,7 @@ namespace BinaryAutomataCheckingSomeTesting
             Console.WriteLine("a:");
             for (byte i = 0; i < transitionFunctionsA.Length; i++)
             {
-                if (transitionFunctionsA[i] != Byte.MaxValue)
+                if (transitionFunctionsA[i] != CoreDefinitions.OptionalAutomaton.MissingTransition)
                     Console.WriteLine(agetArrow(i, transitionFunctionsA[i]));
             }
         }
@@ -45,7 +45,7 @@ namespace BinaryAutomataCheckingSomeTesting
             Console.WriteLine("b:");
             for (byte i = 0; i < transitionFunctionsB.Length; i++)
             {
-                if (transitionFunctionsB[i] != Byte.MaxValue)
+                if (transitionFunctionsB[i] != CoreDefinitions.OptionalAutomaton.MissingTransition)
                     Console.WriteLine(agetArrow(i, transitionFunctionsB[i]));
             }
             Console.WriteLine();
