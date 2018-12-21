@@ -7,56 +7,57 @@ namespace BinaryAutomataChecking
 {
     static public class BinaryAutomataIterator
     {
-        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(int minimalLenght, int size, int startIndex, int count=1)
+        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(Func<int> minimalLength, int size, int index)
         {
-            return
-                from automata in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllFullAutomatasToCheck(size, startIndex, count))
-                where automata.SynchronizingWordLength != null
-                where automata.SynchronizingWordLength > minimalLenght
-                select automata;
+            foreach (var automaton in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllFullAutomatasToCheck(size, index)))
+            {
+                if (automaton.SynchronizingWordLength != null && automaton.SynchronizingWordLength > minimalLength())
+                {
+                    yield return automaton;
+                }
+            }
         }
 
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomatasToCheck(int size, int startIndex, int count)
+        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomatasToCheck(int size, int index)
         {
             int maxLength = (size - 1) * (size - 1);
-            IEnumerable<CoreDefinitions.IOptionalAutomaton> AcAutomatas = 
-                from automata in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllAcAutomatasToCheck(size, startIndex, count))
-                where automata.SynchronizingWordLength==null || 2 * automata.SynchronizingWordLength + 1 > maxLength
-                select automata;
 
-            foreach (var AcAutomat in AcAutomatas)
+            foreach (var AcAutomaton in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllAcAutomatasToCheck(size, index)))
             {
-                MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomat);
-                foreach(var fullAutomat in makingFullAutomata.Generate())
+                if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength << 1) + 1 > maxLength)
                 {
-                    yield return fullAutomat;
+                    MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton);
+                    foreach (var fullAutomaton in makingFullAutomata.Generate())
+                    {
+                        yield return fullAutomaton;
+                    }
                 }
             }
         }
 
         // start inclusive
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomatasToCheck (int size, int startIndex, int count)
+        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomatasToCheck(int size, int index)
         {
             byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
-            
-            foreach (int[] endoFunctor in UniqueUnaryAutomata.Generator.GetAllUniqueAutomataOfSize(size).Skip(startIndex).Take(count))
+
+            var endoFunctor = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
+
+            bool[] isVertInAcTab;
+            int AcSize = AddingBTransition.MakeIsVertInAcTabAndGetAcSize(endoFunctor, out isVertInAcTab);
+            if (IsAcSizeInRange(size, AcSize))
             {
-                bool[] isVertInAcTab;
-                int AcSize = AddingBTransition.MakeIsVertInAcTabAndGetAcSize(endoFunctor, out isVertInAcTab);               
-                if (IsAcSizeInRange(size, AcSize))
+                for (int i = 0; i < size; i++)
                 {
-                    for(int i = 0; i < size; i++)
-                    {
-                        unaryAutomata.TransitionFunctionsA[i] = (byte)endoFunctor[i];
-                    }
-                    AddingBTransition addingBTransition = new AddingBTransition(unaryAutomata, isVertInAcTab);
-                    foreach (CoreDefinitions.IOptionalAutomaton acAutomata in addingBTransition.GenerateAc())
-                    {
-                        yield return acAutomata;
-                    }
+                    unaryAutomata.TransitionFunctionsA[i] = (byte)endoFunctor[i];
+                }
+                AddingBTransition addingBTransition = new AddingBTransition(unaryAutomata, isVertInAcTab);
+                foreach (CoreDefinitions.IOptionalAutomaton acAutomata in addingBTransition.GenerateAc())
+                {
+                    yield return acAutomata;
                 }
             }
+
         }
 
         public static int UnaryCount(int size, int startIndex, int count = 1)

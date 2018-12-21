@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BinaryAutomataChecking;
 
 namespace BinaryAutomataCheckingSomeTesting
@@ -10,24 +11,22 @@ namespace BinaryAutomataCheckingSomeTesting
             Console.WriteLine("Hello User!");
 
 
-            ShowCalculation(10, 51, 1);
+            ShowCalculation(10, 51);
 
 
             Console.WriteLine();
         }
 
-
-
-        private static void ShowCalculation(int size, int startIndex, int countIndex=1)
+        private static void ShowCalculation(int size, int index)
         {
 
-            Console.WriteLine($"For size {size} there is {BinaryAutomataIterator.UnaryCount(size, startIndex, countIndex)} unaryAutomata to check.");
+            Console.WriteLine($"For size {size} there is {BinaryAutomataIterator.UnaryCount(size, index)} unaryAutomata to check.");
             DateTime dateTimeStart = DateTime.Now;
             Console.WriteLine($"Start time: {dateTimeStart}");
             ulong count = 0;
-            int wordLength  = (size - 1) * (size - 1) / 7;
+            int wordLength = (size - 1) * (size - 1) / 7;
 
-            foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(wordLength, size, startIndex, countIndex))
+            foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(() => wordLength, size, index))
             {
                 // todo: gromadzimy statystyki o tym co sie poszczesci tzn. dlugosc slowa synchr + ile takich automatow
                 count++;
@@ -43,7 +42,7 @@ namespace BinaryAutomataCheckingSomeTesting
                 }
             }
             DateTime dateTimeEnd = DateTime.Now;
-            Console.WriteLine($"For size {size}, start index {startIndex} and count {countIndex}\nthere is {count} fullAutomata with word length at least {wordLength}.");
+            Console.WriteLine($"For size {size}, start index {index} and count {1}\nthere is {count} fullAutomata with word length at least {wordLength}.");
             Console.WriteLine($"Time to generate them is {dateTimeEnd - dateTimeStart}");
         }
 

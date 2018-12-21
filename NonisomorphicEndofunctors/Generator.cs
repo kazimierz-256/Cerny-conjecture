@@ -35,6 +35,25 @@ namespace UniqueUnaryAutomata
             4
         };
 
+        private static int[][][] cachedAutomata = new int[0][][];
+
+        public static int[] GetUniqueAutomatonFromCached(int size, int index)
+        {
+            if (size > cachedAutomata.Length)
+            {
+                cachedAutomata = EnumerateCollectionsOfNonisomorphicUnaryAutomata().Take(size).ToArray();
+            }
+
+            if (index < cachedAutomata[size - 1].Length)
+            {
+                return cachedAutomata[size - 1][index];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static IEnumerable<int[]> GetAllUniqueAutomataOfSize(int size)
         {
             var automataGenerator = EnumerateCollectionsOfNonisomorphicUnaryAutomata();
