@@ -17,7 +17,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; }
         public int MinimalLength { get; private set; }
         public int Total { get; }
-        public const int MaximumLongestAutomataCount = 200;
+        public const int MaximumLongestAutomataCount = 100;
         private int allowedCount = 0;
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
@@ -64,28 +64,29 @@ namespace CoreServer.UnaryAutomataDatabase
                 }
 
 
-                if (allowedCount > MaximumLongestAutomataCount)
+                #region Update minimum bound
+                var leftover = allowedCount;
+                var removeUpTo = -1;
+                foreach (var item in synchronizingWordLengthToCount)
                 {
-                    var leftover = allowedCount;
-                    var removeUpTo = -1;
-                    foreach (var item in synchronizingWordLengthToCount)
+                    if (leftover > MaximumLongestAutomataCount)
                     {
-                        if (leftover > MaximumLongestAutomataCount)
-                        {
-                            leftover -= item.Value;
-                            removeUpTo = item.Key;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        leftover -= item.Value;
+                        removeUpTo = item.Key;
                     }
+                    else
+                    {
+                        break;
+                    }
+                }
 
+                if (removeUpTo + 1 > MinimalLength)
+                {
                     MinimalLength = removeUpTo + 1;
-
                     changedMinimum = true;
                 }
-                // ensure minimum is ok
+                #endregion
+
             }
         }
 
@@ -133,7 +134,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public UnaryAutomataDB(int size)
         {
             Size = size;
-            MinimalLength = 0;
+            MinimalLength = (size - 1) * (size - 1) / 3;
 
             Total = theory[size - 1];
             var automataIndices = new int[Total];

@@ -11,14 +11,19 @@ namespace Client
 {
     class Program
     {
-        private const int criticalAutomatonCount = 200;
+        private const int criticalAutomatonCount = 100;
         private static object consoleSync = new object();
-        private static void SayColoured(ConsoleColor color, string text)
+        private static void SayColoured(ConsoleColor color, string text, bool newline = true)
         {
             lock (consoleSync)
             {
                 Console.ForegroundColor = color;
-                Console.WriteLine(text);
+
+                if (newline)
+                    Console.WriteLine(text);
+                else
+                    Console.Write(text);
+
                 Console.ResetColor();
             }
         }
@@ -61,9 +66,7 @@ namespace Client
                     "NoMoreAutomataThankYou",
                     async () =>
                     {
-#if DEBUG
                         SayColoured(ConsoleColor.Magenta, "No more automata, thanks");
-#endif
                         shouldReconnect = false;
                         await connection.StopAsync();
                     }
@@ -277,9 +280,12 @@ namespace Client
                         {
                             firstTime = false;
                             connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", toSendIndices, toSendSolvedUnary, toSendSolvedSyncLength, toSendSolvedB, recommendedIntake).Wait();
-#if DEBUG
-                            SayColoured(ConsoleColor.DarkRed, $"Sent {toSendIndices.Count} unary solutions consisting of {toSendAutomataCount} automata");
-#endif
+
+                            Console.Write("Sent back ");
+                            SayColoured(ConsoleColor.DarkGreen, toSendIndices.Count.ToString(), false);
+                            Console.Write(" unary solutions consisting of ");
+                            SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
+                            Console.WriteLine(" automata");
                         }
                     }
                     else
