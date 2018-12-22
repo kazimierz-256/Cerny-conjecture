@@ -21,31 +21,6 @@ namespace BinaryAutomataChecking
             }
         }
 
-        public void GenerateAcEfficient(Action<CoreDefinitions.IOptionalAutomaton> alert) => Generate_rec_efficient(0, alert);
-
-        private void Generate_rec_efficient(int place, Action<CoreDefinitions.IOptionalAutomaton> alert)
-        {
-            if (place >= n)
-            {
-                alert(automata);
-            }
-            else if (!isVertInAc[place])
-            {
-                automata.TransitionFunctionsB[place] = CoreDefinitions.OptionalAutomaton.MissingTransition;
-                Generate_rec_efficient(place + 1, alert);
-            }
-            else
-            {
-                for (byte i = 0; i < n; i++)
-                {
-                    if (isVertInAc[i])
-                    {
-                        automata.TransitionFunctionsB[place] = i;
-                        Generate_rec_efficient(place + 1, alert);
-                    }
-                }
-            }
-        }
 
         public IEnumerable<CoreDefinitions.IOptionalAutomaton> GenerateAc() => Generate_rec(0);
 
