@@ -36,12 +36,18 @@ namespace UniqueUnaryAutomata
         };
 
         private static int[][][] cachedAutomata = new int[0][][];
-
+        private static object sync = new object();
         public static int[] GetUniqueAutomatonFromCached(int size, int index)
         {
             if (size > cachedAutomata.Length)
             {
-                cachedAutomata = EnumerateCollectionsOfNonisomorphicUnaryAutomata().Take(size).ToArray();
+                lock (sync)
+                {
+                    if (size > cachedAutomata.Length)
+                    {
+                        cachedAutomata = EnumerateCollectionsOfNonisomorphicUnaryAutomata().Take(size).ToArray();
+                    }
+                }
             }
 
             if (index < cachedAutomata[size - 1].Length)

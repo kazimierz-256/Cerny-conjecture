@@ -1,30 +1,31 @@
-﻿using System;
+﻿using AutomataIterator;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace BinaryAutomataChecking
 {
-    static public class BinaryAutomataIterator
+    public class BinaryAutomataIterator
     {
-        public static IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllWithLongSynchronizedWord(Func<int> minimalLength, int size, int index)
+        private readonly ISolutionMapperReusable solutionMapper1;
+        private readonly ISolutionMapperReusable solutionMapper2;
+        public BinaryAutomataIterator()
         {
-            foreach (var automaton in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllFullAutomatasToCheck(size, index)))
-            {
-                if (automaton.SynchronizingWordLength != null && automaton.SynchronizingWordLength > minimalLength())
-                {
-                    yield return automaton;
-                }
-            }
+            solutionMapper1 = ExtensionMapProblemsToSolutions.GetNewMapper();
+            solutionMapper2 = ExtensionMapProblemsToSolutions.GetNewMapper();
         }
 
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomatasToCheck(int size, int index)
+        public IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllSolved(int size, int index)
+            => solutionMapper1.SelectAsSolved(GetAllFullAutomataToCheck(size, index));
+
+        private IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomataToCheck(int size, int index)
         {
             int maxLength = (size - 1) * (size - 1);
 
-            foreach (var AcAutomaton in AutomataIterator.ExtensionMapProblemsToSolutions.SelectAsSolved(GetAllAcAutomatasToCheck(size, index)))
+            foreach (var AcAutomaton in solutionMapper2.SelectAsSolved(GetAllAcAutomataToCheck(size, index)))
             {
-                if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength << 1) + 1 > maxLength)
+                if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength * 2) + 1 > maxLength)
                 {
                     MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton);
                     foreach (var fullAutomaton in makingFullAutomata.Generate())
@@ -35,7 +36,7 @@ namespace BinaryAutomataChecking
             }
         }
 
-        public static IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomatasToCheck(int size, int index)
+        private IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomataToCheck(int size, int index)
         {
             byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
@@ -59,11 +60,18 @@ namespace BinaryAutomataChecking
 
         }
 
+        private static bool IsAcSizeInRange(int size, int AcSize)
+        {
+            return AcSize < size && 2 * AcSize >= size;
+        }
+
         public static int UnaryCount(int size, int startIndex, int count = 1)
         {
             int unaryCount = 0;
-            var endofunctors = UniqueUnaryAutomata.Generator.GetAllUniqueAutomataOfSize(size).Skip(startIndex);
-            endofunctors = endofunctors.Take(count);
+            var endofunctors = Enumerable
+                .Range(startIndex, count)
+                .Select(index => UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index))
+                .Take(count);
             foreach (int[] endoFunctor in endofunctors)
             {
                 bool[] isVertInAcTab;
@@ -74,11 +82,6 @@ namespace BinaryAutomataChecking
                 }
             }
             return unaryCount;
-        }
-
-        private static bool IsAcSizeInRange(int size, int AcSize)
-        {
-            return AcSize < size && 2 * AcSize >= size;
         }
     }
 }

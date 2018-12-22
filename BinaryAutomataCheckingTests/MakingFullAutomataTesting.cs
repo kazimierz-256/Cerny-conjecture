@@ -73,13 +73,13 @@ namespace BinaryAutomataCheckingTests
 
             AddingBTransition addingBTransition = new AddingBTransition(a, isVertTab);
 
-            IEnumerable<IOptionalAutomaton> AcAutomatas = addingBTransition.GenerateAc();
+            IEnumerable<IOptionalAutomaton> AcAutomata = addingBTransition.GenerateAc();
 
-            IEnumerable<byte[]> AcAutomatasBTransform =
-                from automata in AcAutomatas
+            IEnumerable<byte[]> AcAutomataBTransform =
+                from automata in AcAutomata
                 select CopyArray(automata.TransitionFunctionsB);
 
-            IsTheSame(expectedTabs, AcAutomatasBTransform);
+            IsTheSame(expectedTabs, AcAutomataBTransform);
         }
 
 
@@ -96,13 +96,13 @@ namespace BinaryAutomataCheckingTests
 
             MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
 
-            IEnumerable<IOptionalAutomaton> FullAutomatas = makingFullAutomata.Generate();
+            IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
 
-            IEnumerable<byte[]> AcAutomatasBTransform =
-                from automata in FullAutomatas
+            IEnumerable<byte[]> AcAutomataBTransform =
+                from automata in FullAutomata
                 select CopyArray(automata.TransitionFunctionsB);
 
-            IsTheSame(expectedTabs, AcAutomatasBTransform);
+            IsTheSame(expectedTabs, AcAutomataBTransform);
         }
 
         byte[] CopyArray(byte[] tab)

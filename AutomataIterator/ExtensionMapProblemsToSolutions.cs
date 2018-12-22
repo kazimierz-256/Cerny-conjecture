@@ -13,7 +13,13 @@ namespace AutomataIterator
         {
             if (!cachedSet.ContainsKey(typeof(T)))
             {
-                cachedSet.Add(typeof(T), new T());
+                lock (cachedSet)
+                {
+                    if (!cachedSet.ContainsKey(typeof(T)))
+                    {
+                        cachedSet.Add(typeof(T), new T());
+                    }
+                }
             }
 
             return cachedSet[typeof(T)].SelectAsSolved(problemsToSolve);
@@ -22,5 +28,6 @@ namespace AutomataIterator
         public static IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(this IEnumerable<IOptionalAutomaton> problemsToSolve)
             => SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum16>(problemsToSolve);
 
+        public static ISolutionMapperReusable GetNewMapper() => new PowerAutomatonReusableSolutionMapperFastMaximum16();
     }
 }

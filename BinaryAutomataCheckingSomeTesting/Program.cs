@@ -11,7 +11,7 @@ namespace BinaryAutomataCheckingSomeTesting
             Console.WriteLine("Hello User!");
 
 
-            ShowCalculation(10, 51);
+            ShowCalculation(10, 100);
 
 
             Console.WriteLine();
@@ -26,18 +26,21 @@ namespace BinaryAutomataCheckingSomeTesting
             ulong count = 0;
             int wordLength = (size - 1) * (size - 1) / 7;
 
-            foreach (var automata in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(() => wordLength, size, index))
+            foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
             {
-                // todo: gromadzimy statystyki o tym co sie poszczesci tzn. dlugosc slowa synchr + ile takich automatow
-                count++;
-                //if (count % 1000 == 0)
+                if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= wordLength)
                 {
-                    Console.WriteLine($"size = {size}, Count = {count}");
-                    //if (count % 200000 == 0)
+                    // todo: gromadzimy statystyki o tym co sie poszczesci tzn. dlugosc slowa synchr + ile takich automatow
+                    count++;
+                    //if (count % 1000 == 0)
                     {
-                        Console.WriteLine($"Time {DateTime.Now}");
-                        AutomataPrinter.PrintAB(automata);
-                        Console.WriteLine($"Synchronizing word length: {automata.SynchronizingWordLength}");
+                        Console.WriteLine($"size = {size}, Count = {count}");
+                        //if (count % 200000 == 0)
+                        {
+                            Console.WriteLine($"Time {DateTime.Now}");
+                            AutomataPrinter.PrintAB(automaton);
+                            Console.WriteLine($"Synchronizing word length: {automaton.SynchronizingWordLength}");
+                        }
                     }
                 }
             }
