@@ -1,6 +1,8 @@
-﻿using CoreDefinitions;
+﻿using BinaryAutomataChecking;
+using CoreDefinitions;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,49 +13,73 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Please enter the address");
-            var defaultAddress = "http://localhost:62752/ua";
-            Console.WriteLine($"Could it be {defaultAddress}?");
-            var address = Console.ReadLine();
-            if (address.Equals(string.Empty))
+            using (var semaphore = new Semaphore(0, int.MaxValue))
             {
-                address = defaultAddress;
-            }
-            #region WebSocket connection
-            var shouldReconnect = true;
-            var connection = new HubConnectionBuilder()
-                .WithUrl(address)
-                .Build();
+                var threads = Environment.ProcessorCount;
+                var minimum = Environment.ProcessorCount * 4;
+                var size = -1;
+                var minimalLength = -1;
+                var queue = new ConcurrentQueue<int>();
+                var recommendedIntake = minimum * 4;
+                var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
+                var cancellationToken = new CancellationTokenSource();
+                var cancelSync = new object();
 
-            connection.On(
-                "NoMoreAutomataThankYou",
-                async () =>
-                {
-                    shouldReconnect = false;
-                    await connection.StopAsync();
-                }
-                );
-            var solvedInterestingAutomata = new List<ISolvedOptionalAutomaton>();
-            long id = 0;
-            using (var askingSemaphore = new Semaphore(0, 1))
-            {
+                #region address setup
+                Console.WriteLine("Please enter the address");
+                var defaultAddress = "http://localhost:62752/ua";
+                Console.WriteLine($"Could it be {defaultAddress}?");
+                var address = Console.ReadLine();
+
+                if (address.Equals(string.Empty))
+                    address = defaultAddress;
+                #endregion
+                #region WebSocket connection
+                var shouldReconnect = true;
+                var connection = new HubConnectionBuilder()
+                    .WithUrl(address)
+                    .Build();
+
+                connection.On(
+                    "NoMoreAutomataThankYou",
+                    async () =>
+                    {
+                        shouldReconnect = false;
+                        await connection.StopAsync();
+                    }
+                    );
                 connection.On(
                     "ComputeAutomata",
-                    async (long localID, int automatonSize, int[] unaryAutomataIndices) =>
+                    (int automatonSize, int serverMinimalLength, List<int> unaryAutomataIndices) =>
                     {
-                        id = localID;
-                        Console.WriteLine($"Received id: {localID} size: {automatonSize} and many {unaryAutomataIndices.Length} unary automata");
+                        minimalLength = serverMinimalLength;
+                        if (size == -1)
+                        {
+                            size = automatonSize;
+                            setupManager();
+                        }
+#if DEBUG
+                        Console.WriteLine($"Received size: {automatonSize} and many {unaryAutomataIndices.Count} unary automata");
                         foreach (var a in unaryAutomataIndices)
                         {
                             Console.Write($",{a}");
                         }
                         Console.WriteLine();
-                        solvedInterestingAutomata.Clear();
-                    // do some work...
+#endif
 
-                    await Task.Delay(3000);
-                        Console.WriteLine("done");
-                        askingSemaphore.Release();
+                        foreach (var unaryIndex in unaryAutomataIndices)
+                        {
+                            queue.Enqueue(unaryIndex);
+                            semaphore.Release();
+                        }
+                    }
+                );
+
+                connection.On(
+                    "UpdateLength",
+                    (int serverMinimalLength) =>
+                    {
+                        minimalLength = serverMinimalLength;
                     }
                 );
 
@@ -71,31 +97,66 @@ namespace Client
                     else
                     {
                         Console.WriteLine("Connection ended :)");
-                        askingSemaphore.Release();
                     }
                 };
+                #endregion
+
                 connection.StartAsync().Wait();
-                connection.InvokeAsync("SendUnaryAutomataIndices", GetAutomataCount()).Wait();
+
+                TaskManager<int> taskManager;
+                void setupManager()
+                {
+                    taskManager = new TaskManager<int>(
+                      threads,
+                      leftover => (leftover <= minimum),
+                      index =>
+                      {
+                          var list = new List<ISolvedOptionalAutomaton>();
+                          foreach (var automaton in BinaryAutomataIterator.GetAllWithLongSynchronizedWord(() => minimalLength, size, index))
+                              list.Add(automaton.DeepClone());
+
+                          resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
+                      },
+                      async () =>
+                      {
+                          lock (cancelSync)
+                          {
+                              if (!cancellationToken.IsCancellationRequested)
+                                  cancellationToken.Cancel();
+                          }
+                      },
+                      queue,
+                      semaphore
+                      );
+
+                    taskManager.Launch();
+                }
+
                 while (connection.State == HubConnectionState.Connected)
                 {
-                    askingSemaphore.WaitOne();
-                    if (connection.State == HubConnectionState.Connected)
-                        connection
-                            .InvokeAsync(
-                                "ReceiveSolvedUnaryAutomatonAndAskForMore",
-                                id,
-                                solvedInterestingAutomata,
-                                GetAutomataCount()
-                            )
-                            .Wait();
+                    lock (cancelSync)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            recommendedIntake *= 2;
+                            minimum *= 2;
+                            cancellationToken.Dispose();
+                            cancellationToken = new CancellationTokenSource();
+                        }
+                    }
+
+                    var toSendIndices = new List<int>();
+                    var toSendSolved = new List<List<ISolvedOptionalAutomaton>>();
+                    while (resultsMerged.TryDequeue(out var item))
+                    {
+                        toSendIndices.Add(item.Item1);
+                        toSendSolved.Add(item.Item2);
+                    }
+
+                    connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", toSendIndices, toSendSolved, recommendedIntake).Wait();
+                    Task.Delay(TimeSpan.FromSeconds(20), cancellationToken.Token);
                 }
             }
-            #endregion
-        }
-
-        private static int GetAutomataCount()
-        {
-            return 32;
         }
     }
 }

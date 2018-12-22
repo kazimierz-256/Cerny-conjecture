@@ -10,6 +10,11 @@ namespace CoreDefinitions
         {
         }
 
+        public SolvedOptionalAutomaton(byte[] TransitionFunctionsA, byte[] TransitionFunctionsB, ushort? synchronizingWordLength) : base(TransitionFunctionsA, TransitionFunctionsB)
+        {
+            SynchronizingWordLength = synchronizingWordLength;
+        }
+
         public SolvedOptionalAutomaton(IOptionalAutomaton automaton, ushort? synchronizingWordLength) : base(automaton.TransitionFunctionsA, automaton.TransitionFunctionsB)
         {
             SynchronizingWordLength = synchronizingWordLength;
@@ -23,5 +28,7 @@ namespace CoreDefinitions
             TransitionFunctionsB = automaton.TransitionFunctionsB;
             SynchronizingWordLength = synchronizingWordLength;
         }
+
+        ISolvedOptionalAutomaton ISolvedOptionalAutomaton.DeepClone() => new SolvedOptionalAutomaton(TransitionFunctionsA.Clone() as byte[], TransitionFunctionsB.Clone() as byte[], SynchronizingWordLength);
     }
 }

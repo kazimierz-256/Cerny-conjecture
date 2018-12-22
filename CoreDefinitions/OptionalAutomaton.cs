@@ -80,25 +80,29 @@ namespace CoreDefinitions
                 return false;
             }
         }
-        private const int multiplier = 0b1010000010001010001010001010111;
+
+        // TODO: change multiplier to something elsie...
         public override int GetHashCode()
         {
+            var multiplier = TransitionFunctionsB.Length + 1;
             var code = 1;
             for (int i = 0; i < TransitionFunctionsB.Length; i++)
             {
                 if (TransitionFunctionsB[i] != MissingTransition
                     && TransitionFunctionsA[i] != MissingTransition)
                 {
-                    code += TransitionFunctionsB[i];
-                    code |= 1;
+                    code += TransitionFunctionsB[i] + 1;
                     code *= multiplier;
 
-                    code += TransitionFunctionsA[i];
-                    code |= 1;
-                    code *= multiplier;
+                    code += TransitionFunctionsA[i] + 1;
                 }
+                else
+                    code *= multiplier;
+                code *= multiplier;
             }
             return code;
         }
+
+        public IOptionalAutomaton DeepClone() => new OptionalAutomaton(TransitionFunctionsA.Clone() as byte[], TransitionFunctionsB.Clone() as byte[]);
     }
 }

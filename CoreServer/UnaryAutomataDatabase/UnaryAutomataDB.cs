@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace CoreServer.UnaryAutomataDatabase
         };
 
         public int Size { get; }
+        public int MinimalLength { get; }
         private readonly HashSet<int> leftoverAutomata
             = new HashSet<int>();
 
@@ -25,84 +27,41 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        private readonly HashSet<int> processingAutomata
-            = new HashSet<int>();
-        private readonly HashSet<int> finishedAutomata
-            = new HashSet<int>();
-        private readonly HashSet<ISolvedOptionalAutomaton> interestingAutomata = new HashSet<ISolvedOptionalAutomaton>();
-
-        public Dictionary<long, int[]> idsToAutomata = new Dictionary<long, int[]>();
-        private Random random = new Random(0);
-        private object synchronizingObject = new object();
-        private long GenerateNewPacketID()
+        public void ProcessInterestingAutomata(List<int> unarySolved, List<List<ISolvedOptionalAutomaton>> solvedInterestingAutomataPerUnary)
         {
-            long newPacketID = 0L;
-            do
-            {
-                newPacketID = (long)(random.Next() << 32) + random.Next();
-            } while (idsToAutomata.ContainsKey(newPacketID));
-            return newPacketID;
+
         }
 
-        public void AddInterestingAutomaton(ISolvedOptionalAutomaton solvedInterestingAutomaton)
-        {
-            lock (synchronizingObject)
-            {
-                if (!interestingAutomata.Contains(solvedInterestingAutomaton))
-                    interestingAutomata.Add(solvedInterestingAutomaton);
-            }
-        }
-
-        public UnaryAutomataDB(int size)
-        {
-            Size = size;
-            leftoverAutomata =
-               new HashSet<int>(Enumerable.Range(0, theory[size - 1]));
-        }
-        private int[] GetUnaryAutomataIndices(int count)
-            => leftoverAutomata
-                .Concat(processingAutomata)
-                .Take(count)
-                .ToArray();
-
-        public void GenerateNewPacket(int limitedQuantity, out long newPacketID, out int[] automataPacket)
-        {
-            lock (synchronizingObject)
-            {
-                newPacketID = GenerateNewPacketID();
-                automataPacket = GetUnaryAutomataIndices(limitedQuantity);
-                foreach (var automatonIndex in automataPacket)
-                {
-                    leftoverAutomata.Remove(automatonIndex);
-                    processingAutomata.Add(automatonIndex);
-                }
-                idsToAutomata.Add(newPacketID, automataPacket);
-            }
-        }
-
-        private void MarkAutomatonByIndexAsDone(int automatonIndex)
+        public void MarkAutomatonByIndexAsDone(int automatonIndex)
         {
             processingAutomata.Remove(automatonIndex);
             finishedAutomata.Add(automatonIndex);
         }
-
-        public bool MarkAsSolvedAutomata(long id)
+        public List<int> GetUnaryAutomataToProcess(int quantity)
         {
             lock (synchronizingObject)
             {
-                if (idsToAutomata.ContainsKey(id))
-                {
-                    foreach (var automatonIndex in idsToAutomata[id])
-                        MarkAutomatonByIndexAsDone(automatonIndex);
-
-                    idsToAutomata.Remove(id);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return leftoverAutomata
+                   .Concat(processingAutomata)
+                   .Take(quantity)
+                   .ToList();
             }
+        }
+
+        private readonly HashSet<int> processingAutomata
+            = new HashSet<int>();
+        private readonly HashSet<int> finishedAutomata
+            = new HashSet<int>();
+
+        private readonly Dictionary<int, ISolvedOptionalAutomaton> interestingAutomata = new Dictionary<int, ISolvedOptionalAutomaton>();
+
+        private readonly object synchronizingObject = new object();
+
+        public UnaryAutomataDB(int size)
+        {
+            Size = size;
+            MinimalLength = (size - 1) * (size - 1) / 8;// TODO: tune
+            leftoverAutomata = new HashSet<int>(Enumerable.Range(0, theory[size - 1]));
         }
     }
 }

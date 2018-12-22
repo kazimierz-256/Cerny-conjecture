@@ -8,5 +8,7 @@ namespace CoreDefinitions
     {
         byte[] TransitionFunctionsB { get; }
         byte[] TransitionFunctionsA { get; }
+
+        IOptionalAutomaton DeepClone();
     }
 }

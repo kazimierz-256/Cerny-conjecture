@@ -7,5 +7,7 @@ namespace CoreDefinitions
     public interface ISolvedOptionalAutomaton : IOptionalAutomaton
     {
         ushort? SynchronizingWordLength { get; }
+
+        new ISolvedOptionalAutomaton DeepClone();
     }
 }

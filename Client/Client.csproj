@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BinaryAutomataChecking\BinaryAutomataChecking.csproj" />
     <ProjectReference Include="..\CoreDefinitions\CoreDefinitions.csproj" />
   </ItemGroup>
 
