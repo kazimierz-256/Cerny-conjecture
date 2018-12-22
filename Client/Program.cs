@@ -43,6 +43,7 @@ namespace Client
                     .WithUrl(address)
                     .Build();
 
+                TaskManager<int> taskManager = null;
                 connection.On(
                     "NoMoreAutomataThankYou",
                     async () =>
@@ -56,13 +57,60 @@ namespace Client
                     );
                 connection.On(
                     "ComputeAutomata",
-                    (int automatonSize, int serverMinimalLength, List<int> unaryAutomataIndices) =>
+                    async (int automatonSize, int serverMinimalLength, List<int> unaryAutomataIndices) =>
                     {
                         minimalLength = serverMinimalLength;
                         if (size == -1)
                         {
                             size = automatonSize;
-                            setupManager();
+                            #region SETUP
+
+                            taskManager?.Abort();
+
+                            taskManager = new TaskManager<int>(
+                              threads,
+                              leftover => (leftover <= minimum),
+                              index =>
+                              {
+#if DEBUG
+                                  Console.WriteLine($"Ha! Completed unary {index}");
+#endif
+                                  var list = new List<ISolvedOptionalAutomaton>();
+                                  foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
+                                  {
+                                      if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalLength)
+                                          list.Add(automaton.DeepClone());
+
+                                      if (list.Count > 0 && !list[list.Count - 1].SynchronizingWordLength.HasValue)
+                                      {
+                                          throw new Exception("Not synchronizable!");
+                                      }
+                                  }
+
+                                  resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
+                              },
+                              async () =>
+                              {
+                                  lock (cancelSync)
+                                  {
+#if DEBUG
+                                      Console.WriteLine("Running out of resources! Scarce number! Please give more!");
+#endif
+                                      if (!cancellationToken.IsCancellationRequested)
+                                          cancellationToken.Cancel();
+                                  }
+                              },
+                              queue,
+                              semaphore
+                              );
+
+                            taskManager.Launch();
+                            #endregion
+                        }
+                        else if (size != automatonSize)
+                        {
+                            Console.WriteLine("Received incorrect automaton size.");
+                            return;
                         }
 #if DEBUG
                         Console.WriteLine($"Received size: {automatonSize} and many {unaryAutomataIndices.Count} unary automata");
@@ -78,12 +126,13 @@ namespace Client
                             queue.Enqueue(unaryIndex);
                             semaphore.Release();
                         }
+
                     }
                 );
 
                 connection.On(
                     "UpdateLength",
-                    (int serverMinimalLength) =>
+                    async (int serverMinimalLength) =>
                     {
 #if DEBUG
                         Console.WriteLine("Updated length!");
@@ -127,44 +176,7 @@ namespace Client
                     }
                 }
 
-                TaskManager<int> taskManager;
-                void setupManager()
-                {
-                    taskManager = new TaskManager<int>(
-                      threads,
-                      leftover => (leftover <= minimum),
-                      index =>
-                      {
-#if DEBUG
-                          Console.WriteLine($"Ha! Completed unary {index}");
-#endif
-                          var list = new List<ISolvedOptionalAutomaton>();
-                          foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
-                          {
-                              if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalLength)
-                                  list.Add(automaton.DeepClone());
-                          }
-
-                          resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
-                      },
-                      async () =>
-                      {
-                          lock (cancelSync)
-                          {
-#if DEBUG
-                              Console.WriteLine("Running out of resources! Scarce number! Please give more!");
-#endif
-                              if (!cancellationToken.IsCancellationRequested)
-                                  cancellationToken.Cancel();
-                          }
-                      },
-                      queue,
-                      semaphore
-                      );
-
-                    taskManager.Launch();
-                }
-
+                var firstTime = true;
                 while (connection.State == HubConnectionState.Connected)
                 {
                     lock (cancelSync)
@@ -174,8 +186,6 @@ namespace Client
 #if DEBUG
                             Console.WriteLine($"Canceled!");
 #endif
-                            recommendedIntake *= 2;
-                            minimum *= 2;
                             var oldToken = cancellationToken;
                             cancellationToken = new CancellationTokenSource();
                             oldToken.Dispose();
@@ -199,16 +209,24 @@ namespace Client
                     // might still throw an exception, we allow that
                     if (connection.State == HubConnectionState.Connected)
                     {
-                        //try
+                        if (firstTime || toSendIndices.Count > 0)
                         {
+                            firstTime = false;
                             connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", toSendIndices, toSendSolved, recommendedIntake).Wait();
                         }
-                        //catch (Exception e)
-                        //{
-                        //    Console.WriteLine("Inappropriate call, please don't mind. The connection is ended either way.");
-                        //}
                     }
-                    Task.Delay(targetTimeout, cancellationToken.Token);
+                    else
+                    {
+                        Console.WriteLine("Bye!");
+                        return;
+                    }
+                    var beforeSleep = DateTime.Now;
+                    cancellationToken.Token.WaitHandle.WaitOne();
+                    if ((DateTime.Now - beforeSleep) < targetTimeout)
+                    {
+                        recommendedIntake *= 2;
+                        minimum *= 2;
+                    }
 #if DEBUG
                     Console.WriteLine($"Woken up");
 #endif

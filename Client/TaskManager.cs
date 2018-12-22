@@ -55,10 +55,17 @@ namespace Client
                 }
             }
         }
+
         public void Launch()
         {
             foreach (var thread in threads)
                 thread.Start();
+        }
+
+        public void Abort()
+        {
+            foreach (var thread in threads)
+                thread.Abort();
         }
     }
 }

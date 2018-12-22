@@ -31,7 +31,11 @@ namespace CoreServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+#if DEBUG
+            services.AddSignalR(opts => opts.EnableDetailedErrors = true);
+#else
             services.AddSignalR();
+#endif
 
             #region Unary automata database singleton
             services.AddSingleton(

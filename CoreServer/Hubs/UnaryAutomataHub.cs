@@ -16,12 +16,10 @@ namespace CoreServer.Hubs
 
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(List<int> unarySolved, List<List<ISolvedOptionalAutomaton>> solvedInterestingAutomataPerUnary, int nextQuantity)
         {
-            database.ProcessInterestingAutomata(unarySolved, solvedInterestingAutomataPerUnary, out var changedMinimum);
+            //database.ProcessInterestingAutomata(unarySolved, solvedInterestingAutomataPerUnary, out var changedMinimum);
 
-            if (changedMinimum)
-            {
-                await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
-            }
+            //if (changedMinimum)
+            //    await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
 
             if (nextQuantity > 0)
                 await SendUnaryAutomataIndices(nextQuantity);
@@ -30,15 +28,10 @@ namespace CoreServer.Hubs
         public async Task SendUnaryAutomataIndices(int quantity)
         {
             // no need to limit the quantity (in case of overflow automata are being recomputed)
-            var automata = database.GetUnaryAutomataToProcessAndMarkAsProcessing(quantity);
-            if (automata.Count > 0)
+            var automataIndices = database.GetUnaryAutomataToProcessAndMarkAsProcessing(quantity);
+            if (automataIndices.Count > 0)
             {
-                await Clients.Caller.SendAsync(
-                    "ComputeAutomata",
-                    database.Size,
-                    database.MinimalLength,
-                    automata
-                    );
+                await Clients.Caller.SendAsync("ComputeAutomata", database.Size, database.MinimalLength, automataIndices);
             }
             else
             {
