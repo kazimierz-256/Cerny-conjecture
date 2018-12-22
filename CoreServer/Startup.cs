@@ -17,7 +17,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private const int AutomatonProblemSize = 7;
+        private const int AutomatonProblemSize = 8;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -61,7 +61,11 @@ namespace CoreServer
 
             app.UseSignalR(routes =>
             {
-                routes.MapHub<UnaryAutomataHub>("/ua");
+                routes.MapHub<UnaryAutomataHub>("/ua", options =>
+                {
+                    options.ApplicationMaxBufferSize = 16 * 1024 * 1024;
+                    options.TransportMaxBufferSize = options.ApplicationMaxBufferSize;
+                });
                 routes.MapHub<SummarizingHub>("/s");
             });
             app.UseMvc();

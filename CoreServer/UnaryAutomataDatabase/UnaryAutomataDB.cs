@@ -17,8 +17,9 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; }
         public int MinimalLength { get; private set; }
         public int Total { get; }
-        private const int MaximumLongestAutomataCount = 200;
+        public const int MaximumLongestAutomataCount = 200;
         private int allowedCount = 0;
+
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
 
         public string DumpStatistics()
@@ -29,10 +30,10 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        public void ProcessInterestingAutomata(List<int> unarySolved, List<List<ISolvedOptionalAutomaton>> solvedInterestingAutomataPerUnary, out bool changedMinimum)
+        public void ProcessInterestingAutomata(List<int> unarySolved, List<byte[]> toSendSolvedUnary, List<List<ushort>> toSendSolvedSyncLength, List<List<byte[]>> toSendSolvedB, out bool changedMinimum)
         {
             changedMinimum = false;
-            if (unarySolved.Count != solvedInterestingAutomataPerUnary.Count)
+            if (unarySolved.Count != toSendSolvedUnary.Count || unarySolved.Count != toSendSolvedSyncLength.Count || unarySolved.Count != toSendSolvedB.Count)
                 return;
 
             lock (synchronizingObject)
@@ -41,27 +42,31 @@ namespace CoreServer.UnaryAutomataDatabase
                 {
                     if (!interestingAutomataIndexToSolved.ContainsKey(unarySolved[i]))
                     {
-                        interestingAutomataIndexToSolved.Add(unarySolved[i], solvedInterestingAutomataPerUnary[i]);
+                        var list = new List<ISolvedOptionalAutomaton>();
                         // update sync word length stats
-                        foreach (var solvedAutomaton in solvedInterestingAutomataPerUnary[i])
-                        {
-                            if (!synchronizingWordLengthToCount.ContainsKey(solvedAutomaton.SynchronizingWordLength.Value))
-                                synchronizingWordLengthToCount.Add(solvedAutomaton.SynchronizingWordLength.Value, 0);
 
-                            synchronizingWordLengthToCount[solvedAutomaton.SynchronizingWordLength.Value] += 1;
-                            if (solvedAutomaton.SynchronizingWordLength.Value >= MinimalLength)
+                        for (int j = 0; j < toSendSolvedB[i].Count; j++)
+                        {
+                            var syncLength = toSendSolvedSyncLength[i][j];
+                            if (syncLength >= MinimalLength)
                             {
-                                allowedCount += 1;
+                                if (!synchronizingWordLengthToCount.ContainsKey(syncLength))
+                                    synchronizingWordLengthToCount.Add(syncLength, 0);
+
+                                synchronizingWordLengthToCount[syncLength] += 1;
+                                list.Add(new SolvedOptionalAutomaton((byte[])toSendSolvedUnary[i].Clone(), toSendSolvedB[i][j], syncLength));
                             }
                         }
+                        interestingAutomataIndexToSolved.Add(unarySolved[i], list);
                         finishedAutomata.Enqueue(new FinishedStatistics() { unaryAutomatonIndex = unarySolved[i], finishedTime = DateTime.Now });
+                        allowedCount += list.Count;
                     }
                 }
 
 
                 if (allowedCount > MaximumLongestAutomataCount)
                 {
-                    var leftover = solvedInterestingAutomataPerUnary.Count;
+                    var leftover = allowedCount;
                     var removeUpTo = -1;
                     foreach (var item in synchronizingWordLengthToCount)
                     {

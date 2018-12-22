@@ -14,12 +14,12 @@ namespace CoreServer.Hubs
 
         public UnaryAutomataHub(UnaryAutomataDB database) => this.database = database;
 
-        public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(List<int> unarySolved, List<List<ISolvedOptionalAutomaton>> solvedInterestingAutomataPerUnary, int nextQuantity)
+        public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(List<int> unarySolved, List<byte[]> toSendSolvedUnary, List<List<ushort>> toSendSolvedSyncLength, List<List<byte[]>> toSendSolvedB, int nextQuantity)
         {
-            //database.ProcessInterestingAutomata(unarySolved, solvedInterestingAutomataPerUnary, out var changedMinimum);
+            database.ProcessInterestingAutomata(unarySolved, toSendSolvedUnary, toSendSolvedSyncLength, toSendSolvedB, out var changedMinimum);
 
-            //if (changedMinimum)
-            //    await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
+            if (changedMinimum)
+                await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
 
             if (nextQuantity > 0)
                 await SendUnaryAutomataIndices(nextQuantity);
