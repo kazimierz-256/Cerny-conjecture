@@ -29,7 +29,9 @@ namespace CoreServer.UnaryAutomataDatabase
             {
                 return new ServerPresentationComputationSummary()
                 {
-                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {interestingAutomataIndexToSolved.Count} automata."
+                    total = Total,
+                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {interestingAutomataIndexToSolved.Count} automata.",
+                    finishedAutomata = finishedAutomata.ToList()
                 };
             }
         }
@@ -45,7 +47,7 @@ namespace CoreServer.UnaryAutomataDatabase
                     MinimalLength = parameters.suggestedMinimumBound;
                     changedMinimum = true;
                 }
-
+                var finishTime = DateTime.Now;
                 for (int i = 0; i < parameters.solutions.Count; i += 1)
                 {
                     if (!interestingAutomataIndexToSolved.ContainsKey(parameters.solutions[i].unaryIndex))
@@ -66,7 +68,7 @@ namespace CoreServer.UnaryAutomataDatabase
                             }
                         }
                         interestingAutomataIndexToSolved.Add(parameters.solutions[i].unaryIndex, list);
-                        finishedAutomata.Enqueue(new FinishedStatistics() { unaryAutomatonIndex = parameters.solutions[i].unaryIndex, finishedTime = DateTime.Now });
+                        finishedAutomata.Enqueue(new FinishedStatistics() { solution = parameters.solutions[i], finishTime = finishTime, issueTime = issueTime[parameters.solutions[i].unaryIndex] });
                         allowedCount += list.Count;
                     }
                 }
@@ -123,16 +125,17 @@ namespace CoreServer.UnaryAutomataDatabase
                     }
                 }
 
-                foreach (var item in toProcess)
-                    processingOrFinishedAutomata.Enqueue(item);
+                var time = DateTime.Now;
+                foreach (var index in toProcess)
+                {
+                    processingOrFinishedAutomata.Enqueue(index);
+                    if (!issueTime.ContainsKey(index))
+                        issueTime.Add(index, time);
+                }
             }
             return toProcess;
         }
-        public class FinishedStatistics
-        {
-            public int unaryAutomatonIndex;
-            public DateTime finishedTime;
-        }
+        private readonly Dictionary<int, DateTime> issueTime = new Dictionary<int, DateTime>();
         // may contain already computed!
         private readonly Queue<int> processingOrFinishedAutomata = new Queue<int>();
         private readonly Queue<FinishedStatistics> finishedAutomata = new Queue<FinishedStatistics>();
@@ -145,7 +148,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public UnaryAutomataDB(int size)
         {
             Size = size;
-            MinimalLength = 0;
+            MinimalLength = (size - 1) * (size - 1) / 8;
 
             Total = theory[size - 1];
             var automataIndices = new int[Total];

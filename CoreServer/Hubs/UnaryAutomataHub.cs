@@ -15,6 +15,7 @@ namespace CoreServer.Hubs
 
         public UnaryAutomataHub(UnaryAutomataDB database) => this.database = database;
 
+        private const int targetTimeout = 30;
         private const string solversGroup = "solvers";
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
@@ -37,7 +38,8 @@ namespace CoreServer.Hubs
                         automatonSize = database.Size,
                         serverMinimalLength = database.MinimalLength,
                         unaryAutomataIndices = automataIndices,
-                        targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount
+                        targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount,
+                        targetTimeoutSeconds = targetTimeout
                     };
                     await Clients.Caller.SendAsync("ComputeAutomata", parameter);
                 }

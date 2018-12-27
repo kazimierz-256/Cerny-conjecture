@@ -52,18 +52,26 @@ namespace Presentation
                 connection = new HubConnectionBuilder()
                     .WithUrl(addressBox.Text)
                     .Build();
-                await connection.StartAsync();
                 connection.On(
                     "ShowSimpleTextStatistics",
                     (ServerPresentationComputationSummary resultingTextStatistics) =>
                     {
                         Invoke(new Action(() =>
                         {
-                            logBox.Text = resultingTextStatistics.description;
+                            var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
+                            logBox.Text = resultingTextStatistics.description + $" Total speed: {resultingTextStatistics.finishedAutomata.Count / totalSeconds:F2}";
                         }));
                     }
                     );
                 addressBox.BackColor = Color.YellowGreen;
+                try
+                {
+                    await connection.StartAsync();
+                }
+                catch (Exception e)
+                {
+
+                }
             }
         }
 

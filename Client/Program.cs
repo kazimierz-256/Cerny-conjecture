@@ -29,107 +29,110 @@ namespace Client
         }
         static void Main(string[] args)
         {
-            using (Semaphore questSemaphore = new Semaphore(0, int.MaxValue),
-                 solutionSemaphore = new Semaphore(0, int.MaxValue))
+            while (true)
             {
-                var maximumAutomatonCollectionSize = int.MaxValue;
-                var targetTimeout = TimeSpan.FromSeconds(30);
-                var threads = Environment.ProcessorCount;
-                var minimalIntake = Environment.ProcessorCount;
-                var recommendedIntake = minimalIntake * 4;
-                var askedForMore = true;
 
-                var size = -1;
-                var minimalSynchronizingLength = 0;
-                var unaryResourcesQueue = new ConcurrentQueue<int>();
-                var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
-                var resultsMergedTotalAutomata = 0;
-
-                #region address setup
-                Console.WriteLine("Hello User :) XO XO Please enter the address");
-                var defaultAddress = "http://localhost:62752/ua";
-                Console.WriteLine($"Could it be {defaultAddress}? If yes, just press enter.");
-                var address = Console.ReadLine();
-
-                if (address.Equals(string.Empty))
-                    address = defaultAddress;
-                #endregion
-
-                #region WebSocket connection
-                var shouldReconnect = true;
-                var connection = new HubConnectionBuilder()
-                    .WithUrl(address)
-                    .Build();
-
-                TaskManager<int> taskManager = null;
-                connection.On("NoMoreAutomataThankYou", async () =>
+                try
+                {
+                    using (
+                        Semaphore questSemaphore = new Semaphore(0, int.MaxValue),
+                         solutionSemaphore = new Semaphore(0, int.MaxValue)
+                         )
                     {
-                        SayColoured(ConsoleColor.Magenta, "No more automata, thanks");
-                        shouldReconnect = false;
-                        await connection.StopAsync();
-                    }
-                );
-                var firstTimeSetup = true;
-                connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
-                    {
-                        maximumAutomatonCollectionSize = parameters.targetCollectionSize;
+                        var maximumAutomatonCollectionSize = int.MaxValue;
+                        var targetTimeout = TimeSpan.FromSeconds(10);
+                        var threads = args.Length > 1 ? int.Parse(args[1]) : Environment.ProcessorCount;
+                        var minimalIntake = threads;
+                        var recommendedIntake = minimalIntake * 4;
+                        var askedForMore = true;
 
-                        if (parameters.serverMinimalLength != minimalSynchronizingLength)
-                            SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
+                        var size = -1;
+                        var minimalSynchronizingLength = 0;
+                        var unaryResourcesQueue = new ConcurrentQueue<int>();
+                        var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
+                        var resultsMergedTotalAutomata = 0;
 
-                        // no need for pedantic synchronization, the server will ultimately handle everything synchronously
-                        if (minimalSynchronizingLength < parameters.serverMinimalLength)
-                            minimalSynchronizingLength = parameters.serverMinimalLength;
+                        #region address setup
+                        var address = args[0];
+                        Console.WriteLine($"Hello User :) XO XO. Connecting to {address}");
+                        #endregion
 
-                        if (firstTimeSetup)
-                        {
-                            firstTimeSetup = false;
-                            size = parameters.automatonSize;
-                            #region SETUP
+                        #region WebSocket connection
+                        var shouldReconnect = true;
+                        var connection = new HubConnectionBuilder()
+                            .WithUrl(address)
+                            .Build();
 
-                            taskManager?.Abort();
-
-                            taskManager = new TaskManager<int>(
-                            threads,
-                            leftover => (leftover <= minimalIntake),
-                            index =>
+                        TaskManager<int> taskManager = null;
+                        connection.On("NoMoreAutomataThankYou", async () =>
                             {
-                                var list = new List<ISolvedOptionalAutomaton>();
-                                foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
-                                {
-                                    if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
-                                        list.Add(automaton.DeepClone());
+                                SayColoured(ConsoleColor.Magenta, "No more automata, thanks");
+                                shouldReconnect = false;
+                                await connection.StopAsync();
+                            }
+                        );
+                        var firstTimeSetup = true;
+                        connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
+                            {
+                                targetTimeout = TimeSpan.FromSeconds(parameters.targetTimeoutSeconds);
+                                maximumAutomatonCollectionSize = parameters.targetCollectionSize;
 
-                                    if (list.Count > 0 && !list[list.Count - 1].SynchronizingWordLength.HasValue)
+                                if (parameters.serverMinimalLength != minimalSynchronizingLength)
+                                    SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
+
+                                // no need for pedantic synchronization, the server will ultimately handle everything synchronously
+                                if (minimalSynchronizingLength < parameters.serverMinimalLength)
+                                    minimalSynchronizingLength = parameters.serverMinimalLength;
+
+                                if (firstTimeSetup)
+                                {
+                                    firstTimeSetup = false;
+                                    size = parameters.automatonSize;
+                                    #region SETUP
+
+                                    taskManager?.Abort();
+
+                                    taskManager = new TaskManager<int>(
+                                    threads,
+                                    leftover => (leftover <= minimalIntake),
+                                    index =>
                                     {
-                                        throw new Exception("Not synchronizable!");
-                                    }
-                                }
+                                        var list = new List<ISolvedOptionalAutomaton>();
+                                        foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
+                                        {
+                                            if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
+                                                list.Add(automaton.DeepClone());
+
+                                            if (list.Count > 0 && !list[list.Count - 1].SynchronizingWordLength.HasValue)
+                                            {
+                                                throw new Exception("Not synchronizable!");
+                                            }
+                                        }
 #if DEBUG
                                 if (list.Count == 0)
                                     SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
                                 else
                                     SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
 #endif
-                                resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
-                                Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
-                            },
-                            async () =>
-                            {
-                                solutionSemaphore.Release();
-                            },
-                            unaryResourcesQueue,
-                            questSemaphore
-                            );
+                                        resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
+                                        Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
+                                    },
+                                    async () =>
+                                    {
+                                        solutionSemaphore.Release();
+                                    },
+                                    unaryResourcesQueue,
+                                    questSemaphore
+                                    );
 
-                            taskManager.Launch();
-                            #endregion
-                        }
-                        else if (size != parameters.automatonSize)
-                        {
-                            Console.WriteLine("Received incorrect automaton size.");
-                            return;
-                        }
+                                    taskManager.Launch();
+                                    #endregion
+                                }
+                                else if (size != parameters.automatonSize)
+                                {
+                                    Console.WriteLine("Received incorrect automaton size.");
+                                    return;
+                                }
 #if DEBUG
                         SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
                         var first = true;
@@ -145,123 +148,131 @@ namespace Client
                         Console.WriteLine();
 #endif
 
-                        foreach (var unaryIndex in parameters.unaryAutomataIndices)
-                        {
-                            unaryResourcesQueue.Enqueue(unaryIndex);
-                            questSemaphore.Release();
-                        }
-                        askedForMore = false;
-                    }
-                );
-
-                #region Updating minimum synchronizing word length
-                connection.On("UpdateLength", async (int serverMinimalLength) =>
-                            {
-                                SayColoured(ConsoleColor.DarkRed, $"Dynamically updated length to {serverMinimalLength}!");
-                                minimalSynchronizingLength = serverMinimalLength;
+                                foreach (var unaryIndex in parameters.unaryAutomataIndices)
+                                {
+                                    unaryResourcesQueue.Enqueue(unaryIndex);
+                                    questSemaphore.Release();
+                                }
+                                askedForMore = false;
                             }
                         );
-                #endregion
 
-                #region on connection close
-                connection.Closed += async (error) =>
-                        {
-                            if (shouldReconnect)
-                            {
+                        #region Updating minimum synchronizing word length
+                        connection.On("UpdateLength", async (int serverMinimalLength) =>
+                                    {
+                                        SayColoured(ConsoleColor.DarkRed, $"Dynamically updated length to {serverMinimalLength}!");
+                                        minimalSynchronizingLength = serverMinimalLength;
+                                    }
+                                );
+                        #endregion
+
+                        #region on connection close
+                        connection.Closed += async (error) =>
+                                {
+                                    if (shouldReconnect)
+                                    {
 #if DEBUG
                                 SayColoured(ConsoleColor.Red, ":( Closed connection. Reconnecting...");
 #endif
-                                await Task.Delay((int)(Math.Exp(new Random().Next(0, 6)) * 10));
-                                await connection.StartAsync();
-                            }
-                            else
-                            {
+                                        await Task.Delay((int)(Math.Exp(new Random().Next(0, 6)) * 10));
+                                        await connection.StartAsync();
+                                    }
+                                    else
+                                    {
 #if DEBUG
                                 SayColoured(ConsoleColor.Magenta, "Connection ended :)");
 #endif
-                            }
-                        };
-                #endregion
-                #endregion
-                var repeat = true;
-                while (repeat)
-                {
-                    repeat = false;
-                    try
-                    {
-                        connection.StartAsync().Wait();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Could not connect. Retrying...");
-                        repeat = true;
-                    }
-                }
-
-                var firstTime = true;
-                var solvedUnaryAutomata = 0;
-                var solveBeginningTime = DateTime.Now;
-                var afterSentDate = DateTime.Now;
-                while (connection.State == HubConnectionState.Connected)
-                {
-                    var previousMinimalSyncLength = minimalSynchronizingLength;
-                    var results = PrepareNextRound(resultsMerged, ref resultsMergedTotalAutomata, ref maximumAutomatonCollectionSize, ref minimalSynchronizingLength, out var toSendAutomataCount);
-                    if (minimalSynchronizingLength != previousMinimalSyncLength)
-                        SayColoured(ConsoleColor.Red, $"Self-changed the minimal sync length from {previousMinimalSyncLength} to {minimalSynchronizingLength}");
-
-                    // might still throw an exception, we allow that
-                    if (connection.State == HubConnectionState.Connected)
-                    {
-                        if (firstTime || results.Count > 0)
+                                    }
+                                };
+                        #endregion
+                        #endregion
+                        var repeat = true;
+                        while (repeat)
                         {
-                            firstTime = false;
-                            var parameters = new ClientServerRequestForMoreAutomata()
+                            repeat = false;
+                            try
                             {
-                                nextQuantity = recommendedIntake - unaryResourcesQueue.Count,
-                                suggestedMinimumBound = minimalSynchronizingLength,
-                                solutions = results
-                            };
-                            connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters).Wait();
+                                connection.StartAsync().Wait();
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Could not connect. Retrying...");
+                                repeat = true;
+                            }
+                        }
 
-                            #region Sent back description
-                            Console.Write("Sent back ");
-                            SayColoured(ConsoleColor.DarkGreen, parameters.solutions.Count.ToString(), false);
-                            Console.Write(" unary solutions consisting of ");
-                            SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
-                            Console.WriteLine(" automata");
+                        var firstTime = true;
+                        var solvedUnaryAutomata = 0;
+                        var solveBeginningTime = DateTime.Now;
+                        var afterSentDate = DateTime.Now;
+                        while (connection.State == HubConnectionState.Connected)
+                        {
+                            var previousMinimalSyncLength = minimalSynchronizingLength;
+                            var results = PrepareNextRound(resultsMerged, ref resultsMergedTotalAutomata, ref maximumAutomatonCollectionSize, ref minimalSynchronizingLength, out var toSendAutomataCount);
+                            if (minimalSynchronizingLength != previousMinimalSyncLength)
+                                SayColoured(ConsoleColor.Red, $"Self-changed the minimal sync length from {previousMinimalSyncLength} to {minimalSynchronizingLength}");
 
-                            solvedUnaryAutomata += results.Count;
-                            var speed = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
-                            SayColoured(ConsoleColor.DarkGray, $"Total speed: {speed:F2} unary automata per second");
-                            #endregion
+                            // might still throw an exception, we allow that
+                            if (connection.State == HubConnectionState.Connected)
+                            {
+                                if (firstTime || results.Count > 0)
+                                {
+                                    firstTime = false;
+                                    var parameters = new ClientServerRequestForMoreAutomata()
+                                    {
+                                        nextQuantity = recommendedIntake - unaryResourcesQueue.Count,
+                                        suggestedMinimumBound = minimalSynchronizingLength,
+                                        solutions = results
+                                    };
+                                    connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters).Wait();
 
-                            afterSentDate = DateTime.Now;
+                                    #region Sent back description
+                                    Console.Write("Sent back ");
+                                    SayColoured(ConsoleColor.DarkGreen, parameters.solutions.Count.ToString(), false);
+                                    Console.Write(" unary solutions consisting of ");
+                                    SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
+                                    Console.WriteLine(" automata");
+
+                                    solvedUnaryAutomata += results.Count;
+                                    var speed = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
+                                    SayColoured(ConsoleColor.DarkGray, $"Total speed: {speed:F2} unary automata per second");
+                                    #endregion
+
+                                    afterSentDate = DateTime.Now;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Bye!");
+                                return;
+                            }
+
+                            var elapsedTimeout = TimeSpan.Zero;
+                            do
+                            {
+                                solutionSemaphore.WaitOne(targetTimeout - elapsedTimeout);
+                                elapsedTimeout = DateTime.Now - afterSentDate;
+                                if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
+                                    break;
+                            } while (targetTimeout > elapsedTimeout);
+
+                            if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
+                            {
+                                askedForMore = true;
+                                minimalIntake += Environment.ProcessorCount;
+                                recommendedIntake += Environment.ProcessorCount * 4;
+                                SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}");
+                            }
+
+
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine("Bye!");
-                        return;
-                    }
 
-                    var elapsedTimeout = TimeSpan.Zero;
-                    do
-                    {
-                        solutionSemaphore.WaitOne(targetTimeout - elapsedTimeout);
-                        elapsedTimeout = DateTime.Now - afterSentDate;
-                        if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
-                            break;
-                    } while (targetTimeout > elapsedTimeout);
-
-                    if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
-                    {
-                        askedForMore = true;
-                        minimalIntake += Environment.ProcessorCount;
-                        recommendedIntake += Environment.ProcessorCount * 4;
-                        SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}");
-                    }
-
-
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Exception: " + e.Message);
+                    Console.WriteLine("Reconnecting...");
                 }
             }
 
