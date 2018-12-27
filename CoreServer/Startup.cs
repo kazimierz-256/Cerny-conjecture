@@ -63,7 +63,7 @@ namespace CoreServer
             {
                 routes.MapHub<UnaryAutomataHub>("/ua", options =>
                 {
-                    options.ApplicationMaxBufferSize = 64 * 1024 * 1024;
+                    options.ApplicationMaxBufferSize = UnaryAutomataDB.MaximumLongestAutomataCount * 10 * 1024;
                     options.TransportMaxBufferSize = options.ApplicationMaxBufferSize;
                 });
                 routes.MapHub<SummarizingHub>("/s");

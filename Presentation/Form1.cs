@@ -1,4 +1,5 @@
-﻿using MaterialSkin;
+﻿using CommunicationContracts;
+using MaterialSkin;
 using MaterialSkin.Controls;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
@@ -54,11 +55,11 @@ namespace Presentation
                 await connection.StartAsync();
                 connection.On(
                     "ShowSimpleTextStatistics",
-                    (string resultingTextStatistics) =>
+                    (ServerPresentationComputationSummary resultingTextStatistics) =>
                     {
                         Invoke(new Action(() =>
                         {
-                            logBox.Text = resultingTextStatistics;
+                            logBox.Text = resultingTextStatistics.description;
                         }));
                     }
                     );
@@ -74,6 +75,6 @@ namespace Presentation
                 addressBox.BackColor = Color.OrangeRed;
             }
         }
-        
+
     }
 }

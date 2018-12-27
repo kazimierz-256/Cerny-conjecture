@@ -163,5 +163,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommunicationContracts\CommunicationContracts.csproj">
+      <Project>{8A59F49D-94F4-4E50-8245-9EBB3D3A537E}</Project>
+      <Name>CommunicationContracts</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

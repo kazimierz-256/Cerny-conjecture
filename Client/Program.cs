@@ -33,14 +33,13 @@ namespace Client
             {
                 var maximumAutomatonCollectionSize = int.MaxValue;
                 var targetTimeout = TimeSpan.FromSeconds(30);
-                var artificialWakeup = false;
                 var threads = Environment.ProcessorCount;
                 var minimalIntake = Environment.ProcessorCount;
                 var recommendedIntake = minimalIntake * 4;
 
                 var size = -1;
                 var minimalSynchronizingLength = 0;
-                var queue = new ConcurrentQueue<int>();
+                var unaryResourcesQueue = new ConcurrentQueue<int>();
                 var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
                 var resultsMergedTotalAutomata = 0;
                 var cancellationToken = new CancellationTokenSource();
@@ -77,6 +76,7 @@ namespace Client
                         if (parameters.serverMinimalLength != minimalSynchronizingLength)
                             SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
 
+                        // no need for pedantic synchronization, the server will ultimately handle everything synchronously
                         if (minimalSynchronizingLength < parameters.serverMinimalLength)
                             minimalSynchronizingLength = parameters.serverMinimalLength;
 
@@ -119,7 +119,6 @@ namespace Client
 #endif
                                     lock (cancelSync)
                                     {
-                                        artificialWakeup = true;
                                         if (!cancellationToken.IsCancellationRequested)
                                             cancellationToken.Cancel();
                                     }
@@ -136,7 +135,7 @@ namespace Client
                                         cancellationToken.Cancel();
                                 }
                             },
-                            queue,
+                            unaryResourcesQueue,
                             semaphore
                             );
 
@@ -165,7 +164,7 @@ namespace Client
 
                         foreach (var unaryIndex in parameters.unaryAutomataIndices)
                         {
-                            queue.Enqueue(unaryIndex);
+                            unaryResourcesQueue.Enqueue(unaryIndex);
                             semaphore.Release();
                         }
 
@@ -221,26 +220,30 @@ namespace Client
                 var solveBeginningTime = DateTime.Now;
                 while (connection.State == HubConnectionState.Connected)
                 {
-                    lock (cancelSync)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
+                    if (!firstTime)
+                        lock (cancelSync)
                         {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
 #if DEBUG
-                            SayColoured(ConsoleColor.Yellow, $"Canceled!");
+                                SayColoured(ConsoleColor.Yellow, $"Canceled!");
 #endif
-                            var oldToken = cancellationToken;
-                            cancellationToken = new CancellationTokenSource();
-                            oldToken.Dispose();
-                        }
-                        else
-                        {
+                                var oldToken = cancellationToken;
+                                cancellationToken = new CancellationTokenSource();
+                                oldToken.Dispose();
+                            }
+                            else
+                            {
 #if DEBUG
-                            SayColoured(ConsoleColor.Magenta, $"Timed out, good timing :)");
+                                SayColoured(ConsoleColor.Magenta, $"Timed out, good timing :)");
 #endif
+                            }
                         }
-                    }
 
+                    var previousMinimalSyncLength = minimalSynchronizingLength;
                     var results = PrepareNextRound(resultsMerged, ref resultsMergedTotalAutomata, ref maximumAutomatonCollectionSize, ref minimalSynchronizingLength, out var toSendAutomataCount);
+                    if (minimalSynchronizingLength != previousMinimalSyncLength)
+                        SayColoured(ConsoleColor.Red, $"Self-changed the minimal sync length from {previousMinimalSyncLength} to {minimalSynchronizingLength}");
 
                     // might still throw an exception, we allow that
                     if (connection.State == HubConnectionState.Connected)
@@ -256,6 +259,7 @@ namespace Client
                             };
                             connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters).Wait();
 
+                            #region Sent back description
                             Console.Write("Sent back ");
                             SayColoured(ConsoleColor.DarkGreen, parameters.solutions.Count.ToString(), false);
                             Console.Write(" unary solutions consisting of ");
@@ -265,7 +269,7 @@ namespace Client
                             solvedUnaryAutomata += results.Count;
                             var speed = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
                             SayColoured(ConsoleColor.DarkGray, $"Total speed: {speed:F2} unary automata per second");
-
+                            #endregion
                         }
                     }
                     else
@@ -274,19 +278,19 @@ namespace Client
                         return;
                     }
                     var beforeSleep = DateTime.Now;
-                    cancellationToken.Token.WaitHandle.WaitOne();
-                    if ((DateTime.Now - beforeSleep) < targetTimeout && !artificialWakeup)
+                    var difference = TimeSpan.Zero;
+                    do
                     {
-#if DEBUG
-                        SayColoured(ConsoleColor.Green, "Increased recommended intake");
-#endif
+                        cancellationToken.Token.WaitHandle.WaitOne(targetTimeout - difference);
+                        difference = DateTime.Now - beforeSleep;
+                    } while (unaryResourcesQueue.Count > minimalIntake && targetTimeout > difference);
+
+                    if (unaryResourcesQueue.Count <= minimalIntake)
+                    {
                         recommendedIntake *= 2;
                         minimalIntake *= 2;
+                        SayColoured(ConsoleColor.DarkRed, "Increased recommended intake");
                     }
-#if DEBUG
-                    SayColoured(ConsoleColor.Green, $"Woken up" + (artificialWakeup ? " artificially" : string.Empty));
-#endif
-                    artificialWakeup = false;
                 }
             }
 

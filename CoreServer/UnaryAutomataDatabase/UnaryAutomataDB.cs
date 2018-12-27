@@ -18,16 +18,19 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; }
         public int MinimalLength { get; private set; }
         public int Total { get; }
-        public const int MaximumLongestAutomataCount = 1000;
+        public const int MaximumLongestAutomataCount = 100;
         private int allowedCount = 0;
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
 
-        public string DumpStatistics()
+        public ServerPresentationComputationSummary DumpStatistics()
         {
             lock (synchronizingObject)
             {
-                return $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {interestingAutomataIndexToSolved.Count} automata.";
+                return new ServerPresentationComputationSummary()
+                {
+                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {interestingAutomataIndexToSolved.Count} automata."
+                };
             }
         }
 
