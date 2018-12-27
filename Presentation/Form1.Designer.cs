@@ -82,7 +82,7 @@
             this.addressBox.SelectionStart = 0;
             this.addressBox.Size = new System.Drawing.Size(776, 36);
             this.addressBox.TabIndex = 6;
-            this.addressBox.Text = "http://localhost:62752/s";
+            this.addressBox.Text = "http://localhost:62752/ua";
             this.addressBox.UseSystemPasswordChar = false;
             // 
             // Presentation

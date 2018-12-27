@@ -29,21 +29,21 @@ namespace Client
         }
         static void Main(string[] args)
         {
-            using (var semaphore = new Semaphore(0, int.MaxValue))
+            using (Semaphore questSemaphore = new Semaphore(0, int.MaxValue),
+                 solutionSemaphore = new Semaphore(0, int.MaxValue))
             {
                 var maximumAutomatonCollectionSize = int.MaxValue;
                 var targetTimeout = TimeSpan.FromSeconds(30);
                 var threads = Environment.ProcessorCount;
                 var minimalIntake = Environment.ProcessorCount;
                 var recommendedIntake = minimalIntake * 4;
+                var askedForMore = true;
 
                 var size = -1;
                 var minimalSynchronizingLength = 0;
                 var unaryResourcesQueue = new ConcurrentQueue<int>();
                 var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
                 var resultsMergedTotalAutomata = 0;
-                var cancellationToken = new CancellationTokenSource();
-                var cancelSync = new object();
 
                 #region address setup
                 Console.WriteLine("Hello User :) XO XO Please enter the address");
@@ -69,6 +69,7 @@ namespace Client
                         await connection.StopAsync();
                     }
                 );
+                var firstTimeSetup = true;
                 connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
                     {
                         maximumAutomatonCollectionSize = parameters.targetCollectionSize;
@@ -80,8 +81,9 @@ namespace Client
                         if (minimalSynchronizingLength < parameters.serverMinimalLength)
                             minimalSynchronizingLength = parameters.serverMinimalLength;
 
-                        if (size == -1)
+                        if (firstTimeSetup)
                         {
+                            firstTimeSetup = false;
                             size = parameters.automatonSize;
                             #region SETUP
 
@@ -111,32 +113,13 @@ namespace Client
 #endif
                                 resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
                                 Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
-
-                                if (resultsMergedTotalAutomata >= maximumAutomatonCollectionSize && !cancellationToken.IsCancellationRequested)
-                                {
-#if DEBUG
-                                    SayColoured(ConsoleColor.Red, "Critical automaton count reached!");
-#endif
-                                    lock (cancelSync)
-                                    {
-                                        if (!cancellationToken.IsCancellationRequested)
-                                            cancellationToken.Cancel();
-                                    }
-                                }
                             },
                             async () =>
                             {
-                                lock (cancelSync)
-                                {
-#if DEBUG
-                                    SayColoured(ConsoleColor.Green, "Running out of resources! Scarce number! Please give more!");
-#endif
-                                    if (!cancellationToken.IsCancellationRequested)
-                                        cancellationToken.Cancel();
-                                }
+                                solutionSemaphore.Release();
                             },
                             unaryResourcesQueue,
-                            semaphore
+                            questSemaphore
                             );
 
                             taskManager.Launch();
@@ -165,9 +148,9 @@ namespace Client
                         foreach (var unaryIndex in parameters.unaryAutomataIndices)
                         {
                             unaryResourcesQueue.Enqueue(unaryIndex);
-                            semaphore.Release();
+                            questSemaphore.Release();
                         }
-
+                        askedForMore = false;
                     }
                 );
 
@@ -218,28 +201,9 @@ namespace Client
                 var firstTime = true;
                 var solvedUnaryAutomata = 0;
                 var solveBeginningTime = DateTime.Now;
+                var afterSentDate = DateTime.Now;
                 while (connection.State == HubConnectionState.Connected)
                 {
-                    if (!firstTime)
-                        lock (cancelSync)
-                        {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-#if DEBUG
-                                SayColoured(ConsoleColor.Yellow, $"Canceled!");
-#endif
-                                var oldToken = cancellationToken;
-                                cancellationToken = new CancellationTokenSource();
-                                oldToken.Dispose();
-                            }
-                            else
-                            {
-#if DEBUG
-                                SayColoured(ConsoleColor.Magenta, $"Timed out, good timing :)");
-#endif
-                            }
-                        }
-
                     var previousMinimalSyncLength = minimalSynchronizingLength;
                     var results = PrepareNextRound(resultsMerged, ref resultsMergedTotalAutomata, ref maximumAutomatonCollectionSize, ref minimalSynchronizingLength, out var toSendAutomataCount);
                     if (minimalSynchronizingLength != previousMinimalSyncLength)
@@ -253,7 +217,7 @@ namespace Client
                             firstTime = false;
                             var parameters = new ClientServerRequestForMoreAutomata()
                             {
-                                nextQuantity = recommendedIntake,
+                                nextQuantity = recommendedIntake - unaryResourcesQueue.Count,
                                 suggestedMinimumBound = minimalSynchronizingLength,
                                 solutions = results
                             };
@@ -270,6 +234,8 @@ namespace Client
                             var speed = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
                             SayColoured(ConsoleColor.DarkGray, $"Total speed: {speed:F2} unary automata per second");
                             #endregion
+
+                            afterSentDate = DateTime.Now;
                         }
                     }
                     else
@@ -277,20 +243,25 @@ namespace Client
                         Console.WriteLine("Bye!");
                         return;
                     }
-                    var beforeSleep = DateTime.Now;
-                    var difference = TimeSpan.Zero;
+
+                    var elapsedTimeout = TimeSpan.Zero;
                     do
                     {
-                        cancellationToken.Token.WaitHandle.WaitOne(targetTimeout - difference);
-                        difference = DateTime.Now - beforeSleep;
-                    } while (unaryResourcesQueue.Count > minimalIntake && targetTimeout > difference);
+                        solutionSemaphore.WaitOne(targetTimeout - elapsedTimeout);
+                        elapsedTimeout = DateTime.Now - afterSentDate;
+                        if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
+                            break;
+                    } while (targetTimeout > elapsedTimeout);
 
-                    if (unaryResourcesQueue.Count <= minimalIntake)
+                    if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
                     {
-                        recommendedIntake *= 2;
-                        minimalIntake *= 2;
-                        SayColoured(ConsoleColor.DarkRed, "Increased recommended intake");
+                        askedForMore = true;
+                        minimalIntake += Environment.ProcessorCount;
+                        recommendedIntake += Environment.ProcessorCount * 4;
+                        SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}");
                     }
+
+
                 }
             }
 

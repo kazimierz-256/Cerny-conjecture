@@ -15,36 +15,55 @@ namespace CoreServer.Hubs
 
         public UnaryAutomataHub(UnaryAutomataDB database) => this.database = database;
 
+        private const string solversGroup = "solvers";
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
+            if (parameters.solutions.Count == 0)
+                await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
+
             database.ProcessInterestingAutomata(parameters, out var changedMinimum);
 
             if (changedMinimum)
-                await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
+                await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
 
             if (parameters.nextQuantity > 0)
-                await SendUnaryAutomataIndices(parameters.nextQuantity);
+            {
+                // no need to limit the quantity (in case of overflow automata are being recomputed)
+                var automataIndices = database.GetUnaryAutomataToProcessAndMarkAsProcessing(parameters.nextQuantity);
+                if (automataIndices.Count > 0)
+                {
+                    var parameter = new ServerClientSentUnaryAutomataWithSettings()
+                    {
+                        automatonSize = database.Size,
+                        serverMinimalLength = database.MinimalLength,
+                        unaryAutomataIndices = automataIndices,
+                        targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount
+                    };
+                    await Clients.Caller.SendAsync("ComputeAutomata", parameter);
+                }
+                else
+                {
+                    await Clients.Group(solversGroup).SendAsync("NoMoreAutomataThankYou");
+                }
+            }
+
+            await SendStatisticsToAll();
         }
 
-        public async Task SendUnaryAutomataIndices(int quantity)
+        ///// Statistics
+        private const string statisticsGroup = "statistics";
+        public async Task SendStatistics()
         {
-            // no need to limit the quantity (in case of overflow automata are being recomputed)
-            var automataIndices = database.GetUnaryAutomataToProcessAndMarkAsProcessing(quantity);
-            if (automataIndices.Count > 0)
-            {
-                var parameter = new ServerClientSentUnaryAutomataWithSettings()
-                {
-                    automatonSize = database.Size,
-                    serverMinimalLength = database.MinimalLength,
-                    unaryAutomataIndices = automataIndices,
-                    targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount
-                };
-                await Clients.Caller.SendAsync("ComputeAutomata", parameter);
-            }
-            else
-            {
-                await Clients.Caller.SendAsync("NoMoreAutomataThankYou");
-            }
+            await Clients.Caller.SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
+        }
+        public async Task SendStatisticsToAll()
+        {
+            await Clients.Group(statisticsGroup).SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
+        }
+        public async Task SubscribeAndSendStatistics()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, statisticsGroup);
+            await SendStatistics();
         }
     }
 }

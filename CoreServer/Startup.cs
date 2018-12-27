@@ -17,7 +17,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private const int AutomatonProblemSize = 8;
+        private const int AutomatonProblemSize = 12;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -66,7 +66,6 @@ namespace CoreServer
                     options.ApplicationMaxBufferSize = UnaryAutomataDB.MaximumLongestAutomataCount * 10 * 1024;
                     options.TransportMaxBufferSize = options.ApplicationMaxBufferSize;
                 });
-                routes.MapHub<SummarizingHub>("/s");
             });
             app.UseMvc();
         }

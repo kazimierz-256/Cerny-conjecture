@@ -34,7 +34,7 @@ namespace Presentation
             await RefreshConnection();
             if (connection != null)
             {
-                await connection.InvokeAsync("SendStatistics");
+                await connection.InvokeAsync("SubscribeAndSendStatistics");
             }
         }
 
