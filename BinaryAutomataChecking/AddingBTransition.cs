@@ -21,6 +21,77 @@ namespace BinaryAutomataChecking
             }
         }
 
+        /// <summary>
+        /// Be careful! Not entirely sure it is correct
+        /// </summary>
+        public IEnumerable<CoreDefinitions.IOptionalAutomaton> GenerateAcIncrementally()
+        {
+            for (int place = 0; place < n; place++)
+            {
+                if (!isVertInAc[place])
+                    automata.TransitionFunctionsB[place] = CoreDefinitions.OptionalAutomaton.MissingTransition;
+                else
+                {
+                    byte i = 0;
+                    for (; i < n; i++)
+                    {
+                        if (isVertInAc[i])
+                        {
+                            automata.TransitionFunctionsB[place] = i;
+                            break;
+                        }
+                    }
+
+                    // czy to wygląda ok? myślę, że inżyniersko jest równoważne
+                    if (i == n)
+                        yield break;
+                }
+            }
+            yield return automata;
+            var initialBs = (byte[])automata.TransitionFunctionsB.Clone();
+
+            while (true)
+            {
+                int place = n - 1;
+                var foundFollower = false;
+                for (; place >= 0; place -= 1)
+                {
+                    if (!isVertInAc[place])
+                    {
+                        // cannot go further with this value
+                        continue;
+                    }
+                    else
+                    {
+                        for (int incremental = automata.TransitionFunctionsB[place] + 1; incremental < n; incremental++)
+                        {
+                            if (isVertInAc[incremental])
+                            {
+                                // found ok, following places are 'initial'
+                                automata.TransitionFunctionsB[place] = (byte)incremental;
+                                foundFollower = true;
+                                break;
+                            }
+                        }
+
+                        if (foundFollower)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            automata.TransitionFunctionsB[place] = initialBs[place];
+                        }
+                    }
+                }
+
+                if (place < 0)
+                    yield break;
+                else
+                    yield return automata;
+            }
+        }
+
 
         public IEnumerable<CoreDefinitions.IOptionalAutomaton> GenerateAc() => Generate_rec(0);
 

@@ -37,7 +37,7 @@ namespace BinaryAutomataCheckingTests
 
         [Theory]
         [InlineData(new int[] { 0, 1 },
-            new bool[] { true,true}, 2)]
+            new bool[] { true, true }, 2)]
         [InlineData(new int[] { 1, 2, 2 },
             new bool[] { false, true, true }, 2)]
         public void MakeIsVertInAcTab(int[] a_tab, bool[] isVertInAcExpected, int AcSizeExpec)
@@ -68,7 +68,7 @@ namespace BinaryAutomataCheckingTests
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
 
-            bool[] isVertTab ;
+            bool[] isVertTab;
             AddingBTransition.MakeIsVertInAcTabAndGetAcSize(a_tab, out isVertTab);
 
             AddingBTransition addingBTransition = new AddingBTransition(a, isVertTab);
@@ -84,6 +84,44 @@ namespace BinaryAutomataCheckingTests
 
 
         [Theory]
+        [InlineData(new byte[] { 0, 1 }, new byte[] { 0, 0 },
+            new byte[] { 0, 0 },
+            new byte[] { 0, 1 },
+            new byte[] { 1, 0 },
+            new byte[] { 1, 1 })]
+        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { 0, 0, 0 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 2 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 1 },
+            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 2 })]
+        public void GenerateAcSameAsFast(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
+        {
+            IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
+
+            bool[] isVertTab;
+            AddingBTransition.MakeIsVertInAcTabAndGetAcSize(a_tab, out isVertTab);
+
+            AddingBTransition addingBTransition = new AddingBTransition(a, isVertTab);
+
+            IEnumerable<IOptionalAutomaton> AcAutomata = addingBTransition.GenerateAc();
+            IEnumerable<IOptionalAutomaton> AcAutomataIncremental = addingBTransition.GenerateAcIncrementally();
+
+            var acIterator = AcAutomata.GetEnumerator();
+            var acIncrementalIterator = AcAutomataIncremental.GetEnumerator();
+
+            while (acIterator.MoveNext())
+            {
+                acIncrementalIterator.MoveNext();
+                for (int i = 0; i < acIterator.Current.TransitionFunctionsB.Length; i++)
+                {
+                    Assert.Equal(acIterator.Current.TransitionFunctionsB[i], acIncrementalIterator.Current.TransitionFunctionsB[i]);
+                }
+            }
+            Assert.False(acIncrementalIterator.MoveNext());
+        }
+
+
+        [Theory]
         [InlineData(new byte[] { 1, 0 }, new byte[] { 0, 0 },
             new byte[] { 1, 1 })]
         [InlineData(new byte[] { 1, 2, 2 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
@@ -91,6 +129,35 @@ namespace BinaryAutomataCheckingTests
             new byte[] { 1, 0, 0 },
             new byte[] { 2, 0, 0 })]
         public void MakeFullAutomata(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
+        {
+            IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
+
+            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
+
+            IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
+            IEnumerable<IOptionalAutomaton> FullAutomataIncremental = makingFullAutomata.GenerateIncrementally();
+
+            var fullIterator = FullAutomata.GetEnumerator();
+            var fullIncrementalIterator = FullAutomataIncremental.GetEnumerator();
+
+            while (fullIterator.MoveNext())
+            {
+                fullIncrementalIterator.MoveNext();
+                for (int i = 0; i < fullIterator.Current.TransitionFunctionsB.Length; i++)
+                {
+                    Assert.Equal(fullIterator.Current.TransitionFunctionsB[i], fullIncrementalIterator.Current.TransitionFunctionsB[i]);
+                }
+            }
+            Assert.False(fullIncrementalIterator.MoveNext());
+        }
+        [Theory]
+        [InlineData(new byte[] { 1, 0 }, new byte[] { 0, 0 },
+            new byte[] { 1, 1 })]
+        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
+            new byte[] { 0, 0, 0 },
+            new byte[] { 1, 0, 0 },
+            new byte[] { 2, 0, 0 })]
+        public void VerifyMatchingIterativeGeneration(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
 
@@ -115,11 +182,11 @@ namespace BinaryAutomataCheckingTests
             return newArray;
         }
 
-        private bool IsTheSame (IEnumerable<byte[]> expected, IEnumerable<byte[]> actual)
+        private bool IsTheSame(IEnumerable<byte[]> expected, IEnumerable<byte[]> actual)
         {
             Assert.Equal(expected.Count(), actual.Count());
             foreach (var tab in expected)
-                Assert.Contains(tab,actual);
+                Assert.Contains(tab, actual);
             return true;
         }
     }

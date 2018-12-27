@@ -28,7 +28,7 @@ namespace BinaryAutomataChecking
                 if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength * 2) + 1 > maxLength)
                 {
                     MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton);
-                    foreach (var fullAutomaton in makingFullAutomata.Generate())
+                    foreach (var fullAutomaton in makingFullAutomata.GenerateIncrementally())
                     {
                         yield return fullAutomaton;
                     }
