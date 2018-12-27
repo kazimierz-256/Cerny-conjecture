@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunicationContracts;
 using CoreDefinitions;
 
 namespace CoreServer.UnaryAutomataDatabase
@@ -17,7 +18,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; }
         public int MinimalLength { get; private set; }
         public int Total { get; }
-        public const int MaximumLongestAutomataCount = 100;
+        public const int MaximumLongestAutomataCount = 1000;
         private int allowedCount = 0;
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
@@ -30,60 +31,67 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        public void ProcessInterestingAutomata(List<int> unarySolved, List<byte[]> toSendSolvedUnary, List<List<ushort>> toSendSolvedSyncLength, List<List<byte[]>> toSendSolvedB, out bool changedMinimum)
+        public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum)
         {
             changedMinimum = false;
-            if (unarySolved.Count != toSendSolvedUnary.Count || unarySolved.Count != toSendSolvedSyncLength.Count || unarySolved.Count != toSendSolvedB.Count)
-                return;
 
             lock (synchronizingObject)
             {
-                for (int i = 0; i < unarySolved.Count; i += 1)
+                if (parameters.suggestedMinimumBound > MinimalLength)
                 {
-                    if (!interestingAutomataIndexToSolved.ContainsKey(unarySolved[i]))
+                    MinimalLength = parameters.suggestedMinimumBound;
+                    changedMinimum = true;
+                }
+
+                for (int i = 0; i < parameters.solutions.Count; i += 1)
+                {
+                    if (!interestingAutomataIndexToSolved.ContainsKey(parameters.solutions[i].unaryIndex))
                     {
                         var list = new List<ISolvedOptionalAutomaton>();
                         // update sync word length stats
 
-                        for (int j = 0; j < toSendSolvedB[i].Count; j++)
+                        for (int j = 0; j < parameters.solutions[i].solvedB.Count; j++)
                         {
-                            var syncLength = toSendSolvedSyncLength[i][j];
+                            var syncLength = parameters.solutions[i].solvedSyncLength[j];
                             if (syncLength >= MinimalLength)
                             {
                                 if (!synchronizingWordLengthToCount.ContainsKey(syncLength))
                                     synchronizingWordLengthToCount.Add(syncLength, 0);
 
                                 synchronizingWordLengthToCount[syncLength] += 1;
-                                list.Add(new SolvedOptionalAutomaton((byte[])toSendSolvedUnary[i].Clone(), toSendSolvedB[i][j], syncLength));
+                                list.Add(new SolvedOptionalAutomaton((byte[])parameters.solutions[i].unaryArray.Clone(), parameters.solutions[i].solvedB[j], syncLength));
                             }
                         }
-                        interestingAutomataIndexToSolved.Add(unarySolved[i], list);
-                        finishedAutomata.Enqueue(new FinishedStatistics() { unaryAutomatonIndex = unarySolved[i], finishedTime = DateTime.Now });
+                        interestingAutomataIndexToSolved.Add(parameters.solutions[i].unaryIndex, list);
+                        finishedAutomata.Enqueue(new FinishedStatistics() { unaryAutomatonIndex = parameters.solutions[i].unaryIndex, finishedTime = DateTime.Now });
                         allowedCount += list.Count;
                     }
                 }
 
 
                 #region Update minimum bound
-                var leftover = allowedCount;
-                var removeUpTo = -1;
-                foreach (var item in synchronizingWordLengthToCount)
+                if (allowedCount > MaximumLongestAutomataCount)
                 {
-                    if (leftover > MaximumLongestAutomataCount)
+                    var leftover = allowedCount;
+                    var removeUpTo = -1;
+                    foreach (var item in synchronizingWordLengthToCount)
                     {
-                        leftover -= item.Value;
-                        removeUpTo = item.Key;
+                        if (leftover > MaximumLongestAutomataCount)
+                        {
+                            leftover -= item.Value;
+                            removeUpTo = item.Key;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
-                    {
-                        break;
-                    }
-                }
 
-                if (removeUpTo + 1 > MinimalLength)
-                {
-                    MinimalLength = removeUpTo + 1;
-                    changedMinimum = true;
+                    if (removeUpTo + 1 > MinimalLength)
+                    {
+                        MinimalLength = removeUpTo + 1;
+                        changedMinimum = true;
+                    }
                 }
                 #endregion
 
@@ -134,7 +142,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public UnaryAutomataDB(int size)
         {
             Size = size;
-            MinimalLength = (size - 1) * (size - 1) / 3;
+            MinimalLength = 0;
 
             Total = theory[size - 1];
             var automataIndices = new int[Total];

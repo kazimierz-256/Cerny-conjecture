@@ -10,6 +10,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommunicationContracts\CommunicationContracts.csproj" />
     <ProjectReference Include="..\CoreDefinitions\CoreDefinitions.csproj" />
   </ItemGroup>
 </Project>

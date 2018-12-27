@@ -1,4 +1,5 @@
-﻿using CoreDefinitions;
+﻿using CommunicationContracts;
+using CoreDefinitions;
 using CoreServer.UnaryAutomataDatabase;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -14,15 +15,15 @@ namespace CoreServer.Hubs
 
         public UnaryAutomataHub(UnaryAutomataDB database) => this.database = database;
 
-        public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(List<int> unarySolved, List<byte[]> toSendSolvedUnary, List<List<ushort>> toSendSolvedSyncLength, List<List<byte[]>> toSendSolvedB, int nextQuantity)
+        public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
-            database.ProcessInterestingAutomata(unarySolved, toSendSolvedUnary, toSendSolvedSyncLength, toSendSolvedB, out var changedMinimum);
+            database.ProcessInterestingAutomata(parameters, out var changedMinimum);
 
             if (changedMinimum)
                 await Clients.Others.SendAsync("UpdateLength", database.MinimalLength);
 
-            if (nextQuantity > 0)
-                await SendUnaryAutomataIndices(nextQuantity);
+            if (parameters.nextQuantity > 0)
+                await SendUnaryAutomataIndices(parameters.nextQuantity);
         }
 
         public async Task SendUnaryAutomataIndices(int quantity)
@@ -31,7 +32,14 @@ namespace CoreServer.Hubs
             var automataIndices = database.GetUnaryAutomataToProcessAndMarkAsProcessing(quantity);
             if (automataIndices.Count > 0)
             {
-                await Clients.Caller.SendAsync("ComputeAutomata", database.Size, database.MinimalLength, automataIndices);
+                var parameter = new ServerClientSentUnaryAutomataWithSettings()
+                {
+                    automatonSize = database.Size,
+                    serverMinimalLength = database.MinimalLength,
+                    unaryAutomataIndices = automataIndices,
+                    targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount
+                };
+                await Clients.Caller.SendAsync("ComputeAutomata", parameter);
             }
             else
             {

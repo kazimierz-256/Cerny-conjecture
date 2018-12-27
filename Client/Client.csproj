@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinaryAutomataChecking\BinaryAutomataChecking.csproj" />
+    <ProjectReference Include="..\CommunicationContracts\CommunicationContracts.csproj" />
     <ProjectReference Include="..\CoreDefinitions\CoreDefinitions.csproj" />
   </ItemGroup>
 
