@@ -10,36 +10,45 @@ using System.Xml.Serialization;
 
 namespace CoreServer.ProgressIO
 {
-    public static class ProgressIO
+    public class ProgressIO
     {
+        public List<FinishedStatistics> finishedStatistics;
+        public int Size;
+
         private const string savingAddress = "export.xml";
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
             var exported = database.Export();
-            var xsSubmit = new XmlSerializer(exported.GetType());
-            var xml = "";
+            var serializer = new XmlSerializer(exported.GetType());
 
-            using (var sww = new StringWriter())
+            using (var sw = new StringWriter())
             {
-                using (var writer = XmlWriter.Create(sww))
+                using (var w = XmlWriter.Create(sw))
                 {
-                    xsSubmit.Serialize(writer, exported);
-                    xml = sww.ToString();
+                    serializer.Serialize(w, exported);
+                    await File.WriteAllTextAsync(savingAddress, sw.ToString());
                 }
             }
-            await File.WriteAllTextAsync(savingAddress, xml);
         }
 
-        public static bool EnsureImportFileExistence() => File.Exists(savingAddress);
-
-        public async static Task ImportStateAsync(UnaryAutomataDB database)
+        public async static Task ImportStateIfPossibleAsync(UnaryAutomataDB database)
         {
-            var xsSubmit = new XmlSerializer(typeof(List<FinishedStatistics>));
-            var xml = await File.ReadAllTextAsync(savingAddress);
-            
-            using (var sr = new StreamReader(savingAddress))
+            if (File.Exists(savingAddress))
             {
-                database.ImportShallow((List<FinishedStatistics>)xsSubmit.Deserialize(sr));
+                var serializer = new XmlSerializer(typeof(ProgressIO));
+
+                using (var sr = new StreamReader(savingAddress))
+                {
+                    var obj = serializer.Deserialize(sr);
+                    var data = (ProgressIO)obj;
+
+                    if (database.Size == data.Size)
+                        database.ImportShallow(data);
+                }
+            }
+            else
+            {
+                Console.WriteLine("no computation history or corrupt");
             }
         }
     }

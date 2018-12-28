@@ -23,12 +23,13 @@ namespace CoreServer.Hubs
         {
             if (parameters.solutions.Count == 0)
                 await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
+            else
+            {
+                database.ProcessInterestingAutomata(parameters, out var changedMinimum);
 
-            database.ProcessInterestingAutomata(parameters, out var changedMinimum);
-
-            if (changedMinimum)
-                await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
-
+                if (changedMinimum)
+                    await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
+            }
             if (parameters.nextQuantity > 0)
             {
                 // no need to limit the quantity (in case of overflow automata are being recomputed)
@@ -51,11 +52,14 @@ namespace CoreServer.Hubs
                 }
             }
 
-            await SendStatisticsToAll();
-            if (DateTime.Now - lastTimeSaved > saveMinimumInterval)
+            if (parameters.solutions.Count > 0)
             {
-                lastTimeSaved = DateTime.Now;
-                await ProgressIO.ProgressIO.ExportStateAsync(database);
+                await SendStatisticsToAll();
+                if (DateTime.Now - lastTimeSaved > saveMinimumInterval)
+                {
+                    lastTimeSaved = DateTime.Now;
+                    await ProgressIO.ProgressIO.ExportStateAsync(database);
+                }
             }
         }
 

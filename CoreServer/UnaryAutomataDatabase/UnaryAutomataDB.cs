@@ -105,6 +105,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public List<int> GetUnaryAutomataToProcessAndMarkAsProcessing(int quantity)
         {
             var toProcess = new List<int>();
+
             lock (synchronizingObject)
             {
 
@@ -174,21 +175,32 @@ namespace CoreServer.UnaryAutomataDatabase
 
         private readonly object synchronizingObject = new object();
 
-        public List<FinishedStatistics> Export()
+        public ProgressIO.ProgressIO Export()
         {
             lock (synchronizingObject)
             {
-                return finishedAutomata.ToList();
+                return new ProgressIO.ProgressIO()
+                {
+                    finishedStatistics = finishedAutomata.ToList(),
+                    Size = Size
+                };
             }
         }
 
         // TODO: test this thing
-        public void ImportShallow(List<FinishedStatistics> list)
+        public void ImportShallow(ProgressIO.ProgressIO data)
         {
-            var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size-1]));
+            Console.WriteLine("importing...");
+            var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size - 1]));
             lock (synchronizingObject)
             {
-                foreach (var item in list)
+                leftoverAutomata.Clear();
+                issueTime.Clear();
+                processingOrFinishedAutomata.Clear();
+                finishedAutomata.Clear();
+                synchronizingWordLengthToCount.Clear();
+                solvedAutomataIndices.Clear();
+                foreach (var item in data.finishedStatistics)
                 {
                     leftoverAutomataIndices.Remove(item.solution.unaryIndex);
                     finishedAutomata.Enqueue(item);

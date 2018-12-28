@@ -17,7 +17,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private const int AutomatonProblemSize = 9;
+        private const int AutomatonProblemSize = 8;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -38,8 +38,10 @@ namespace CoreServer
 #endif
 
             #region Unary automata database singleton
+            var database = new UnaryAutomataDB(AutomatonProblemSize);
+            ProgressIO.ProgressIO.ImportStateIfPossibleAsync(database).Wait();
             services.AddSingleton(
-                    new UnaryAutomataDB(AutomatonProblemSize)
+                    database
                 );
             #endregion
         }
