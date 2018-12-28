@@ -61,6 +61,7 @@ namespace CoreServer
 
             app.UseStaticFiles();
 
+            Console.WriteLine("To participate in distributed computing project just hook up to '/ua'");
             app.UseSignalR(routes =>
             {
                 routes.MapHub<UnaryAutomataHub>("/ua", options =>
