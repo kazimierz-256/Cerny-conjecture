@@ -17,6 +17,8 @@ namespace CoreServer.Hubs
 
         private const int targetTimeout = 30;
         private const string solversGroup = "solvers";
+        private DateTime lastTimeSaved = DateTime.MinValue;
+        private TimeSpan saveMinimumInterval = TimeSpan.FromMinutes(1);
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
             if (parameters.solutions.Count == 0)
@@ -50,18 +52,17 @@ namespace CoreServer.Hubs
             }
 
             await SendStatisticsToAll();
+            if (DateTime.Now - lastTimeSaved > saveMinimumInterval)
+            {
+                lastTimeSaved = DateTime.Now;
+                await ProgressIO.ProgressIO.ExportStateAsync(database);
+            }
         }
 
         ///// Statistics
         private const string statisticsGroup = "statistics";
-        public async Task SendStatistics()
-        {
-            await Clients.Caller.SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
-        }
-        public async Task SendStatisticsToAll()
-        {
-            await Clients.Group(statisticsGroup).SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
-        }
+        public async Task SendStatistics() => await Clients.Caller.SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
+        public async Task SendStatisticsToAll() => await Clients.Group(statisticsGroup).SendAsync("ShowSimpleTextStatistics", database.DumpStatistics());
         public async Task SubscribeAndSendStatistics()
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, statisticsGroup);

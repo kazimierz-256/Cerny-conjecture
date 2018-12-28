@@ -14,15 +14,6 @@ namespace CoreServer.UnaryAutomataDatabase
         {
             1, 3, 7, 19, 47, 130, 343, 951, 2615, 7318, 20491, 57903, 163898, 466199, 1328993, 3799624, 10884049, 31241170
         };
-
-        public int Size { get; }
-        public int MinimalLength { get; private set; }
-        public int Total { get; }
-        public const int MaximumLongestAutomataCount = 100;
-        private int allowedCount = 0;
-
-        private readonly Queue<int> leftoverAutomata = new Queue<int>();
-
         public ServerPresentationComputationSummary DumpStatistics()
         {
             lock (synchronizingObject)
@@ -30,7 +21,7 @@ namespace CoreServer.UnaryAutomataDatabase
                 return new ServerPresentationComputationSummary()
                 {
                     total = Total,
-                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {interestingAutomataIndexToSolved.Count} automata.",
+                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {solvedAutomataIndices.Count} automata.",
                     finishedAutomata = finishedAutomata.ToList()
                 };
             }
@@ -50,9 +41,10 @@ namespace CoreServer.UnaryAutomataDatabase
                 var finishTime = DateTime.Now;
                 for (int i = 0; i < parameters.solutions.Count; i += 1)
                 {
-                    if (!interestingAutomataIndexToSolved.ContainsKey(parameters.solutions[i].unaryIndex))
+                    if (!solvedAutomataIndices.Contains(parameters.solutions[i].unaryIndex))
                     {
-                        var list = new List<ISolvedOptionalAutomaton>();
+                        //var list = new List<ISolvedOptionalAutomaton>();
+                        var count = 0;
                         // update sync word length stats
 
                         for (int j = 0; j < parameters.solutions[i].solvedB.Count; j++)
@@ -64,12 +56,18 @@ namespace CoreServer.UnaryAutomataDatabase
                                     synchronizingWordLengthToCount.Add(syncLength, 0);
 
                                 synchronizingWordLengthToCount[syncLength] += 1;
-                                list.Add(new SolvedOptionalAutomaton((byte[])parameters.solutions[i].unaryArray.Clone(), parameters.solutions[i].solvedB[j], syncLength));
+                                count += 1;
+                                //list.Add(new SolvedOptionalAutomaton((byte[])parameters.solutions[i].unaryArray.Clone(), parameters.solutions[i].solvedB[j], syncLength));
                             }
                         }
-                        interestingAutomataIndexToSolved.Add(parameters.solutions[i].unaryIndex, list);
-                        finishedAutomata.Enqueue(new FinishedStatistics() { solution = parameters.solutions[i], finishTime = finishTime, issueTime = issueTime[parameters.solutions[i].unaryIndex] });
-                        allowedCount += list.Count;
+                        solvedAutomataIndices.Add(parameters.solutions[i].unaryIndex);//, list);
+                        finishedAutomata.Enqueue(new FinishedStatistics()
+                        {
+                            solution = parameters.solutions[i],
+                            finishTime = finishTime,
+                            issueTime = issueTime[parameters.solutions[i].unaryIndex]
+                        });
+                        allowedCount += count;//list.Count;
                     }
                 }
 
@@ -97,6 +95,7 @@ namespace CoreServer.UnaryAutomataDatabase
                         MinimalLength = removeUpTo + 1;
                         changedMinimum = true;
                     }
+                    allowedCount = leftover;
                 }
                 #endregion
 
@@ -115,7 +114,7 @@ namespace CoreServer.UnaryAutomataDatabase
                 while (processingOrFinishedAutomata.Count > 0 && toProcess.Count < quantity)
                 {
                     var dequeued = processingOrFinishedAutomata.Dequeue();
-                    if (interestingAutomataIndexToSolved.ContainsKey(dequeued))
+                    if (solvedAutomataIndices.Contains(dequeued))
                     {
                         // discard the item, it is already computed (in the finished queue)
                     }
@@ -135,15 +134,6 @@ namespace CoreServer.UnaryAutomataDatabase
             }
             return toProcess;
         }
-        private readonly Dictionary<int, DateTime> issueTime = new Dictionary<int, DateTime>();
-        // may contain already computed!
-        private readonly Queue<int> processingOrFinishedAutomata = new Queue<int>();
-        private readonly Queue<FinishedStatistics> finishedAutomata = new Queue<FinishedStatistics>();
-
-        private readonly SortedDictionary<int, int> synchronizingWordLengthToCount = new SortedDictionary<int, int>();
-        private readonly Dictionary<int, List<ISolvedOptionalAutomaton>> interestingAutomataIndexToSolved = new Dictionary<int, List<ISolvedOptionalAutomaton>>();
-
-        private readonly object synchronizingObject = new object();
 
         public UnaryAutomataDB(int size)
         {
@@ -164,6 +154,57 @@ namespace CoreServer.UnaryAutomataDatabase
 
             for (int i = 0; i < Total; i += 1)
                 leftoverAutomata.Enqueue(automataIndices[i]);
+        }
+
+        public int Size { get; }
+        public int MinimalLength { get; private set; }
+        public int Total { get; }
+        public const int MaximumLongestAutomataCount = 100;
+        private int allowedCount = 0;
+
+        private readonly Queue<int> leftoverAutomata = new Queue<int>();
+
+        private readonly Dictionary<int, DateTime> issueTime = new Dictionary<int, DateTime>();
+        // may contain already computed!
+        private readonly Queue<int> processingOrFinishedAutomata = new Queue<int>();
+        private readonly Queue<FinishedStatistics> finishedAutomata = new Queue<FinishedStatistics>();
+
+        private readonly SortedDictionary<int, int> synchronizingWordLengthToCount = new SortedDictionary<int, int>();
+        private readonly HashSet<int> solvedAutomataIndices = new HashSet<int>();
+
+        private readonly object synchronizingObject = new object();
+
+        public List<FinishedStatistics> Export()
+        {
+            lock (synchronizingObject)
+            {
+                return finishedAutomata.ToList();
+            }
+        }
+
+        // TODO: test this thing
+        public void ImportShallow(List<FinishedStatistics> list)
+        {
+            var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size-1]));
+            lock (synchronizingObject)
+            {
+                foreach (var item in list)
+                {
+                    leftoverAutomataIndices.Remove(item.solution.unaryIndex);
+                    finishedAutomata.Enqueue(item);
+                    solvedAutomataIndices.Add(item.solution.unaryIndex);
+                    foreach (var automatonLength in item.solution.solvedSyncLength)
+                    {
+                        if (!synchronizingWordLengthToCount.ContainsKey(automatonLength))
+                            synchronizingWordLengthToCount.Add(automatonLength, 0);
+                        synchronizingWordLengthToCount[automatonLength] += 1;
+                    }
+                }
+            }
+            foreach (var item in leftoverAutomataIndices)
+            {
+                leftoverAutomata.Enqueue(item);
+            }
         }
     }
 }
