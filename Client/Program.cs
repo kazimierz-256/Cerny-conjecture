@@ -109,10 +109,10 @@ namespace Client
                                             }
                                         }
 #if DEBUG
-                                if (list.Count == 0)
-                                    SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
-                                else
-                                    SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
+                                        if (list.Count == 0)
+                                            SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
+                                        else
+                                            SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
 #endif
                                         resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
                                         Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
@@ -134,18 +134,18 @@ namespace Client
                                     return;
                                 }
 #if DEBUG
-                        SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
-                        var first = true;
-                        foreach (var a in parameters.unaryAutomataIndices)
-                        {
-                            if (first)
-                                Console.Write($"{a}");
-                            else
-                                Console.Write($",{a}");
+                                SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
+                                var first = true;
+                                foreach (var a in parameters.unaryAutomataIndices)
+                                {
+                                    if (first)
+                                        Console.Write($"{a}");
+                                    else
+                                        Console.Write($",{a}");
 
-                            first = false;
-                        }
-                        Console.WriteLine();
+                                    first = false;
+                                }
+                                Console.WriteLine();
 #endif
 
                                 foreach (var unaryIndex in parameters.unaryAutomataIndices)
@@ -172,15 +172,15 @@ namespace Client
                                     if (shouldReconnect)
                                     {
 #if DEBUG
-                                SayColoured(ConsoleColor.Red, ":( Closed connection. Reconnecting...");
+                                        SayColoured(ConsoleColor.Red, ":( Closed connection. Reconnecting...");
 #endif
-                                        await Task.Delay((int)(Math.Exp(new Random().Next(0, 6)) * 10));
+                                        await Task.Delay((int)(Math.Exp(new Random().Next(0, 6))));
                                         await connection.StartAsync();
                                     }
                                     else
                                     {
 #if DEBUG
-                                SayColoured(ConsoleColor.Magenta, "Connection ended :)");
+                                        SayColoured(ConsoleColor.Magenta, "Connection ended :)");
 #endif
                                     }
                                 };

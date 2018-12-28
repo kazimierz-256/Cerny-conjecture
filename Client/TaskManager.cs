@@ -39,7 +39,14 @@ namespace Client
                     if (call)
                         await callForAdditional();
 
-                    resourceSemaphore.WaitOne();
+                    try
+                    {
+                        resourceSemaphore.WaitOne();
+                    }
+                    catch(Exception e)
+                    {
+                        break;
+                    }
 
                     T task;
 
