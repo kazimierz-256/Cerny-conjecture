@@ -13,7 +13,8 @@ namespace AutomataIteratorTests
         {
             new PowerAutomatonReusableSolutionMapperMaximum12(),
             new PowerAutomatonReusableSolutionMapperFastMaximum12(),
-            new PowerAutomatonReusableSolutionMapperMaximum12()
+            new PowerAutomatonReusableSolutionMapperFastMaximum16dual(),
+            // additionally the brute force power automaton
         };
 
         [Theory]
