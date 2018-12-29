@@ -233,6 +233,11 @@ let togglethreeDimForce = (isOn) => {
 
 let init = (createControlFromCamera) => {
 
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
 
     appSettings.camera = camera;
@@ -243,11 +248,11 @@ let init = (createControlFromCamera) => {
     scene.background = new THREE.Color().setHSL(0.6, 0, 1);
     scene.fog = new THREE.Fog(scene.background, 1, 1000);
     //
-    let dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(-1, 1.75, 1);
-    dirLight.position.multiplyScalar(30);
-    scene.add(dirLight);
+    let light = new THREE.DirectionalLight(0xffffff, 1);
+    light.color.setHSL(0.1, 1, 0.95);
+    // light.position.set(-1, 1.75, 1);
+    // light.position.multiplyScalar(30);
+    scene.add(light);
 
     let waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
     water = new THREE.Water(
@@ -259,7 +264,7 @@ let init = (createControlFromCamera) => {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }),
             alpha: 0.8,
-            sunDirection: dirLight.position.clone().normalize(),
+            sunDirection: light.position.clone().normalize(),
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
             distortionScale: 1.5,
@@ -271,6 +276,7 @@ let init = (createControlFromCamera) => {
     water.position.y = -10;
     scene.add(water);
 
+    // TODO: remove
     let groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
     let groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
     groundMat.color.setHSL(0.6, 1, 1);
@@ -279,36 +285,65 @@ let init = (createControlFromCamera) => {
     ground.position.y = -33;
     // scene.add(ground);
 
-
-    let vertexShader = document.getElementById('vertexShader').textContent;
-    let fragmentShader = document.getElementById('fragmentShader').textContent;
-
-    let uniforms = {
-        topColor: { value: new THREE.Color("hsl(210, 80%, 50%)") },
-        bottomColor: { value: groundMat.color },
-        offset: { value: 33 },
-        exponent: { value: 1 }
+    var sky = new THREE.Sky();
+    sky.scale.setScalar( 10000 );
+    scene.add( sky );
+    var uniforms = sky.material.uniforms;
+    uniforms.turbidity.value = 10;
+    uniforms.rayleigh.value = 1;
+    uniforms.luminance.value = 1;
+    uniforms.mieCoefficient.value = 0.005;
+    uniforms.mieDirectionalG.value = 0.8;
+    var parameters = {
+        distance: 400,
+        inclination: 0.3,
+        azimuth: 0.1
     };
+    var cubeCamera = new THREE.CubeCamera(1, 20000, 256);
+    cubeCamera.renderTarget.texture.generateMipmaps = true;
+    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+    function updateSun() {
+        var theta = Math.PI * (parameters.inclination - 0.5);
+        var phi = 2 * Math.PI * (parameters.azimuth - 0.5);
+        light.position.x = parameters.distance * Math.cos(phi);
+        light.position.y = parameters.distance * Math.sin(phi) * Math.sin(theta);
+        light.position.z = parameters.distance * Math.sin(phi) * Math.cos(theta);
+        sky.material.uniforms.sunPosition.value = light.position.copy(light.position);
+        water.material.uniforms.sunDirection.value.copy(light.position).normalize();
+        cubeCamera.update(renderer, scene);
+    }
+    updateSun();
 
-    let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.2);
-    hemiLight.color.copy(uniforms.topColor.value);
-    hemiLight.groundColor.copy(groundMat.color);
-    hemiLight.position.set(0, 50, 0);
-    scene.add(hemiLight);
+    // var gui = new dat.GUI();
+    // var folder = gui.addFolder('Sky');
+    // folder.add(parameters, 'inclination', 0, 0.5, 0.0001).onChange(updateSun);
+    // folder.add(parameters, 'azimuth', 0, 1, 0.0001).onChange(updateSun);
+    // folder.open();
 
-    uniforms.topColor.value.copy(hemiLight.color);
-    scene.fog.color.copy(uniforms.bottomColor.value);
-    let skyGeo = new THREE.SphereBufferGeometry(4000, 32, 15);
-    let skyMat = new THREE.ShaderMaterial({ vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide });
-    let sky = new THREE.Mesh(skyGeo, skyMat);
-    scene.add(sky);
+    // let vertexShader = document.getElementById('vertexShader').textContent;
+    // let fragmentShader = document.getElementById('fragmentShader').textContent;
+
+    // let plainSkUniforms = {
+    //     topColor: { value: new THREE.Color("hsl(210, 80%, 50%)") },
+    //     bottomColor: { value: groundMat.color },
+    //     offset: { value: 33 },
+    //     exponent: { value: 1 }
+    // };
+
+    // let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.2);
+    // hemiLight.color.copy(plainSkUniforms.topColor.value);
+    // hemiLight.groundColor.copy(groundMat.color);
+    // hemiLight.position.set(0, 50, 0);
+    // scene.add(hemiLight);
+
+    // plainSkUniforms.topColor.value.copy(hemiLight.color);
+    // scene.fog.color.copy(plainSkUniforms.bottomColor.value);
+    // let skyGeo = new THREE.SphereBufferGeometry(4000, 32, 15);
+    // let skyMat = new THREE.ShaderMaterial({ vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: plainSkUniforms, side: THREE.BackSide });
+    // let sky = new THREE.Mesh(skyGeo, skyMat);
+    // scene.add(sky);
 
     animatables.forEach(animatable => animatable.init(scene, appSettings));
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
 
     // initialize material design
     M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'), {});
@@ -830,7 +865,7 @@ $(document).ready(() => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle =  Math.PI * 0.495;//Math.PI * 4 / 5;
+                controls.maxPolarAngle = Math.PI * 0.495;//Math.PI * 4 / 5;
                 controls.minPolarAngle = Math.PI * 1 / 5;
                 controls.minDistance = 0.7;
                 // controls.enablePan = false;

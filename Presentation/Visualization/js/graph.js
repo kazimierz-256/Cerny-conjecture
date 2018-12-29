@@ -259,8 +259,9 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
             });
         let fontMaterial = new THREE.MeshStandardMaterial({
             color: new THREE.Color(partOfShortestWord[i] ? 0x000000 : 0xffffff),
+            emissive: new THREE.Color(partOfShortestWord[i] ? 0x000000 : 0xffffff),
             roughness: 0,
-            metalness: 0
+            metalness: 1
         });
         fontGeometry.computeBoundingBox();
         let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
