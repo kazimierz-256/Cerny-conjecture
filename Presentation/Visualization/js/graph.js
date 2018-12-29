@@ -202,7 +202,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         graph.add(descriptionFontMesh);
         graph.add(descriptionFontMesh2);
     }
-    outline.selectedObjects = [];
+    if (outline !== undefined)
+        outline.selectedObjects = [];
     for (let i = 0; i < power; i++) {
         if (!isDiscovered[i])
             continue;
@@ -248,7 +249,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         spheres[i].automatonId = i;
         spheres[i].material.defaultColor = material.color;
         sphereGroup[i].add(spheres[i]);
-        outline.selectedObjects.push(spheres[i]);
+        if (outline !== undefined)
+            outline.selectedObjects.push(spheres[i]);
 
         let textTosShow = (i >>> 0).toString(2).padStart(n, "0") + (missingBits[i] > 0 ? " (" + missingBits[i] + ")" : "");
         let fontSize = mass[i] * 1.9 / textTosShow.length;

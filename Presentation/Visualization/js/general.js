@@ -318,22 +318,22 @@ let init = (createControlFromCamera) => {
     updateSun();
 
 
-    let renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(renderPass);
+    // let renderPass = new THREE.RenderPass(scene, camera);
+    // composer.addPass(renderPass);
 
-    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio), scene, camera);
+    // outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio), scene, camera);
 
-    outlinePass.edgeStrength = 10.0;
-    outlinePass.edgeGlow = 0.0;
-    outlinePass.edgeThickness = 1.0;
-    outlinePass.pulsePeriod = 0;
-    outlinePass.rotate = false;
-    outlinePass.usePatternTexture = false;
-    outlinePass.selectedObjects = [];
-    outlinePass.renderToScreen = true;
-    outlinePass.visibleEdgeColor.set("#0x000000");
+    // outlinePass.edgeStrength = 10.0;
+    // outlinePass.edgeGlow = 0.0;
+    // outlinePass.edgeThickness = 1.0;
+    // outlinePass.pulsePeriod = 0;
+    // outlinePass.rotate = false;
+    // outlinePass.usePatternTexture = false;
+    // outlinePass.selectedObjects = [];
+    // outlinePass.renderToScreen = true;
+    // outlinePass.visibleEdgeColor.set("#0x000000");
 
-    composer.addPass(outlinePass);
+    // composer.addPass(outlinePass);
 
     // var gui = new dat.GUI();
     // var folder = gui.addFolder('Sky');
@@ -829,8 +829,8 @@ let animate = () => {
     water.material.uniforms.time.value += 1.0 / 60.0;
     animatables.forEach(animatable => animatable.update(time, appSettings));
     controls.update();
-    // renderer.render(scene, camera);
-    composer.render();
+    renderer.render(scene, camera);
+    // composer.render();
     setTimeout(() => window.requestAnimationFrame(animate), 0);
 }
 
