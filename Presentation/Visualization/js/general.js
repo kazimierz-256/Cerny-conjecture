@@ -248,11 +248,11 @@ let init = (createControlFromCamera) => {
 
     scene = new THREE.Scene();
 
-    scene.background = new THREE.Color().setHSL(0.6, 0, 1);
-    scene.fog = new THREE.Fog(scene.background, 1, 1000);
-    //
+    // scene.background = new THREE.Color().setHSL(0.6, 0, 1);
+    // scene.fog = new THREE.Fog(scene.background, 1, 1000);
+    
     let light = new THREE.DirectionalLight(0xffffff, 1);
-    light.color.setHSL(0.1, 1, 0.95);
+    light.color.setHSL(0.1, 1, 1);
     // light.position.set(-1, 1.75, 1);
     // light.position.multiplyScalar(30);
     scene.add(light);
@@ -280,12 +280,12 @@ let init = (createControlFromCamera) => {
     scene.add(water);
 
     // TODO: remove
-    let groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
-    let groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    groundMat.color.setHSL(0.6, 1, 1);
-    let ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -33;
+    // let groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
+    // let groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    // groundMat.color.setHSL(0.6, 1, 1);
+    // let ground = new THREE.Mesh(groundGeo, groundMat);
+    // ground.rotation.x = -Math.PI / 2;
+    // ground.position.y = -33;
     // scene.add(ground);
 
     var sky = new THREE.Sky();
