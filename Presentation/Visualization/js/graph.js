@@ -216,14 +216,11 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         let color = new THREE.Color();
         let hue = 0;
         let saturation = 0.0;
-        let lighting = 0.0;
+        let lighting = 1.0;
         if (partOfShortestWord[i] === true) {
             hue = 0.25 + (0.25 * highlightedBitsIntensity);
-            saturation = 0.0;
-            lighting = 1.0;
         } else {
             saturation = 1.0;
-            lighting = 1.0;
         }
         color.setHSL(hue, saturation, lighting);
 
@@ -236,9 +233,9 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
 
         if (partOfShortestWord[i] === true) {
             material.emissive.copy(color);
-            material.emissive.offsetHSL(0, 0, -0.6 * distanceGeneralIntensity);
+            material.emissive.offsetHSL(0, 0, -0.15 - 0.5 * distanceGeneralIntensity);
             if (appSettings.shineLights && appSettings.quality >= 1) {
-                lights[i] = new THREE.PointLight(color, 0.15 * (1 - distanceGeneralIntensity), 50);
+                lights[i] = new THREE.PointLight(color, 0.1 * (1 - distanceGeneralIntensity), 100);
                 sphereGroup[i].add(lights[i]);
             }
         }

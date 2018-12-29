@@ -252,7 +252,12 @@ let init = (createControlFromCamera) => {
     // scene.fog = new THREE.Fog(scene.background, 1, 1000);
     
     let light = new THREE.DirectionalLight(0xffffff, 1);
-    light.color.setHSL(0.1, 1, 1);
+    // light.color.setHSL(0.1, 1, 1);
+    // light.castShadow = true;
+    // light.shadow.mapSize.width = 512;  // default
+    // light.shadow.mapSize.height = 512; // default
+    // light.shadow.camera.near = 0.5;       // default
+    // light.shadow.camera.far = 500   
     // light.position.set(-1, 1.75, 1);
     // light.position.multiplyScalar(30);
     scene.add(light);
@@ -268,7 +273,7 @@ let init = (createControlFromCamera) => {
             }),
             alpha: 0.8,
             sunDirection: light.position.clone().normalize(),
-            sunColor: 0xffffff,
+            sunColor: light.color,
             waterColor: 0x001e0f,
             distortionScale: 1.5,
             fog: scene.fog !== undefined
@@ -643,7 +648,7 @@ let init = (createControlFromCamera) => {
 
         if (bestDistance != Infinity && mouseUpConsideringVertex == mouseDownConsideringVertex) {
             travelToVertex(mouseDownConsideringVertex, appSettings.smoothOutEasing);
-            M.toast({ html: "The automaton is now focusing at vertex " + (mouseDownConsideringVertex >>> 0).toString(2).padStart(appSettings.n, "0"), displayLength: 1000 })
+            M.toast({ html: "The camera is now focusing at vertex " + (mouseDownConsideringVertex >>> 0).toString(2).padStart(appSettings.n, "0"), displayLength: 1000 })
         }
     });
 
@@ -748,7 +753,7 @@ let init = (createControlFromCamera) => {
     $("#resetCenterOfMass").click((e) => {
         travelToVertex(-1);
         $("#resetCenterOfMass").addClass("disabled");
-        M.toast({ html: "The automaton is now focusing at the center of mass", displayLength: 1000 });
+        M.toast({ html: "The camera is now focusing at the center of mass", displayLength: 1000 });
         e.stopPropagation();
     });
 
