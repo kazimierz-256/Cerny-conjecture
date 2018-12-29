@@ -484,7 +484,7 @@ let init = (createControlFromCamera) => {
                 (appSettings.dehighlightTimeout * (appSettings.withoutHighlight - animations[key].foo) / (appSettings.withoutHighlight - appSettings.highlighted)),
             easing: appSettings.smoothOutEasing,
             step: (now) => {
-                foundObjectMaterial.color.setHSL(savedColor.h, savedColor.s,
+                foundObjectMaterial.emissive.setHSL(savedColor.h, savedColor.s,
                     savedColor.l * now + 1 * (1 - now));
             }
         });
@@ -508,7 +508,7 @@ let init = (createControlFromCamera) => {
                 if (lastRecordedMovement[intersects[i].object.automatonId] == undefined) {
                     let savedColor = new THREE.Color();
                     let foundObjectMaterial = intersects[i].object.material;
-                    foundObjectMaterial.defaultColor.getHSL(savedColor);
+                    foundObjectMaterial.emissive.getHSL(savedColor);
                     lastRecordedMovement[intersects[i].object.automatonId] = [iteration, foundObjectMaterial, savedColor];
                     animations[intersects[i].object.automatonId] = { foo: appSettings.withoutHighlight };
                 } else {
