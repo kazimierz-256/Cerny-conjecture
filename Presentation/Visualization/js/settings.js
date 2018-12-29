@@ -10,7 +10,7 @@ class settings {
         this.maximumConsideringDepth = 1;
         this.maxDistance = 1;
         // parameters
-        this.shineLights = false;
+        this.shineLights = true;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;

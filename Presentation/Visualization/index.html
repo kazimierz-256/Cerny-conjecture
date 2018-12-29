@@ -81,6 +81,18 @@
             margin-top: -10px;
             max-height: calc(100% - 50px);
         }
+
+        #vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            background: radial-gradient(transparent 60%, rgba(0,0,0,0.2));
+            background-size: cover;
+            z-index: 1;
+        }
     </style>
     <link rel="icon" href="icons/IconAlternative2clearSmall.jpg">
     <!-- Compiled and minified CSS -->
@@ -131,8 +143,10 @@
 </head>
 
 <body>
+    <div id="vignette"></div>
     <div id="controls" class="fixed-action-btn toolbar direction-top">
-        <a class="btn-floating btn-large waves-effect waves-light pulse" style="background: transparent !important; box-shadow: none !important;" onclick="$(this).removeClass('pulse');">
+        <a class="btn-floating btn-large waves-effect waves-light pulse" style="background: transparent !important; box-shadow: none !important;"
+            onclick="$(this).removeClass('pulse');">
             <i class="large material-icons">menu</i>
         </a>
         <ul>
@@ -213,10 +227,12 @@
                                 </li>
                                 <li class="divider" tabindex="-1"></li>
                                 <li>
-                                    <a class="modal-close" id="generate-extreme-3-automaton">Extreme automaton of size 3</a>
+                                    <a class="modal-close" id="generate-extreme-3-automaton">Extreme automaton of size
+                                        3</a>
                                 </li>
                                 <li>
-                                    <a class="modal-close" id="generate-extreme-4-automaton">Extreme automaton of size 4</a>
+                                    <a class="modal-close" id="generate-extreme-4-automaton">Extreme automaton of size
+                                        4</a>
                                 </li>
                             </ul>
                         </div>
@@ -225,8 +241,10 @@
                         <div class="collapsible-header">Černý automaton</div>
                         <div class="collapsible-body">
                             <p>
-                                Please choose the size of \(\mathscr{C}_n\) (the displayed graph is its power automaton) so its size is actually rendered
-                                as up to \( 2^n \). Please ensure you have enough memory to handle automata larger than 10.
+                                Please choose the size of \(\mathscr{C}_n\) (the displayed graph is its power
+                                automaton) so its size is actually rendered
+                                as up to \( 2^n \). Please ensure you have enough memory to handle automata larger than
+                                10.
                             </p>
                             <p class="range-field">
                                 <input type="range" id="cerny-graph-size" min="2" max="14" value="5">
@@ -238,7 +256,8 @@
                         <div class="collapsible-header">Randomize an automaton</div>
                         <div class="collapsible-body">
                             <p>
-                                Please choose the size of the random graph (the displayed graph is the power automaton) so its size is actually rendered
+                                Please choose the size of the random graph (the displayed graph is the power automaton)
+                                so its size is actually rendered
                                 as up to \( 2^n \).
                             </p>
                             <p class="range-field">
@@ -251,7 +270,8 @@
                         <div class="collapsible-header">Custom automaton</div>
                         <div class="collapsible-body">
                             <p>
-                                Please specify the transition function. The first JSON array specifies the transition function upon choosing letter \(a\),
+                                Please specify the transition function. The first JSON array specifies the transition
+                                function upon choosing letter \(a\),
                                 and the second specifies letter \(b\). Both arrays are contained in one large array.
                             </p>
                             <div class="input-field">
@@ -275,18 +295,24 @@
             <div class="section">
                 <h5>Exciting unobvious features</h5>
                 <ul class="collection">
-                    <li class="collection-item">The automaton is initialized in 5 dimension and then gradually (1min) compressed to 3 dimensions. How
+                    <li class="collection-item">The automaton is initialized in 5 dimension and then gradually (1min)
+                        compressed to 3 dimensions. How
                         cool is that!</li>
-                    <li class="collection-item">If the vertices travel too fast, the animation is slowed down. Once particles travel at normal velocities,
+                    <li class="collection-item">If the vertices travel too fast, the animation is slowed down. Once
+                        particles travel at normal velocities,
                         the animation speeds up to normal speed.</li>
-                    <li class="collection-item">The larger the power automaton the weaker the forces, since the more particles the more problems with
+                    <li class="collection-item">The larger the power automaton the weaker the forces, since the more
+                        particles the more problems with
                         computing the repelling force (the automaton unexpectedly shakes).</li>
 
-                    <li class="collection-item">By hovering your cursor over a vertex you will notice the cursor change, this is so because you can click
-                        on it. By clicking a vertex you make it the focus point. You can always reset your focus point to
+                    <li class="collection-item">By hovering your cursor over a vertex you will notice the cursor
+                        change, this is so because you can click
+                        on it. By clicking a vertex you make it the focus point. You can always reset your focus point
+                        to
                         the center of mass.</li>
                     <li class="collection-item">
-                        This Application makes use of your smartphone's gyroscope and accelerometer! Check out this website on your mobile device!
+                        This Application makes use of your smartphone's gyroscope and accelerometer! Check out this
+                        website on your mobile device!
                         (support for accelerometer is only available for Chrome Dev)</li>
                 </ul>
             </div>
@@ -340,7 +366,8 @@
             </div>
             <div class="divider"></div>
             <div class="section">
-                <a id="creator-contact" class="waves-effect waves-light btn-small" target="_blank">Get in touch with the creator</a>
+                <a id="creator-contact" class="waves-effect waves-light btn-small" target="_blank">Get in touch with
+                    the creator</a>
             </div>
             <div class="divider"></div>
             <div class="section">
@@ -366,7 +393,7 @@
                 <br>
                 <br>
                 <label>
-                    <input type="checkbox" class="filled-in" id="automaton-lights" />
+                    <input type="checkbox" class="filled-in" checked id="automaton-lights" />
                     <span>Enable lights</span>
                 </label>
             </div>

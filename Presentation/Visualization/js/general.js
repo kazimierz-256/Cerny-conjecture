@@ -575,7 +575,7 @@ let init = (createControlFromCamera) => {
     }, 60);
 
 
-    $("body > canvas").mousedown((e) => {
+    $("body > canvas, #vignette").mousedown((e) => {
         if (0 != allowVertexFocus)
             return;
 
@@ -819,7 +819,8 @@ let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
 
 let parseGraph = (specification) => {
     let parsedGraph = JSON.parse(specification);
-    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length, outlinePass));
+    console.log(parsedGraph);
+    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), outlinePass);
 };
 
 let animate = () => {
