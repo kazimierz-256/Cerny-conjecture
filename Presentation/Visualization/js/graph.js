@@ -1,4 +1,4 @@
-function getAnimatableGraph(problem, appSettings, graphDescription) {
+function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     appSettings.graphTransitionFunction = problem;
 
     let n = Math.min(problem[0].length, problem[1].length);
@@ -202,7 +202,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
         graph.add(descriptionFontMesh);
         graph.add(descriptionFontMesh2);
     }
-
+    outline.selectedObjects = [];
     for (let i = 0; i < power; i++) {
         if (!isDiscovered[i])
             continue;
@@ -218,10 +218,11 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
         let lighting = 0.0;
         if (partOfShortestWord[i] === true) {
             hue = 0.25 + (0.25 * highlightedBitsIntensity);
-            saturation = 0.6;
-            lighting = 0.6;
+            saturation = 0.0;
+            lighting = 1.0;
         } else {
-            lighting = 0.4;
+            saturation = 1.0;
+            lighting = 1.0;
         }
         color.setHSL(hue, saturation, lighting);
 
@@ -234,7 +235,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
 
         if (partOfShortestWord[i] === true) {
             material.emissive.copy(color);
-            material.emissive.offsetHSL(0, 0, 0.2 * distanceGeneralIntensity);
+            material.emissive.offsetHSL(0, 0, -0.6 * distanceGeneralIntensity);
             if (appSettings.shineLights && appSettings.quality >= 1) {
                 lights[i] = new THREE.PointLight(color, 0.15 * (1 - distanceGeneralIntensity), 50);
                 sphereGroup[i].add(lights[i]);
@@ -247,6 +248,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
         spheres[i].automatonId = i;
         spheres[i].material.defaultColor = material.color;
         sphereGroup[i].add(spheres[i]);
+        outline.selectedObjects.push(spheres[i]);
 
         let textTosShow = (i >>> 0).toString(2).padStart(n, "0") + (missingBits[i] > 0 ? " (" + missingBits[i] + ")" : "");
         let fontSize = mass[i] * 1.9 / textTosShow.length;
@@ -327,8 +329,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
             if (!partOfShortestPath) {
                 arrow.cone.material.transparent = true;
                 arrow.line.material.transparent = true;
-                arrow.cone.material.opacity = 0.1;
-                arrow.line.material.opacity = 0.1;
+                arrow.cone.material.opacity = 0.3;
+                arrow.line.material.opacity = 0.3;
                 arrow.line.material.linewidth = 1;
             } else {
                 arrow.line.material.linewidth = 2;
@@ -753,7 +755,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription) {
 }
 
 class graphFactory {
-    getRandomAutomaton(size, appSettings) {
+    getRandomAutomaton(size, appSettings, outline) {
         let goA = new Array(size);
         let goB = new Array(size);
 
@@ -762,10 +764,10 @@ class graphFactory {
             goB[i] = Math.floor(Math.random() * size);
         }
 
-        return getAnimatableGraph([goA, goB], appSettings, "Some random automaton of size " + size);
+        return getAnimatableGraph([goA, goB], appSettings, "Some random automaton of size " + size, outline);
     }
 
-    getCernyAutomaton(size, appSettings) {
+    getCernyAutomaton(size, appSettings, outline) {
         let goA = new Array(size);
         let goB = new Array(size);
 
@@ -776,27 +778,27 @@ class graphFactory {
         goA[0] = 1;
         goB[size - 1] = 0;
 
-        return getAnimatableGraph([goA, goB], appSettings, "Černý automaton of size " + size);
+        return getAnimatableGraph([goA, goB], appSettings, "Černý automaton of size " + size, outline);
     }
 
-    getKarisAutomaton(appSettings) {
+    getKarisAutomaton(appSettings, outline) {
         return getAnimatableGraph([
             [1, 2, 0, 5, 3, 4],
             [0, 1, 3, 2, 2, 5]
-        ], appSettings, "Kari's automaton");
+        ], appSettings, "Kari's automaton", outline);
     }
 
-    getExtreme4Automaton(appSettings) {
+    getExtreme4Automaton(appSettings, outline) {
         return getAnimatableGraph([
             [0, 2, 1, 2],
             [3, 0, 2, 1]
-        ], appSettings, "Extreme automaton of size 4");
+        ], appSettings, "Extreme automaton of size 4", outline);
     }
 
-    getExtreme3Automaton(appSettings) {
+    getExtreme3Automaton(appSettings, outline) {
         return getAnimatableGraph([
             [1, 0, 1],
             [1, 2, 0]
-        ], appSettings, "Extreme automaton of size 3");
+        ], appSettings, "Extreme automaton of size 3", outline);
     }
 }

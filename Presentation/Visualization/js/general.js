@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water;
+let camera, scene, renderer, controls, mesh, water, composer, outlinePass;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -238,6 +238,9 @@ let init = (createControlFromCamera) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    composer = new THREE.EffectComposer(renderer);
+    composer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
+
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
 
     appSettings.camera = camera;
@@ -286,8 +289,8 @@ let init = (createControlFromCamera) => {
     // scene.add(ground);
 
     var sky = new THREE.Sky();
-    sky.scale.setScalar( 10000 );
-    scene.add( sky );
+    sky.scale.setScalar(10000);
+    scene.add(sky);
     var uniforms = sky.material.uniforms;
     uniforms.turbidity.value = 10;
     uniforms.rayleigh.value = 1;
@@ -313,6 +316,24 @@ let init = (createControlFromCamera) => {
         cubeCamera.update(renderer, scene);
     }
     updateSun();
+
+
+    let renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio), scene, camera);
+
+    outlinePass.edgeStrength = 10.0;
+    outlinePass.edgeGlow = 0.0;
+    outlinePass.edgeThickness = 1.0;
+    outlinePass.pulsePeriod = 0;
+    outlinePass.rotate = false;
+    outlinePass.usePatternTexture = false;
+    outlinePass.selectedObjects = [];
+    outlinePass.renderToScreen = true;
+    outlinePass.visibleEdgeColor.set("#0x000000");
+
+    composer.addPass(outlinePass);
 
     // var gui = new dat.GUI();
     // var folder = gui.addFolder('Sky');
@@ -645,22 +666,22 @@ let init = (createControlFromCamera) => {
     updateAnimatingButtons();
 
     $("#random-graph-generate").on("click", () => {
-        showGraph(graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings));
+        showGraph(graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings, outlinePass));
     });
     $("#cerny-graph-generate").on("click", () => {
-        showGraph(graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings));
+        showGraph(graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings, outlinePass));
     });
     $("#custom-graph-generate").on("click", () => {
-        showGraph(parseGraph($("#custom-graph-transitions").val()));
+        showGraph(parseGraph($("#custom-graph-transitions").val(), outlinePass));
     });
     $("#generate-karis-automaton").on("click", () => {
-        showGraph(graphs.getKarisAutomaton(appSettings));
+        showGraph(graphs.getKarisAutomaton(appSettings, outlinePass));
     });
     $("#generate-extreme-3-automaton").on("click", () => {
-        showGraph(graphs.getExtreme3Automaton(appSettings));
+        showGraph(graphs.getExtreme3Automaton(appSettings, outlinePass));
     });
     $("#generate-extreme-4-automaton").on("click", () => {
-        showGraph(graphs.getExtreme4Automaton(appSettings));
+        showGraph(graphs.getExtreme4Automaton(appSettings, outlinePass));
     });
 
     $("#quality-ultra").on("click", () => {
@@ -798,7 +819,7 @@ let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
 
 let parseGraph = (specification) => {
     let parsedGraph = JSON.parse(specification);
-    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length));
+    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length, outlinePass));
 };
 
 let animate = () => {
@@ -808,7 +829,8 @@ let animate = () => {
     water.material.uniforms.time.value += 1.0 / 60.0;
     animatables.forEach(animatable => animatable.update(time, appSettings));
     controls.update();
-    renderer.render(scene, camera);
+    // renderer.render(scene, camera);
+    composer.render();
     setTimeout(() => window.requestAnimationFrame(animate), 0);
 }
 
@@ -816,6 +838,7 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 $(document).ready(() => {
@@ -830,7 +853,7 @@ $(document).ready(() => {
         }
         let showGraphFromRequest = () => {
             if (request["a"] == undefined) {
-                showGraph(graphs.getCernyAutomaton(4, appSettings));
+                showGraph(graphs.getCernyAutomaton(4, appSettings, outlinePass));
             } else {
                 showGraph(parseGraph(unescape(request["a"])));
             }

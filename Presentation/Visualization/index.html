@@ -87,7 +87,7 @@
     <link rel="stylesheet" href="css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Compiled and minified JavaScript -->
-    <script type="x-shader/x-vertex" id="vertexShader">
+    <!-- <script type="x-shader/x-vertex" id="vertexShader">
         varying vec3 vWorldPosition;
         void main() {
             vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
@@ -106,13 +106,18 @@
             float h = normalize( vWorldPosition + offset ).y;
             gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
         }
-    </script>
+    </script> -->
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"></script>
     <script defer src="js/materialize.min.js"></script>
     <script defer src="js/jquery-3.3.1.min.js"></script>
     <script defer src="js/jquery-ui.min.js"></script>
     <script defer src="js/stats.min.js"></script>
     <script defer src="js/three.js"></script>
+    <script defer src="js/CopyShader.js"></script>
+    <script defer src="js/EffectComposer.js"></script>
+    <script defer src="js/RenderPass.js"></script>
+    <script defer src="js/ShaderPass.js"></script>
+    <script defer src="js/OutlinePass.js"></script>
     <script defer src="js/graph.js"></script>
     <script defer src="js/animatable.js"></script>
     <script defer src="js/settings.js"></script>
@@ -120,7 +125,6 @@
     <script defer src="js/controls/OrbitControls.js"></script>
     <script defer src="js/Sky.js"></script>
     <script defer src="js/Water.js"></script>
-    <script defer src="js/dat.gui.min.js"></script>
     <script defer src="js/general.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
     <script defer src="js/deobfuscate.js"></script>
