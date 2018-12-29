@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh;
+let camera, scene, renderer, controls, mesh, water;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -243,11 +243,33 @@ let init = (createControlFromCamera) => {
     scene.background = new THREE.Color().setHSL(0.6, 0, 1);
     scene.fog = new THREE.Fog(scene.background, 1, 1000);
     //
-    let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    let dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.color.setHSL(0.1, 1, 0.95);
     dirLight.position.set(-1, 1.75, 1);
     dirLight.position.multiplyScalar(30);
     scene.add(dirLight);
+
+    let waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
+    water = new THREE.Water(
+        waterGeometry,
+        {
+            textureWidth: 512,
+            textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function (texture) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }),
+            alpha: 0.8,
+            sunDirection: dirLight.position.clone().normalize(),
+            sunColor: 0xffffff,
+            waterColor: 0x001e0f,
+            distortionScale: 1.5,
+            fog: scene.fog !== undefined
+        }
+    );
+    water.material.uniforms.size.value *= 4;
+    water.rotation.x = - Math.PI / 2;
+    water.position.y = -10;
+    scene.add(water);
 
     let groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
     let groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
@@ -255,7 +277,7 @@ let init = (createControlFromCamera) => {
     let ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -33;
-    scene.add(ground);
+    // scene.add(ground);
 
 
     let vertexShader = document.getElementById('vertexShader').textContent;
@@ -748,6 +770,7 @@ let animate = () => {
     stats.end();
     stats.begin();
     let time = Date.now() / 1000 - beginTime;
+    water.material.uniforms.time.value += 1.0 / 60.0;
     animatables.forEach(animatable => animatable.update(time, appSettings));
     controls.update();
     renderer.render(scene, camera);
@@ -807,10 +830,10 @@ $(document).ready(() => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle = Math.PI * 4 / 5;
+                controls.maxPolarAngle =  Math.PI * 0.495;//Math.PI * 4 / 5;
                 controls.minPolarAngle = Math.PI * 1 / 5;
                 controls.minDistance = 0.7;
-                controls.enablePan = false;
+                // controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
             if (!('ontouchstart' in window)) {
