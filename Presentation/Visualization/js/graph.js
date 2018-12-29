@@ -278,6 +278,13 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         fontMesh.position.z = mass[i] * 1;
 
         vertexDetails[i] = new THREE.Group();
+
+
+        var gg = new THREE.CircleGeometry(1.0618 * mass[i], 32);
+        var mm = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        var circle = new THREE.Mesh(gg, mm);;
+
+        vertexDetails[i].add(circle);
         vertexDetails[i].add(fontMesh);
         vertexDetails[i].position.set(
             0,
