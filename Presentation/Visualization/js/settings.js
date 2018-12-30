@@ -10,7 +10,7 @@ class settings {
         this.maximumConsideringDepth = 1;
         this.maxDistance = 1;
         // parameters
-        this.shineLights = true;
+        this.shineLights = false;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;
@@ -32,7 +32,8 @@ class settings {
 
         this.smoothOutEasing = "easeOutExpo";
         this.moveFocusTimout = 800;
-        this.zoomEasing = "easeOutExpo";
+        this.travelEasing = "easeInOutCubic";
+        this.zoomEasing = "easeOutSine";
         this.zoomTimeout = 100;
 
         this.targetStringLength = 0.618;

@@ -226,14 +226,15 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
 
         let material = new THREE.MeshStandardMaterial({
             color: color,
-            roughness: 0.65,
-            metalness: 0.4
+            roughness: 0.6,
+            metalness: 0.5,
+            envMap: outline.renderTarget
         });
         sphereGroup[i] = new THREE.Group();
 
         if (partOfShortestWord[i] === true) {
             material.emissive.copy(color);
-            material.emissive.offsetHSL(0, 0, -0.15 - 0.5 * distanceGeneralIntensity);
+            material.emissive.offsetHSL(0, 0, -0.2 - 0.5 * distanceGeneralIntensity);
             if (appSettings.shineLights && appSettings.quality >= 1) {
                 lights[i] = new THREE.PointLight(color, 0.1 * (1 - distanceGeneralIntensity), 100);
                 sphereGroup[i].add(lights[i]);

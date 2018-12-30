@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water, composer, outlinePass;
+let camera, scene, renderer, controls, mesh, water, composer, cubeCamera;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -252,7 +252,7 @@ let init = (createControlFromCamera) => {
     // scene.fog = new THREE.Fog(scene.background, 1, 1000);
     
     let light = new THREE.DirectionalLight(0xffffff, 1);
-    // light.color.setHSL(0.1, 1, 1);
+    // light.color.setHSL(0.1, 1, 0.5);//sunset
     // light.castShadow = true;
     // light.shadow.mapSize.width = 512;  // default
     // light.shadow.mapSize.height = 512; // default
@@ -297,17 +297,26 @@ let init = (createControlFromCamera) => {
     sky.scale.setScalar(10000);
     scene.add(sky);
     var uniforms = sky.material.uniforms;
+    // midnight
+    // uniforms.turbidity.value = 200;
+    // uniforms.rayleigh.value = 0.05;
+    // uniforms.luminance.value = 1;
+    // uniforms.mieCoefficient.value = 0.00001;
+    // uniforms.mieDirectionalG.value = 0.25;
+
+    // day
     uniforms.turbidity.value = 10;
     uniforms.rayleigh.value = 1;
     uniforms.luminance.value = 1;
     uniforms.mieCoefficient.value = 0.005;
-    uniforms.mieDirectionalG.value = 0.8;
+    uniforms.mieDirectionalG.value = 0.85;
     var parameters = {
         distance: 400,
-        inclination: 0.3,
-        azimuth: 0.1
+        //0.1// other afternoon
+        inclination: -0.3,//-0.5//sunset
+        azimuth: 0.1//0.5//sunset
     };
-    var cubeCamera = new THREE.CubeCamera(1, 20000, 256);
+    cubeCamera = new THREE.CubeCamera(1, 20000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
     function updateSun() {
@@ -402,7 +411,7 @@ let init = (createControlFromCamera) => {
         let animateFurther = Array(appSettings.shortestPath.length);
         for (let i = 0; i < appSettings.shortestPath.length; i++) {
             animateFurther[i] = () => {
-                travelToVertex(appSettings.shortestPath[i], "easeInOutExpo", 1500, animateFurther[i - 1]);
+                travelToVertex(appSettings.shortestPath[i], appSettings.travelEasing, 1500, animateFurther[i - 1]);
             }
         }
         animateFurther[animateFurther.length - 1]();
@@ -671,22 +680,22 @@ let init = (createControlFromCamera) => {
     updateAnimatingButtons();
 
     $("#random-graph-generate").on("click", () => {
-        showGraph(graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings, outlinePass));
+        showGraph(graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings, cubeCamera));
     });
     $("#cerny-graph-generate").on("click", () => {
-        showGraph(graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings, outlinePass));
+        showGraph(graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings, cubeCamera));
     });
     $("#custom-graph-generate").on("click", () => {
-        showGraph(parseGraph($("#custom-graph-transitions").val(), outlinePass));
+        showGraph(parseGraph($("#custom-graph-transitions").val(), cubeCamera));
     });
     $("#generate-karis-automaton").on("click", () => {
-        showGraph(graphs.getKarisAutomaton(appSettings, outlinePass));
+        showGraph(graphs.getKarisAutomaton(appSettings, cubeCamera));
     });
     $("#generate-extreme-3-automaton").on("click", () => {
-        showGraph(graphs.getExtreme3Automaton(appSettings, outlinePass));
+        showGraph(graphs.getExtreme3Automaton(appSettings, cubeCamera));
     });
     $("#generate-extreme-4-automaton").on("click", () => {
-        showGraph(graphs.getExtreme4Automaton(appSettings, outlinePass));
+        showGraph(graphs.getExtreme4Automaton(appSettings, cubeCamera));
     });
 
     $("#quality-ultra").on("click", () => {
@@ -825,7 +834,7 @@ let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
 let parseGraph = (specification) => {
     let parsedGraph = JSON.parse(specification);
     console.log(parsedGraph);
-    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), outlinePass);
+    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
 };
 
 let animate = () => {
@@ -859,7 +868,7 @@ $(document).ready(() => {
         }
         let showGraphFromRequest = () => {
             if (request["a"] == undefined) {
-                showGraph(graphs.getCernyAutomaton(4, appSettings, outlinePass));
+                showGraph(graphs.getCernyAutomaton(4, appSettings, cubeCamera));
             } else {
                 showGraph(parseGraph(unescape(request["a"])));
             }
@@ -894,9 +903,10 @@ $(document).ready(() => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle = Math.PI * 0.495;//Math.PI * 4 / 5;
+                controls.maxPolarAngle = Math.PI * 0.6;//Math.PI * 4 / 5;
                 controls.minPolarAngle = Math.PI * 1 / 5;
                 controls.minDistance = 0.7;
+                controls.maxDistance = 30;
                 // controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
@@ -960,11 +970,11 @@ let showGraph = (graph) => {
 
     $("#custom-graph-transitions").val(JSON.stringify(appSettings.graphTransitionFunction));
     if (!appSettings.isSynchronizable)
-        M.toast({ html: "Ha! You're out of luck. This automaton is not synchronizable!", displayLength: 10000 });
+        M.toast({ html: "Ha! You're out of luck. This automaton is not synchronizable!", displayLength: 3000 });
     if (flatTimeout != undefined)
         clearTimeout(flatTimeout);
     flatTimeout = setTimeout(() => {
-        M.toast({ html: "This graph is now entirely in three dimensions! Other coordinates are now zeroes.", displayLength: 10000 });
+        M.toast({ html: "This graph is now entirely in three dimensions! Other coordinates are now zeroes.", displayLength: 3000 });
     }, appSettings.flatteningForceTimeout);
 
     if (stayFlat) {
