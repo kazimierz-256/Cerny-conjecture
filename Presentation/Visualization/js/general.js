@@ -1027,7 +1027,7 @@ let generatePosterShot = () => {
     supervisor.lookAt(camera.position);
     scene.add(supervisor);
 
-    let michalina = getTextObject("Wykonawcy: Michalina Tumialis", 2, -1);
+    let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
     michalina.children[0].position.x -= 16.5;
     configurePosition(michalina, -0.6);
     michalina.position.y = 8;
