@@ -1016,8 +1016,8 @@ let generatePosterShot = () => {
     date.lookAt(camera.position);
     scene.add(date);
     
-    let titles = getTextObject("Automata Iterator", 2, 0);
-    configurePosition(titles, -0.6);
+    let titles = getTextObject("Automata Iterator", 7, 0);
+    configurePosition(titles, -1.05);
     titles.lookAt(camera.position);
     scene.add(titles);
 
@@ -1039,6 +1039,8 @@ let generatePosterShot = () => {
     kazimierz.position.y = 4;
     kazimierz.lookAt(camera.position);
     scene.add(kazimierz);
+
+    
 }
 let getTextObject = (text, fontSize, align) => {
     let fontMaterial = new THREE.MeshStandardMaterial({
