@@ -1010,14 +1010,15 @@ let generatePosterShot = () => {
     let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
 
     let range = 200;
-    let height = 0;
-    let date = getTextObject("Styczeń 2019", 5, 1);
+    let height = 12;
+    let date = getTextObject("Styczeń 2019", 2, 0);
     configurePosition(date, -1.55);
     date.lookAt(camera.position);
     scene.add(date);
-    
+
     let titles = getTextObject("Automata Iterator", 7, 0);
     configurePosition(titles, -1.05);
+    titles.position.y += 2;
     titles.lookAt(camera.position);
     scene.add(titles);
 
@@ -1030,17 +1031,33 @@ let generatePosterShot = () => {
     let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
     michalina.children[0].position.x -= 16.5;
     configurePosition(michalina, -0.6);
-    michalina.position.y = 8;
+    michalina.position.y += 8;
     michalina.lookAt(camera.position);
     scene.add(michalina);
 
     let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
     configurePosition(kazimierz, -0.6);
-    kazimierz.position.y = 4;
+    kazimierz.position.y += 4;
     kazimierz.lookAt(camera.position);
     scene.add(kazimierz);
 
-    
+    let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
+    configurePosition(wydzial, -1.55);
+    wydzial.position.y = 15;
+    wydzial.lookAt(camera.position);
+    scene.add(wydzial);
+
+    var img = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture('textures/logo_mini.png')
+    });
+    img.transparent = true;
+    // plane
+    var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
+    configurePosition(plane, -1.55);
+    plane.position.y = 28;
+    plane.overdraw = true;
+    plane.lookAt(camera.position);
+    scene.add(plane);
 }
 let getTextObject = (text, fontSize, align) => {
     let fontMaterial = new THREE.MeshStandardMaterial({
