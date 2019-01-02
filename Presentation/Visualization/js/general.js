@@ -1043,7 +1043,7 @@ let generatePosterShot = () => {
 
     let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
     configurePosition(wydzial, -1.55);
-    wydzial.position.y = 15;
+    wydzial.position.y = 17;
     wydzial.lookAt(camera.position);
     scene.add(wydzial);
 
@@ -1054,7 +1054,7 @@ let generatePosterShot = () => {
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
     configurePosition(plane, -1.55);
-    plane.position.y = 28;
+    plane.position.y = 30;
     plane.overdraw = true;
     plane.lookAt(camera.position);
     scene.add(plane);
