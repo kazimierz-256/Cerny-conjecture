@@ -14,6 +14,7 @@ class settings {
         this.focusingFOV = 75;
         // parameters
         this.shineLights = false;
+        this.daytime = 0.15;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;
@@ -50,7 +51,7 @@ class settings {
         this.withoutHighlight = 1.0;
         this.highlightTimeout = 200;
         this.dehighlightTimeout = 300;
-        
+
     }
     recomputeForces(forceStrength) {
         this.forceStrength = forceStrength;

@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water, composer, cubeCamera, displayedGraph;
+let camera, scene, renderer, controls, mesh, water, composer, cubeCamera, existingGraph, skyParameters, sunLight;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -246,7 +246,7 @@ let init = (createControlFromCamera) => {
     composer = new THREE.EffectComposer(renderer);
     composer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
 
-    camera = new THREE.PerspectiveCamera(appSettings.exploratoryFOV, window.innerWidth / window.innerHeight, 0.01, 5000);
+    camera = new THREE.PerspectiveCamera(appSettings.exploratoryFOV, window.innerWidth / window.innerHeight, 0.2, 10000);
 
     appSettings.camera = camera;
     createControlFromCamera(camera);
@@ -256,7 +256,7 @@ let init = (createControlFromCamera) => {
     // scene.background = new THREE.Color().setHSL(0.6, 0, 1);
     // scene.fog = new THREE.Fog(scene.background, 1, 1000);
 
-    let light = new THREE.DirectionalLight(0xffffff, 1);
+    sunLight = new THREE.DirectionalLight(0xffffff, 1);
     // light.color.setHSL(0.1, 1, 0.5);//sunset
     // light.castShadow = true;
     // light.shadow.mapSize.width = 512;  // default
@@ -265,7 +265,7 @@ let init = (createControlFromCamera) => {
     // light.shadow.camera.far = 500   
     // light.position.set(-1, 1.75, 1);
     // light.position.multiplyScalar(30);
-    scene.add(light);
+    scene.add(sunLight);
 
     let waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
     water = new THREE.Water(
@@ -277,8 +277,8 @@ let init = (createControlFromCamera) => {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }),
             alpha: 0.8,
-            sunDirection: light.position.clone().normalize(),
-            sunColor: light.color,
+            sunDirection: sunLight.position.clone().normalize(),
+            sunColor: sunLight.color,
             waterColor: 0x001e0f,
             distortionScale: 1,
             fog: scene.fog !== undefined
@@ -315,26 +315,25 @@ let init = (createControlFromCamera) => {
     uniforms.luminance.value = 1;
     uniforms.mieCoefficient.value = 0.005;
     uniforms.mieDirectionalG.value = 0.85;
-    var parameters = {
+    skyParameters = {
         distance: 400,
-        //0.1// other afternoon
-        inclination: -0.3,//-0.5//sunset
-        azimuth: 0.1//0.5//sunset
+        inclination: -0.3,
+        azimuth: 0.1
     };
     cubeCamera = new THREE.CubeCamera(1, 20000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
-    function updateSun() {
-        var theta = Math.PI * (parameters.inclination - 0.5);
-        var phi = 2 * Math.PI * (parameters.azimuth - 0.5);
-        light.position.x = parameters.distance * Math.cos(phi);
-        light.position.y = parameters.distance * Math.sin(phi) * Math.sin(theta);
-        light.position.z = parameters.distance * Math.sin(phi) * Math.cos(theta);
-        sky.material.uniforms.sunPosition.value = light.position.copy(light.position);
-        water.material.uniforms.sunDirection.value.copy(light.position).normalize();
+
+    updateSun = () => {
+        var theta = Math.PI * (skyParameters.inclination - 0.5);
+        var phi = 2 * Math.PI * (skyParameters.azimuth - 0.5);
+        sunLight.position.x = skyParameters.distance * Math.cos(phi);
+        sunLight.position.y = skyParameters.distance * Math.sin(phi) * Math.sin(theta);
+        sunLight.position.z = skyParameters.distance * Math.sin(phi) * Math.cos(theta);
+        sky.material.uniforms.sunPosition.value = sunLight.position.copy(sunLight.position);
+        water.material.uniforms.sunDirection.value.copy(sunLight.position).normalize();
         cubeCamera.update(renderer, scene);
     }
-    updateSun();
 
 
     // let renderPass = new THREE.RenderPass(scene, camera);
@@ -719,19 +718,23 @@ let init = (createControlFromCamera) => {
     $("#automaton-speedup").change((e) => {
         appSettings.speedup = parseFloat(e.target.options[e.target.selectedIndex].value);
     });
-    $("#automaton-repel").change((e) => {
+    $("#automaton-repel").on("input", (e) => {
         appSettings.repellingConstant = e.target.value * appSettings.forceStrength;
     });
-    $("#automaton-string").change((e) => {
+    $("#daytime").on("input", (e) => {
+        appSettings.daytime = e.target.value;
+        setMood(appSettings.daytime);
+    });
+    $("#automaton-string").on("input", (e) => {
         appSettings.stringConstant = e.target.value * appSettings.forceStrength;
     });
-    $("#automaton-unique-string").change((e) => {
+    $("#automaton-unique-string").on("input", (e) => {
         appSettings.uniqueStringConstant = e.target.value * appSettings.stringConstant;
     });
-    $("#automaton-friction").change((e) => {
+    $("#automaton-friction").on("input", (e) => {
         appSettings.friction = e.target.value * appSettings.forceStrength;
     });
-    $("#string-length").change((e) => {
+    $("#string-length").on("input", (e) => {
         appSettings.targetStringLength = e.target.value;
     });
 
@@ -898,8 +901,8 @@ $(document).ready(() => {
                 controls.maxPolarAngle = Math.PI * 0.6;//Math.PI * 4 / 5;
                 controls.minPolarAngle = Math.PI * 1 / 5;
                 controls.minDistance = 0.7;
-                // controls.maxDistance = 30;
-                controls.enablePan = false;
+                controls.maxDistance = 30;
+                // controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
             if (!('ontouchstart' in window)) {
@@ -908,6 +911,7 @@ $(document).ready(() => {
             } else {
                 // $(".btn-floating").addClass("btn-small");
             }
+
             $("#zoomin").remove();
             $("#zoomout").remove();
             showGraphFromRequest();
@@ -932,7 +936,6 @@ $(document).ready(() => {
 let beginTime = window.performance.now() / 1000;
 let frameCount = 0;
 let graphs = new graphFactory();
-let existingGraph = undefined;
 
 let flatTimeout = undefined;
 let showGraph = (graph) => {
@@ -976,9 +979,61 @@ let showGraph = (graph) => {
     }
     threeDimForce.foo = 0.0;
     togglethreeDimForce(1);
-
-    displayedGraph = graph;
+    setMood(appSettings.daytime);
     travelToVertex(-1);
 }
 
+let setMood = t => {
+    // t is between 0 and 1
+    sunLight.color.setHSL(0.1, 1, Math.min(1.0, 1.5 - t));
+
+    skyParameters.distance = 400;
+    skyParameters.inclination = -0.3 - t * 0.2;
+    skyParameters.azimuth = 0.1 + t * 0.4;
+    updateSun();
+};
+
+
+let generatePosterShot = () => {
+    controls.maxDistance = 10000;
+    // fov
+    camera.fov = 40;
+    // rotation
+    controls.reset();
+    // position
+    let distance = 2;
+    camera.position.set(25 * distance, 5 * distance, -15 * distance);
+    // mood
+    setMood(0.15);
+
+    // add text
+}
 $(document.body).css("opacity", 1);
+$(document.body).on("keydown", function (e) {
+    switch (String.fromCharCode(e.which).toLowerCase()) {
+        case "k":
+            // move upward
+            camera.position.y += 0.5;
+            break;
+        case "j":
+            // move downward
+            camera.position.y -= 0.5;
+            break;
+        case "o":
+            camera.fov -= 1;
+            break;
+        case "p":
+            camera.fov += 1;
+            break;
+        case "i":
+            generatePosterShot();
+            break;
+        case "r":
+            controls.reset();
+            camera.position.set(4, 2, 0);
+            break;
+        case "u":
+            controls.maxDistance = 10000;
+            break;
+    }
+})

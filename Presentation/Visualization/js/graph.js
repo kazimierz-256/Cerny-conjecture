@@ -179,6 +179,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         });
         let fontMaterial = new THREE.MeshStandardMaterial({
             color: new THREE.Color(0xffffff),
+            emissive: new THREE.Color(0x222222),
             roughness: 0.5,
             metalness: 0
         });
