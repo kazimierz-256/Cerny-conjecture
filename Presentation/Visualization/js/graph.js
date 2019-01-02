@@ -758,7 +758,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
         }
     };
-    return new Animatable(update, init, destroy);
+    let graphToReturn = new Animatable(update, init, destroy);
+    // additional functions
+    graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
+    return graphToReturn;
 }
 
 class graphFactory {

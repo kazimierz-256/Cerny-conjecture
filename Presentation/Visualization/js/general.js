@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water, composer, cubeCamera;
+let camera, scene, renderer, controls, mesh, water, composer, cubeCamera, displayedGraph;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -65,16 +65,16 @@ let startProcessingSensorData = () => {
             ).normalize();
             let moveNow = false;
             let moveVector = new THREE.Vector3(accelerationVector.x, accelerationVector.y, 0);
-            // if (accelerationVector.length() >= ((Math.E * Math.exp(-Math.sqrt((Date.now() - latestActionTimestamp) / timeout))) ** 2) * lengthThreshold) {
+            // if (accelerationVector.length() >= ((Math.E * Math.exp(-Math.sqrt(window.performance.now() - latestActionTimestamp) / timeout))) ** 2) * lengthThreshold) {
             //     if (accelerationVector.length() >= lengthThreshold) {
             //         if (unitAcceleration.z > directionThreshold) {
             //             $("#info").html("zoom in");
             //             cameraDistance /= 1.5;
-            //             latestActionTimestamp = Date.now();
+            //             latestActionTimestamp = window.performance.now();
             //         } else if (unitAcceleration.z < -directionThreshold) {
             //             $("#info").html("zoom out");
             //             cameraDistance *= 1.5;
-            //             latestActionTimestamp = Date.now();
+            //             latestActionTimestamp = window.performance.now();
 
             //         } else {
             //             // $("#info").html("movement");
@@ -193,10 +193,16 @@ let travelToVertex = (toVertex, easing, duration, onComplete) => {
     appSettings.currentVertexFocus = toVertex;
     $(focusAnimation).stop(true, false);
     focusAnimation.foo = appSettings.transitionFocusFraction = 0.0;
+    let beforeFOV = camera.fov;
     $(focusAnimation).animate({ foo: 1.0 }, {
         duration: duration == undefined ? appSettings.moveFocusTimout : duration,
         easing: easing == undefined ? appSettings.smoothOutEasing : easing,
         step: (now) => {
+            if (toVertex == -1) {
+                camera.fov = beforeFOV + (appSettings.exploratoryFOV - beforeFOV) * now;
+            } else {
+                camera.fov = beforeFOV + (appSettings.focusingFOV - beforeFOV) * now;
+            }
             appSettings.transitionFocusFraction = now;
         },
         complete: () => {
@@ -204,7 +210,6 @@ let travelToVertex = (toVertex, easing, duration, onComplete) => {
                 onComplete();
         }
     });
-
 }
 
 let flatForce = { foo: 0.0 };
@@ -241,7 +246,7 @@ let init = (createControlFromCamera) => {
     composer = new THREE.EffectComposer(renderer);
     composer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
+    camera = new THREE.PerspectiveCamera(appSettings.exploratoryFOV, window.innerWidth / window.innerHeight, 0.01, 5000);
 
     appSettings.camera = camera;
     createControlFromCamera(camera);
@@ -250,7 +255,7 @@ let init = (createControlFromCamera) => {
 
     // scene.background = new THREE.Color().setHSL(0.6, 0, 1);
     // scene.fog = new THREE.Fog(scene.background, 1, 1000);
-    
+
     let light = new THREE.DirectionalLight(0xffffff, 1);
     // light.color.setHSL(0.1, 1, 0.5);//sunset
     // light.castShadow = true;
@@ -275,7 +280,7 @@ let init = (createControlFromCamera) => {
             sunDirection: light.position.clone().normalize(),
             sunColor: light.color,
             waterColor: 0x001e0f,
-            distortionScale: 1.5,
+            distortionScale: 1,
             fog: scene.fog !== undefined
         }
     );
@@ -294,7 +299,7 @@ let init = (createControlFromCamera) => {
     // scene.add(ground);
 
     var sky = new THREE.Sky();
-    sky.scale.setScalar(10000);
+    sky.scale.setScalar(100000);
     scene.add(sky);
     var uniforms = sky.material.uniforms;
     // midnight
@@ -411,7 +416,7 @@ let init = (createControlFromCamera) => {
         let animateFurther = Array(appSettings.shortestPath.length);
         for (let i = 0; i < appSettings.shortestPath.length; i++) {
             animateFurther[i] = () => {
-                travelToVertex(appSettings.shortestPath[i], appSettings.travelEasing, 1500, animateFurther[i - 1]);
+                setTimeout(() => travelToVertex(appSettings.shortestPath[i], appSettings.travelEasing, undefined, animateFurther[i - 1]), 600);
             }
         }
         animateFurther[animateFurther.length - 1]();
@@ -612,25 +617,6 @@ let init = (createControlFromCamera) => {
             }
         }
     });
-
-    let travelToVertex = (toVertex, easing, duration, onComplete) => {
-        appSettings.previousVertexFocus = appSettings.currentVertexFocus;
-        appSettings.currentVertexFocus = toVertex;
-        $(focusAnimation).stop(true, false);
-        focusAnimation.foo = appSettings.transitionFocusFraction = 0.0;
-        $(focusAnimation).animate({ foo: 1.0 }, {
-            duration: duration == undefined ? appSettings.moveFocusTimout : duration,
-            easing: easing == undefined ? appSettings.smoothOutEasing : easing,
-            step: (now) => {
-                appSettings.transitionFocusFraction = now;
-            },
-            complete: () => {
-                if (onComplete != undefined)
-                    onComplete();
-            }
-        });
-
-    }
 
     $(document.body).mouseup((e) => {
         if (0 != allowVertexFocus)
@@ -837,16 +823,22 @@ let parseGraph = (specification) => {
     return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
 };
 
+
 let animate = () => {
+    let beforeRender = window.performance.now();
     stats.end();
     stats.begin();
-    let time = Date.now() / 1000 - beginTime;
-    water.material.uniforms.time.value += 1.0 / 60.0;
+    frameCount += 1;
+    let time = frameCount / appSettings.targetFPS; //window.performance.now() / 1000 - beginTime;
+    water.material.uniforms.time.value = time / 3;
     animatables.forEach(animatable => animatable.update(time, appSettings));
     controls.update();
     renderer.render(scene, camera);
     // composer.render();
-    setTimeout(() => window.requestAnimationFrame(animate), 0);
+    let defaultTimeout = 1000.0 / appSettings.targetFPS;
+    let timeout = Math.max(0, defaultTimeout - (window.performance.now() - beforeRender));
+    camera.updateProjectionMatrix();
+    setTimeout(() => window.requestAnimationFrame(animate), timeout);
 }
 
 let onWindowResize = () => {
@@ -906,8 +898,8 @@ $(document).ready(() => {
                 controls.maxPolarAngle = Math.PI * 0.6;//Math.PI * 4 / 5;
                 controls.minPolarAngle = Math.PI * 1 / 5;
                 controls.minDistance = 0.7;
-                controls.maxDistance = 30;
-                // controls.enablePan = false;
+                // controls.maxDistance = 30;
+                controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
             if (!('ontouchstart' in window)) {
@@ -937,7 +929,8 @@ $(document).ready(() => {
     });
 });
 
-let beginTime = Date.now() / 1000;
+let beginTime = window.performance.now() / 1000;
+let frameCount = 0;
 let graphs = new graphFactory();
 let existingGraph = undefined;
 
@@ -949,7 +942,7 @@ let showGraph = (graph) => {
         existingGraph.destroy();
     }
 
-    appSettings.creationStartTime = Date.now();
+    appSettings.creationStartTime = window.performance.now();
 
     existingGraph = graph;
 
@@ -984,6 +977,7 @@ let showGraph = (graph) => {
     threeDimForce.foo = 0.0;
     togglethreeDimForce(1);
 
+    displayedGraph = graph;
     travelToVertex(-1);
 }
 

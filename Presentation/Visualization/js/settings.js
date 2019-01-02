@@ -9,6 +9,9 @@ class settings {
         this.previousMaximumConsideringDepth = 1;
         this.maximumConsideringDepth = 1;
         this.maxDistance = 1;
+        this.targetFPS = 24;
+        this.exploratoryFOV = 75;
+        this.focusingFOV = 75;
         // parameters
         this.shineLights = false;
         // animation
@@ -31,7 +34,7 @@ class settings {
         this.previousVertexFocus = -1;
 
         this.smoothOutEasing = "easeOutExpo";
-        this.moveFocusTimout = 800;
+        this.moveFocusTimout = 1800;
         this.travelEasing = "easeInOutCubic";
         this.zoomEasing = "easeOutSine";
         this.zoomTimeout = 100;
@@ -47,6 +50,7 @@ class settings {
         this.withoutHighlight = 1.0;
         this.highlightTimeout = 200;
         this.dehighlightTimeout = 300;
+        
     }
     recomputeForces(forceStrength) {
         this.forceStrength = forceStrength;
