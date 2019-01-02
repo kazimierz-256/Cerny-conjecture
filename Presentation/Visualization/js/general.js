@@ -1007,6 +1007,64 @@ let generatePosterShot = () => {
     setMood(0.15);
 
     // add text
+    let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
+
+    let range = 200;
+    let height = 0;
+    let date = getTextObject("Styczeń 2019", 5, 1);
+    configurePosition(date, -1.55);
+    date.lookAt(camera.position);
+    scene.add(date);
+    
+    let titles = getTextObject("Automata Iterator", 2, 0);
+    configurePosition(titles, -0.6);
+    titles.lookAt(camera.position);
+    scene.add(titles);
+
+    let supervisor = getTextObject("Promotor: dr Michał Dębski", 2, -1);
+    supervisor.children[0].position.x -= 13.25;
+    configurePosition(supervisor, -0.6);
+    supervisor.lookAt(camera.position);
+    scene.add(supervisor);
+
+    let michalina = getTextObject("Wykonawcy: Michalina Tumialis", 2, -1);
+    michalina.children[0].position.x -= 16.5;
+    configurePosition(michalina, -0.6);
+    michalina.position.y = 8;
+    michalina.lookAt(camera.position);
+    scene.add(michalina);
+
+    let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
+    configurePosition(kazimierz, -0.6);
+    kazimierz.position.y = 4;
+    kazimierz.lookAt(camera.position);
+    scene.add(kazimierz);
+}
+let getTextObject = (text, fontSize, align) => {
+    let fontMaterial = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0xffffff),
+        emissive: new THREE.Color(0x222222),
+        roughness: 0.5,
+        metalness: 0
+    });
+    let fontGeometry = new THREE.TextGeometry(text, {
+        font: appSettings.font,
+        size: fontSize,
+        height: fontSize * 0.1,
+        curveSegments: 2 + 2 * appSettings.quality,
+    });
+    fontGeometry.computeBoundingBox();
+    let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
+    let group = new THREE.Group();
+    let mesh = new THREE.Mesh(fontGeometry, fontMaterial);
+
+    if (align === 1)
+        mesh.position.x -= textWidth;
+    else if (align !== -1)
+        mesh.position.x -= textWidth / 2;
+
+    group.add(mesh);
+    return group;
 }
 $(document.body).css("opacity", 1);
 $(document.body).on("keydown", function (e) {
