@@ -9,7 +9,7 @@ class settings {
         this.previousMaximumConsideringDepth = 1;
         this.maximumConsideringDepth = 1;
         this.maxDistance = 1;
-        this.targetFPS = 24;
+        this.targetFPS = 60;
         this.exploratoryFOV = 75;
         this.focusingFOV = 75;
         // parameters

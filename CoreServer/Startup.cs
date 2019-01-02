@@ -39,7 +39,7 @@ namespace CoreServer
 
             #region Unary automata database singleton
             var database = new UnaryAutomataDB(AutomatonProblemSize);
-            ProgressIO.ProgressIO.ImportStateIfPossibleAsync(database).Wait();
+            ProgressIO.ProgressIO.ImportStateIfPossible(database);
             services.AddSingleton(
                     database
                 );

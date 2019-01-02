@@ -16,6 +16,7 @@ namespace CoreServer.ProgressIO
         public int Size;
 
         private const string savingAddress = "export.xml";
+        private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}{savingAddress}";
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
             var exported = database.Export();
@@ -26,18 +27,19 @@ namespace CoreServer.ProgressIO
                 using (var w = XmlWriter.Create(sw))
                 {
                     serializer.Serialize(w, exported);
-                    await File.WriteAllTextAsync(savingAddress, sw.ToString());
+                    await File.WriteAllTextAsync(GetAddress(database), sw.ToString());
                 }
             }
         }
 
-        public async static Task ImportStateIfPossibleAsync(UnaryAutomataDB database)
+        public static void ImportStateIfPossible(UnaryAutomataDB database)
         {
-            if (File.Exists(savingAddress))
+            var address = GetAddress(database);
+            if (File.Exists(address))
             {
                 var serializer = new XmlSerializer(typeof(ProgressIO));
 
-                using (var sr = new StreamReader(savingAddress))
+                using (var sr = new StreamReader(address))
                 {
                     var obj = serializer.Deserialize(sr);
                     var data = (ProgressIO)obj;
