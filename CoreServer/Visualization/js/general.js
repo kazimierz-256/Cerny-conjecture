@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water, composer, cubeCamera, existingGraph, skyParameters, sunLight;
+let camera, scene, renderer, controls, mesh, water, cubeCamera, existingGraph, skyParameters, sunLight;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -126,6 +126,12 @@ let startProcessingSensorData = () => {
                     new THREE.Vector3(0, 0, cameraDistance)
                         .applyQuaternion(camera.quaternion);
 
+                let waterlimit = water.position.y * 0.9;
+                if (newCameraPosition.y < waterlimit) {
+                    newCameraPosition =
+                        new THREE.Vector3(0, 0, cameraDistance * Math.abs(waterlimit / newCameraPosition.y))
+                            .applyQuaternion(camera.quaternion);
+                }
                 camera.position.set(
                     newCameraPosition.x,
                     newCameraPosition.y,
@@ -833,6 +839,12 @@ let animate = () => {
     water.material.uniforms.time.value = time / 3;
     animatables.forEach(animatable => animatable.update(time, appSettings));
     controls.update();
+    // make sure the camera doesn't go underwater
+    let waterlimit = water.position.y * 0.9;
+    if (camera.position.y < waterlimit) {
+        camera.position.y = waterlimit;
+    }
+    controls.update();
     renderer.render(scene, camera);
     // composer.render();
     let defaultTimeout = 1000.0 / appSettings.targetFPS;
@@ -845,7 +857,6 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 $(document).ready(() => {
@@ -895,10 +906,10 @@ $(document).ready(() => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle = Math.PI * 0.6;//Math.PI * 4 / 5;
-                controls.minPolarAngle = Math.PI * 1 / 5;
+                controls.maxPolarAngle = Math.PI * 0.7;//Math.PI * 4 / 5;
+                controls.minPolarAngle = Math.PI * 0.15;
                 controls.minDistance = 0.7;
-                controls.maxDistance = 30;
+                controls.maxDistance = 100;
                 // controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
@@ -1112,13 +1123,18 @@ $(document.body).on("keydown", function (e) {
     }
 });
 
-let touchDist;
+let touchDist = undefined;
 let initialZoom;
 $(document.body).on("touchstart", function (e) {
-    touchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pagey - e.touches[1].pageY);
-    initialZoom = camera.zoom;
+    if (e.touches.length == 2) {
+        touchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        initialZoom = cameraDistance;
+    }
 });
 $(document.body).on("touchmove", function (e) {
-    let newDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pagey - e.touches[1].pageY);
-    camera.zoom = initialZoom * (newDist / touchDist) ** 2;
+    if (e.touches.length == 2 && touchDist !== undefined) {
+        let newDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        let ratio = (touchDist / newDist) ** 2;
+        cameraDistance = Math.min(100, initialZoom * ratio);
+    }
 });

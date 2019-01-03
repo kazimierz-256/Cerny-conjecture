@@ -31,6 +31,7 @@
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            overscroll-behavior-y: none;
         }
 
         .latex-font {
@@ -135,7 +136,8 @@
     <script defer src="js/general.js"></script>
 </head>
 
-<body>
+<body style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;"
+    unselectable="on" onselectstart="return false;">
     <!-- <div id="vignette"></div> -->
     <div id="controls" class="fixed-action-btn toolbar direction-top">
         <a class="btn-floating btn-large waves-effect waves-light pulse" style="background: transparent !important; box-shadow: none !important;"
@@ -435,7 +437,7 @@
                     </label>
                 </p>
             </div>
-            
+
             <div class="divider"></div>
 
             <div class="section">
