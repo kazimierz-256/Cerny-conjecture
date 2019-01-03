@@ -844,7 +844,6 @@ let animate = () => {
     if (camera.position.y < waterlimit) {
         camera.position.y = waterlimit;
     }
-    controls.update();
     renderer.render(scene, camera);
     // composer.render();
     let defaultTimeout = 1000.0 / appSettings.targetFPS;
