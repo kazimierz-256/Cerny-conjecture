@@ -243,9 +243,6 @@ let init = (createControlFromCamera) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    composer = new THREE.EffectComposer(renderer);
-    composer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
-
     camera = new THREE.PerspectiveCamera(appSettings.exploratoryFOV, window.innerWidth / window.innerHeight, 0.2, 10000);
 
     appSettings.camera = camera;
@@ -1105,7 +1102,7 @@ $(document.body).on("keydown", function (e) {
         case "i":
             generatePosterShot();
             break;
-        case "r":
+        case "y":
             controls.reset();
             camera.position.set(4, 2, 0);
             break;
@@ -1113,4 +1110,15 @@ $(document.body).on("keydown", function (e) {
             controls.maxDistance = 10000;
             break;
     }
-})
+});
+
+let touchDist;
+let initialZoom;
+$(document.body).on("touchstart", function (e) {
+    touchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pagey - e.touches[1].pageY);
+    initialZoom = camera.zoom;
+});
+$(document.body).on("touchmove", function (e) {
+    let newDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pagey - e.touches[1].pageY);
+    camera.zoom = initialZoom * (newDist / touchDist) ** 2;
+});

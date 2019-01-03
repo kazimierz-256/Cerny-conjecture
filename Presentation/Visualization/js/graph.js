@@ -423,9 +423,9 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth)
                     continue;
-                FxArr[i] = appSettings.accelX * -10 - vx[i] * appSettings.friction;
-                FyArr[i] = appSettings.accelY * -10 - vy[i] * appSettings.friction;
-                FzArr[i] = appSettings.accelZ * -10 - vz[i] * appSettings.friction;
+                FxArr[i] = appSettings.accelX * -50 - vx[i] * appSettings.friction;
+                FyArr[i] = appSettings.accelY * -50 - vy[i] * appSettings.friction;
+                FzArr[i] = appSettings.accelZ * -50 - vz[i] * appSettings.friction;
                 FwArr[i] = appSettings.threeDimForceFraction == 1.0 ? 0.0 : (- vw[i] * appSettings.friction);
                 FuArr[i] = appSettings.threeDimForceFraction == 1.0 ? 0.0 : (- vu[i] * appSettings.friction);
             }
