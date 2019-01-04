@@ -1013,7 +1013,7 @@ let generatePosterShot = () => {
     // rotation
     controls.reset();
     // position
-    let distance = 2;
+    let distance = 0.33;
     camera.position.set(25 * distance, 5 * distance, -15 * distance);
     // mood
     setMood(0.15);
@@ -1024,10 +1024,6 @@ let generatePosterShot = () => {
 
     let range = 200;
     let height = -8;
-    let date = getTextObject("Styczeń 2019", 2, 0);
-    configurePosition(date, -1.55);
-    date.lookAt(camera.position);
-    scene.add(date);
 
     let titles = getTextObject("Automata Iterator", 7, 0);
     configurePosition(titles, -1.05);
@@ -1055,7 +1051,7 @@ let generatePosterShot = () => {
     scene.add(kazimierz);
 
     let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
-    configurePosition(wydzial, -1.55);
+    configurePosition(wydzial, -1.5);
     wydzial.position.y = height + 5;
     wydzial.lookAt(camera.position);
     scene.add(wydzial);
@@ -1066,12 +1062,17 @@ let generatePosterShot = () => {
     img.transparent = true;
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
-    configurePosition(plane, -1.55);
+    configurePosition(plane, -1.5);
     plane.position.y = height + 18;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
+    
+    let date = getTextObject("Styczeń 2019", 2, 0);
+    configurePosition(date, -1.5);
+    date.lookAt(camera.position);
+    scene.add(date);
 }
 let getTextObject = (text, fontSize, align) => {
     let fontMaterial = new THREE.MeshStandardMaterial({

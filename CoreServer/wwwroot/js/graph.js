@@ -759,11 +759,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
         }
     };
-    let graphToReturn = new Animatable(update, init, destroy);
+    let graphToReturn = new Animatable(update, init, destroy, () => graph);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
-    graphToReturn.removeDescription = () =>
-    {
+    graphToReturn.removeDescription = () => {
         graph.remove(descriptionFontMesh);
         graph.remove(descriptionFontMesh2);
     };
