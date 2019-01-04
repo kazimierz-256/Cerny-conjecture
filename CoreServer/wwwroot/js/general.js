@@ -864,6 +864,10 @@ let onWindowResize = () => {
 }
 
 $(document).ready(() => {
+    $("#audio-music")[0].currentTime = 5 * 3600 + 21 * 60;
+    $("#audio-sfx")[0].currentTime = 8 * 60 + 2;
+    $("#audio-music")[0].play();
+    $("#audio-sfx")[0].play();
     fontLoader.load('fonts/LM Roman 10_Regular.json', (font) => {
         appSettings.font = font;
 
@@ -1068,7 +1072,7 @@ let generatePosterShot = () => {
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
-    
+
     let date = getTextObject("Styczeń 2019", 2, 0);
     configurePosition(date, -1.5);
     date.lookAt(camera.position);
