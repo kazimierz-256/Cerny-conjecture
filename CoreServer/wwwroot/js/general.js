@@ -686,8 +686,13 @@ let init = (createControlFromCamera) => {
         showGraph(graphs.getExtreme4Automaton(appSettings, cubeCamera));
     });
 
+    $("#quality-smooth").on("click", () => {
+        appSettings.quality = 6;
+        M.toast({ html: "Realistically smooth quality setting will be applied once a new automaton is created", displayLength: 4000 })
+    });
+
     $("#quality-ultra").on("click", () => {
-        appSettings.quality = 3;
+        appSettings.quality = 4;
         M.toast({ html: "Ultra quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
@@ -1012,12 +1017,13 @@ let generatePosterShot = () => {
     camera.position.set(25 * distance, 5 * distance, -15 * distance);
     // mood
     setMood(0.15);
+    existingGraph.removeDescription();
 
     // add text
     let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
 
     let range = 200;
-    let height = 12;
+    let height = -8;
     let date = getTextObject("Styczeń 2019", 2, 0);
     configurePosition(date, -1.55);
     date.lookAt(camera.position);
@@ -1025,7 +1031,7 @@ let generatePosterShot = () => {
 
     let titles = getTextObject("Automata Iterator", 7, 0);
     configurePosition(titles, -1.05);
-    titles.position.y += 2;
+    // titles.position.y += 2;
     titles.lookAt(camera.position);
     scene.add(titles);
 
@@ -1050,7 +1056,7 @@ let generatePosterShot = () => {
 
     let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
     configurePosition(wydzial, -1.55);
-    wydzial.position.y = 17;
+    wydzial.position.y = height + 5;
     wydzial.lookAt(camera.position);
     scene.add(wydzial);
 
@@ -1061,8 +1067,9 @@ let generatePosterShot = () => {
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
     configurePosition(plane, -1.55);
-    plane.position.y = 30;
+    plane.position.y = height + 18;
     plane.overdraw = true;
+    plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
 }

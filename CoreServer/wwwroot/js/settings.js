@@ -26,7 +26,7 @@ class settings {
         this.maxSpeedSquared = 0.0;
         this.maxPermissibleSpeedSquared = 100;
         this.deltaTSlowdown = 1;
-        this.quality = 2;
+        this.quality = 4;
         this.repelArrows = false;
 
         this.transitionFocusFraction = 1.0;

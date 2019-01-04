@@ -762,6 +762,11 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let graphToReturn = new Animatable(update, init, destroy);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
+    graphToReturn.removeDescription = () =>
+    {
+        graph.remove(descriptionFontMesh);
+        graph.remove(descriptionFontMesh2);
+    };
     return graphToReturn;
 }
 
