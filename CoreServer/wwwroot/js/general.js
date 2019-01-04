@@ -1027,7 +1027,7 @@ let generatePosterShot = () => {
 
     let titles = getTextObject("Automata Iterator", 7, 0);
     configurePosition(titles, -1.05);
-    // titles.position.y += 2;
+    titles.position.y += 1;
     titles.lookAt(camera.position);
     scene.add(titles);
 
@@ -1050,9 +1050,9 @@ let generatePosterShot = () => {
     kazimierz.lookAt(camera.position);
     scene.add(kazimierz);
 
-    let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
+    let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1.2, 0);
     configurePosition(wydzial, -1.5);
-    wydzial.position.y = height + 5;
+    wydzial.position.y = height + 4.5;
     wydzial.lookAt(camera.position);
     scene.add(wydzial);
 
@@ -1063,7 +1063,7 @@ let generatePosterShot = () => {
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
     configurePosition(plane, -1.5);
-    plane.position.y = height + 18;
+    plane.position.y = height + 17.5;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
