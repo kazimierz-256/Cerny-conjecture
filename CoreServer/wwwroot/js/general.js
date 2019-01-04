@@ -864,10 +864,6 @@ let onWindowResize = () => {
 }
 
 $(document).ready(() => {
-    $("#audio-music")[0].currentTime = 5 * 3600 + 21 * 60;
-    $("#audio-sfx")[0].currentTime = 8 * 60 + 2;
-    $("#audio-music")[0].play();
-    $("#audio-sfx")[0].play();
     fontLoader.load('fonts/LM Roman 10_Regular.json', (font) => {
         appSettings.font = font;
 
