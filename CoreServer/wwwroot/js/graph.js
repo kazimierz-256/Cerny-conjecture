@@ -226,7 +226,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
-        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 2, 20000, 64 + appSettings.quality * 64);
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 1.15, 10000, 64 + appSettings.quality * 64);
         cameraGroup[i].renderTarget.texture.generateMipmaps = true;
         cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
         let material = new THREE.MeshStandardMaterial({
@@ -681,7 +681,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
 
             lastCopierdRemainder += 1;
-            if (lastCopierdRemainder == lastCopiedModCount)
+            if (lastCopierdRemainder >= lastCopiedModCount)
                 lastCopierdRemainder = 0;
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i]) {
@@ -709,7 +709,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 );
                 sphereGroup[i].lookAt(appSettings.camera.position);
             }
-            
+
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i])
                     continue;
@@ -766,6 +766,17 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                     continue;
                 }
                 sphereGroup[i].lookAt(appSettings.camera.position);
+
+                for (let index = 0; index < 2; index++) {
+                    let connectionArrayIndex = index == 0 ? connectionA[i] : connectionB[i];
+
+                    if (vertexDistance[i] > appSettings.maximumConsideringDepth
+                        || vertexDistance[connectionArrayIndex] > appSettings.maximumConsideringDepth)
+                        continue;
+                    if (connectionArrayIndex != i && arrowTransitions[2 * i + index] != undefined) {
+                        arrowTransitions[2 * i + index].lookAt(appSettings.camera.position);
+                    }
+                }
             }
         }
     };
