@@ -1053,7 +1053,7 @@ let generatePosterShot = () => {
         ["MathJax"],
         [""],
         ["jQuery"],
-        ["GUST font"],
+        ["GUST Latin Modern"],
         [""],
         [""],
         ["C#"]
