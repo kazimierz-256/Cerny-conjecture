@@ -1091,17 +1091,19 @@ let generatePosterShot = () => {
     ];
 
     let heightInrease = 0;
+    // let cameras = [];
+    // let objects = [];
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
             heightInrease += 0.618;
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
+            // objects.push(text);
             configurePosition(text, 12 + heightInrease, -1.05);
             heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
 
-            // text.children[0].visible = false;
             // let textCamera = new THREE.CubeCamera(5, 30000, 256);
             // textCamera.renderTarget.texture.generateMipmaps = true;
             // textCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
@@ -1110,15 +1112,14 @@ let generatePosterShot = () => {
             text.position.y = water.position.y;
             // text.children[0].material.envMap = textCamera.renderTarget;
             scene.add(text);
-            // textCamera.update(renderer, scene);
-            // text.children[0].visible = true;
+            // cameras.push(textCamera);
         }
     }
 
     water.position.y = -8;
     height = water.position.y + 1;
 
-    var img = new THREE.MeshBasicMaterial({
+    var img = new THREE.MeshPhongMaterial({
         map: THREE.ImageUtils.loadTexture('textures/logo_mini.png')
     });
     img.transparent = true;
@@ -1130,6 +1131,12 @@ let generatePosterShot = () => {
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
+
+    // for (let index = 0; index < cameras.length; index++) {
+    //     // objects[index].children[0].visible = false;
+    //     cameas[index].update(renderer, scene);
+    //     // objects[index].children[0].visible = true;
+    // }
 }
 // let getTextObject = (text, fontSize, align) => {
 //     let fontGeometry = new THREE.TextGeometry(text, {
