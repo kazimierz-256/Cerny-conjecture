@@ -182,7 +182,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             color: new THREE.Color(0xffffff),
             emissive: new THREE.Color(0x222222),
             roughness: 0.5,
-            metalness: 0
+            metalness: 0.5
         });
         fontGeometry.computeBoundingBox();
         fontGeometry2.computeBoundingBox();
@@ -226,9 +226,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
-        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 1.15, 10000, 64 + appSettings.quality * 64);
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 1.15, 10000, 2 ** (6 + appSettings.quality));
         cameraGroup[i].renderTarget.texture.generateMipmaps = true;
         cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+        scene.add(cameraGroup[i]);
         let material = new THREE.MeshStandardMaterial({
             color: color,
             roughness: 0.6,

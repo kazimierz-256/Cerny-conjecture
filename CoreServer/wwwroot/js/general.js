@@ -1010,48 +1010,93 @@ let generatePosterShot = () => {
     controls.reset();
     // position
     let distance = 0.33;
-    camera.position.set(25 * distance, 5 * distance, -15 * distance);
+    camera.position.set(25 * distance, 0.5 + 5 * distance, -15 * distance);
     // mood
-    setMood(0.15);
+    setMood(0);
     existingGraph.removeDescription();
 
     // add text
-    let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
+    let configurePosition = (thing, range, angle) => {
+        thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
+    };
     toggleFlatForce(true);
-    let range = 200;
+    let far = 200;
     // water.position.y = -2;
-    let height = water.position.y + 1.5;
+    let height = water.position.y + 2;
 
-    let titles = getTextObject("Automata Iterator", 7, 0);
-    configurePosition(titles, -1.05);
-    titles.position.y += 1;
-    titles.lookAt(camera.position);
-    scene.add(titles);
+    // let titles = getTextObject("Automata Iterator", 7, 0);
+    // configurePosition(titles, far, -1.05);
+    // titles.position.y += 1;
+    // titles.lookAt(camera.position);
+    // scene.add(titles);
 
-    let supervisor = getTextObject("Promotor: dr Michał Dębski", 2, -1);
-    supervisor.children[0].position.x -= 13.25;
-    configurePosition(supervisor, -0.6);
-    supervisor.lookAt(camera.position);
-    scene.add(supervisor);
+    // let supervisor = getTextObject("Promotor: dr Michał Dębski", 2, -1);
+    // supervisor.children[0].position.x -= 13.25;
+    // configurePosition(supervisor, far, -0.6);
+    // supervisor.lookAt(camera.position);
+    // scene.add(supervisor);
 
-    let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
-    michalina.children[0].position.x -= 16.5;
-    configurePosition(michalina, -0.6);
-    michalina.position.y += 8;
-    michalina.lookAt(camera.position);
-    scene.add(michalina);
+    // let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
+    // michalina.children[0].position.x -= 16.5;
+    // configurePosition(michalina, far, -0.6);
+    // michalina.position.y += 8;
+    // michalina.lookAt(camera.position);
+    // scene.add(michalina);
 
-    let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
-    configurePosition(kazimierz, -0.6);
-    kazimierz.position.y += 4;
-    kazimierz.lookAt(camera.position);
-    scene.add(kazimierz);
+    // let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
+    // configurePosition(kazimierz, far, -0.6);
+    // kazimierz.position.y += 4;
+    // kazimierz.lookAt(camera.position);
+    // scene.add(kazimierz);
 
-    let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1.2, 0);
-    configurePosition(wydzial, -1.5);
-    wydzial.position.y = height + 4.5;
-    wydzial.lookAt(camera.position);
-    scene.add(wydzial);
+    // let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1.2, 0);
+    // configurePosition(wydzial, far, -1.5);
+    // wydzial.position.y = height + 4.5;
+    // wydzial.lookAt(camera.position);
+    // scene.add(wydzial);
+
+    // let date = getTextObject("Styczeń 2019", 2, 0);
+    // configurePosition(date, far, -1.5);
+    // date.lookAt(camera.position);
+    // scene.add(date);
+
+    const description = [
+        ["Automata Iterator"],
+        ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
+        ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
+        ["Promotor: dr Michał Dębski"],
+        [""],
+        ["Praca dyplomowa polega na eksperymentalnych obliczeniach."],
+        ["Obliczenia mają na celu potwierdzenie hipotezny Černego dla niewielkich n."],
+        [""],
+        ["Praca dyplomowa składa się na trzy moduły"],
+        ["Klient, Serwer oraz Prezentacja"],
+        [""],
+        ["Klient: Michalina opracowała część ważnych algorytmów przeprowadzając analizę matematyczną problemu"],
+        ["Klient: Kazimierz opracował część ważnych algorytmów, komunikację z Serwerem i zarządzanie obliczeniami"],
+        ["Serwer: Kazimierz opracował komunikację i rozporządzanie zadaniami"],
+        ["Prezentacja: Michalina opracowała statystyczne wnioski"],
+        ["Prezentacja: Kazimierz opracował komunikację i wizualizację"]
+    ];
+
+    let heightInrease = 0;
+    for (let i = 0; i < description.length; i++) {
+        const descriptor = description[i];
+        if (descriptor == "") {
+            heightInrease += 0.618;
+        } else {
+            let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
+            configurePosition(text, 13 + heightInrease, -1.05);
+            heightInrease += 0.5 + text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y;
+            text.position.y = camera.position.y;
+            text.lookAt(camera.position);
+            text.position.y = water.position.y;
+            scene.add(text);
+        }
+    }
+
+    water.position.y = -8;
+    height = water.position.y + 1;
 
     var img = new THREE.MeshBasicMaterial({
         map: THREE.ImageUtils.loadTexture('textures/logo_mini.png')
@@ -1059,29 +1104,52 @@ let generatePosterShot = () => {
     img.transparent = true;
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
-    configurePosition(plane, -1.5);
-    plane.position.y = height + 17.5;
+    configurePosition(plane, far, -1.05);
+    plane.position.y = height + 10; + 17.5;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
-
-    let date = getTextObject("Styczeń 2019", 2, 0);
-    configurePosition(date, -1.5);
-    date.lookAt(camera.position);
-    scene.add(date);
 }
-let getTextObject = (text, fontSize, align) => {
-    let fontMaterial = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0xffffff),
-        emissive: new THREE.Color(0x222222),
-        roughness: 0.5,
-        metalness: 0
+const fontMaterial = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0xffffff),
+    emissive: new THREE.Color(0x666666),
+    roughness: 0.5,
+    metalness: 0.5
+});
+// let getTextObject = (text, fontSize, align) => {
+//     let fontGeometry = new THREE.TextGeometry(text, {
+//         font: appSettings.font,
+//         size: fontSize,
+//         height: fontSize * 0.05,
+//         curveSegments: 2 + 2 * appSettings.quality,
+//     });
+//     fontGeometry.computeBoundingBox();
+//     let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
+//     let group = new THREE.Group();
+//     let mesh = new THREE.Mesh(fontGeometry, fontMaterial);
+
+//     if (align === 1)
+//         mesh.position.x -= textWidth;
+//     else if (align !== -1)
+//         mesh.position.x -= textWidth / 2;
+
+//     group.add(mesh);
+//     return group;
+// }
+let getTextObjectMatchingWidth = (text, size, align, rotate) => {
+    let fakeFontGeometry = new THREE.TextGeometry(text, {
+        font: appSettings.font,
+        size: size,
+        height: size * 0.075,
+        curveSegments: 2 + 2 * appSettings.quality,
     });
+    fakeFontGeometry.computeBoundingBox();
+    const scale = size * size / (fakeFontGeometry.boundingBox.max.x - fakeFontGeometry.boundingBox.min.x);
     let fontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
-        size: fontSize,
-        height: fontSize * 0.1,
+        size: scale,
+        height: scale * 0.075,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fontGeometry.computeBoundingBox();
@@ -1093,7 +1161,8 @@ let getTextObject = (text, fontSize, align) => {
         mesh.position.x -= textWidth;
     else if (align !== -1)
         mesh.position.x -= textWidth / 2;
-
+    if (rotate)
+        mesh.rotation.x = -Math.PI / 2;
     group.add(mesh);
     return group;
 }
