@@ -1010,7 +1010,7 @@ let generatePosterShot = () => {
     controls.reset();
     // position
     let distance = 0.33;
-    camera.position.set(25 * distance, 0.5 + 5 * distance, -15 * distance);
+    camera.position.set(25 * distance, 1 + 5 * distance, -15 * distance);
     // mood
     setMood(0);
     existingGraph.removeDescription();
@@ -1065,18 +1065,29 @@ let generatePosterShot = () => {
         ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
         ["Promotor: dr Michał Dębski"],
         [""],
-        ["Praca dyplomowa polega na eksperymentalnych obliczeniach."],
-        ["Obliczenia mają na celu potwierdzenie hipotezny Černego dla niewielkich n."],
+        ["Praca dyplomowa inżynierska polega na obliczeniach eksperymentalnych"],
+        ["Obliczenia mają potwierdzić hipotezę Černego dla niewielkich n lub ją obalić"],
         [""],
-        ["Praca dyplomowa składa się na trzy moduły"],
+        ["Projekt składa się na trzy moduły"],
         ["Klient, Serwer oraz Prezentacja"],
         [""],
-        ["Klient: Michalina opracowała część ważnych algorytmów przeprowadzając analizę matematyczną problemu"],
-        ["Klient: Kazimierz opracował część ważnych algorytmów, komunikację z Serwerem i zarządzanie obliczeniami"],
-        ["Serwer: Kazimierz opracował komunikację i rozporządzanie zadaniami"],
-        ["Prezentacja: Michalina opracowała statystyczne wnioski"],
-        ["Prezentacja: Kazimierz opracował komunikację i wizualizację"],
-        ["Automata Iterator"]
+        ["Klient: Michalina: część algorytmów i analizę matematyczna"],
+        ["Klient: Kazimierz: część algorytmów, komunikacja i zarządzanie obliczeniami"],
+        ["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
+        ["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
+        ["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
+        ["Automata Iterator"],
+        [".Net Core 2.1"],
+        ["WinForms"],
+        ["JavaScript"],
+        ["Three.js"],
+        ["Materialize"],
+        ["MathJax"],
+        ["jQuery"],
+        ["GUST font"],
+        [""],
+        [""],
+        ["C#"]
     ];
 
     let heightInrease = 0;
@@ -1086,8 +1097,8 @@ let generatePosterShot = () => {
             heightInrease += 0.618;
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
-            configurePosition(text, 13 + heightInrease, -1.05);
-            heightInrease += 0.5 + text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y;
+            configurePosition(text, 12 + heightInrease, -1.05);
+            heightInrease += 0.5 + 1.4 * (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
             text.lookAt(camera.position);
             text.position.y = water.position.y;
@@ -1112,8 +1123,8 @@ let generatePosterShot = () => {
     scene.add(plane);
 }
 const fontMaterial = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0xffffff),
-    emissive: new THREE.Color(0x666666),
+    color: new THREE.Color(0x666666),
+    emissive: new THREE.Color(0x111111),
     roughness: 0.5,
     metalness: 0.5
 });
@@ -1141,7 +1152,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     let fakeFontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
         size: size,
-        height: size * 0.075,
+        height: 0.05,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fakeFontGeometry.computeBoundingBox();
@@ -1149,7 +1160,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     let fontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
         size: scale,
-        height: scale * 0.075,
+        height: 0.05,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fontGeometry.computeBoundingBox();
