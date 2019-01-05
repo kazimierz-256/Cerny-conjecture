@@ -1061,7 +1061,6 @@ let generatePosterShot = () => {
     // scene.add(date);
 
     const description = [
-        ["Automata Iterator"],
         ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
         ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
         ["Promotor: dr Michał Dębski"],
@@ -1076,7 +1075,8 @@ let generatePosterShot = () => {
         ["Klient: Kazimierz opracował część ważnych algorytmów, komunikację z Serwerem i zarządzanie obliczeniami"],
         ["Serwer: Kazimierz opracował komunikację i rozporządzanie zadaniami"],
         ["Prezentacja: Michalina opracowała statystyczne wnioski"],
-        ["Prezentacja: Kazimierz opracował komunikację i wizualizację"]
+        ["Prezentacja: Kazimierz opracował komunikację i wizualizację"],
+        ["Automata Iterator"]
     ];
 
     let heightInrease = 0;
