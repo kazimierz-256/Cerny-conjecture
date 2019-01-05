@@ -155,6 +155,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let spheres = new Array(power);
     let vertexDetails = new Array(power);
     let sphereGroup = new Array(power);
+    let cameraGroup = new Array(power);
     let lights = new Array(power);
     let arrows = new Array(power * 2);
     let arrowTransitions = new Array(power * 2);
@@ -225,11 +226,14 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 2, 20000, 64 + appSettings.quality * 64);
+        cameraGroup[i].renderTarget.texture.generateMipmaps = true;
+        cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
         let material = new THREE.MeshStandardMaterial({
             color: color,
             roughness: 0.6,
             metalness: 0.5,
-            envMap: outline.renderTarget
+            envMap: cameraGroup[i].renderTarget
         });
         sphereGroup[i] = new THREE.Group();
 
@@ -384,12 +388,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     }
 
     let init = scene => scene.add(graph);
-    let destroy = (t, appSettings) => {
-        scene.remove(graph);
-    };
+    let destroy = scene => scene.remove(graph);
     let latestTime = 1.0;
 
-    let update = (t, appSettings) => {
+    let update = (t, appSettings, renderer, scene) => {
         if (appSettings.animating) {
             let deltaT = (t - latestTime) * appSettings.speedup / appSettings.deltaTSlowdown;
             let maxDeltaT = 0.05 * appSettings.speedup;
@@ -678,6 +680,9 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 centeringU = sourceFraction * sourceCenteringU + targetFraction * targetCenteringU;
             }
 
+            lastCopierdRemainder += 1;
+            if (lastCopierdRemainder == lastCopiedModCount)
+                lastCopierdRemainder = 0;
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i]) {
                     continue;
@@ -687,6 +692,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                     continue;
                 } else {
                     sphereGroup[i].visible = true;
+                }
+                if (i % lastCopiedModCount == lastCopierdRemainder) {
+                    cameraGroup[i].position.copy(sphereGroup[i].position);
+                    cameraGroup[i].update(renderer, scene);
                 }
                 px[i] -= centeringX;
                 py[i] -= centeringY;
@@ -700,6 +709,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 );
                 sphereGroup[i].lookAt(appSettings.camera.position);
             }
+            
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i])
                     continue;
@@ -759,6 +769,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
         }
     };
+    let lastCopierdRemainder = 0;
+    let lastCopiedModCount = 8;
     let graphToReturn = new Animatable(update, init, destroy, () => graph);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;

@@ -289,7 +289,7 @@ let init = (createControlFromCamera) => {
     );
     water.material.uniforms.size.value *= 4;
     water.rotation.x = - Math.PI / 2;
-    water.position.y = -10;
+    water.position.y = -5;
     scene.add(water);
 
     // TODO: remove
@@ -323,9 +323,6 @@ let init = (createControlFromCamera) => {
         inclination: -0.3,
         azimuth: 0.1
     };
-    cubeCamera = new THREE.CubeCamera(1, 20000, 256);
-    cubeCamera.renderTarget.texture.generateMipmaps = true;
-    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
 
     updateSun = () => {
         var theta = Math.PI * (skyParameters.inclination - 0.5);
@@ -335,7 +332,6 @@ let init = (createControlFromCamera) => {
         sunLight.position.z = skyParameters.distance * Math.sin(phi) * Math.cos(theta);
         sky.material.uniforms.sunPosition.value = sunLight.position.copy(sunLight.position);
         water.material.uniforms.sunDirection.value.copy(sunLight.position).normalize();
-        cubeCamera.update(renderer, scene);
     }
 
 
@@ -842,7 +838,7 @@ let animate = () => {
     frameCount += 1;
     let time = frameCount / appSettings.targetFPS; //window.performance.now() / 1000 - beginTime;
     water.material.uniforms.time.value = time / 3;
-    animatables.forEach(animatable => animatable.update(time, appSettings));
+    animatables.forEach(animatable => animatable.update(time, appSettings, renderer, scene));
     controls.update();
     // make sure the camera doesn't go underwater
     let waterlimit = water.position.y * 0.9;
@@ -954,7 +950,7 @@ let showGraph = (graph) => {
 
     if (existingGraph != undefined) {
         animatables = animatables.filter(animatable => animatable !== existingGraph);
-        existingGraph.destroy();
+        existingGraph.destroy(scene);
     }
 
     appSettings.creationStartTime = window.performance.now();
@@ -1021,9 +1017,10 @@ let generatePosterShot = () => {
 
     // add text
     let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
-
+    toggleFlatForce(true);
     let range = 200;
-    let height = -8;
+    // water.position.y = -2;
+    let height = water.position.y + 1.5;
 
     let titles = getTextObject("Automata Iterator", 7, 0);
     configurePosition(titles, -1.05);

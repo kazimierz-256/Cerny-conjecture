@@ -9,13 +9,13 @@ class Animatable {
         if (this.initAction != undefined)
             this.initAction(scene, appSettings);
     }
-    update(t, appSettings) {
+    update(t, appSettings, renderer, scene) {
         if (this.updateAction != undefined)
-            this.updateAction(t, appSettings);
+            this.updateAction(t, appSettings, renderer, scene);
     }
-    destroy(t, appSettings) {
+    destroy(scene) {
         if (this.destroyAction != undefined)
-            this.destroyAction(t, appSettings);
+            this.destroyAction(scene);
     }
     subject() {
         if (this.subject != undefined)
