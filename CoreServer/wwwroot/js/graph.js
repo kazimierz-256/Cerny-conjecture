@@ -697,6 +697,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 if (i % lastCopiedModCount == lastCopierdRemainder) {
                     cameraGroup[i].position.copy(sphereGroup[i].position);
                     cameraGroup[i].update(renderer, scene);
+                    // spheres[i].material.envMap = cameraGroup[i].renderTarget.texture;
                 }
                 px[i] -= centeringX;
                 py[i] -= centeringY;

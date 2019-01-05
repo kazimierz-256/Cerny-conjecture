@@ -1083,6 +1083,7 @@ let generatePosterShot = () => {
         ["Three.js"],
         ["Materialize"],
         ["MathJax"],
+        [""],
         ["jQuery"],
         ["GUST font"],
         [""],
