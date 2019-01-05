@@ -694,7 +694,13 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 } else {
                     sphereGroup[i].visible = true;
                 }
-                if (i % lastCopiedModCount == lastCopierdRemainder) {
+                
+                // if (!appSettings.computeReflections) {
+                //     spheres[i].material.envMap = undefined;
+                // }else{
+                //     spheres[i].material.envMap = cameraGroup[i].renderTarget;
+                // }
+                if (i % lastCopiedModCount == lastCopierdRemainder && appSettings.computeReflections) {
                     cameraGroup[i].position.copy(sphereGroup[i].position);
                     cameraGroup[i].update(renderer, scene);
                     // spheres[i].material.envMap = cameraGroup[i].renderTarget.texture;

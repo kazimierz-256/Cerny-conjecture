@@ -707,6 +707,10 @@ let init = (createControlFromCamera) => {
         M.toast({ html: "Minimum quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
+    $("#automaton-reflection").change((e) => {
+        appSettings.computeReflections = e.target.checked;
+    });
+
     $("#automaton-lights").change((e) => {
         appSettings.shineLights = e.target.checked;
         if (appSettings.shineLights)
@@ -1003,6 +1007,7 @@ let setMood = t => {
 
 
 let generatePosterShot = () => {
+    appSettings.computeReflections = true;
     controls.maxDistance = 10000;
     // fov
     camera.fov = 40;
@@ -1021,44 +1026,7 @@ let generatePosterShot = () => {
     };
     toggleFlatForce(true);
     let far = 200;
-    // water.position.y = -2;
     let height = water.position.y + 2;
-
-    // let titles = getTextObject("Automata Iterator", 7, 0);
-    // configurePosition(titles, far, -1.05);
-    // titles.position.y += 1;
-    // titles.lookAt(camera.position);
-    // scene.add(titles);
-
-    // let supervisor = getTextObject("Promotor: dr Michał Dębski", 2, -1);
-    // supervisor.children[0].position.x -= 13.25;
-    // configurePosition(supervisor, far, -0.6);
-    // supervisor.lookAt(camera.position);
-    // scene.add(supervisor);
-
-    // let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
-    // michalina.children[0].position.x -= 16.5;
-    // configurePosition(michalina, far, -0.6);
-    // michalina.position.y += 8;
-    // michalina.lookAt(camera.position);
-    // scene.add(michalina);
-
-    // let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
-    // configurePosition(kazimierz, far, -0.6);
-    // kazimierz.position.y += 4;
-    // kazimierz.lookAt(camera.position);
-    // scene.add(kazimierz);
-
-    // let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1.2, 0);
-    // configurePosition(wydzial, far, -1.5);
-    // wydzial.position.y = height + 4.5;
-    // wydzial.lookAt(camera.position);
-    // scene.add(wydzial);
-
-    // let date = getTextObject("Styczeń 2019", 2, 0);
-    // configurePosition(date, far, -1.5);
-    // date.lookAt(camera.position);
-    // scene.add(date);
 
     const description = [
         ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
@@ -1092,28 +1060,19 @@ let generatePosterShot = () => {
     ];
 
     let heightInrease = 0;
-    // let cameras = [];
-    // let objects = [];
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
             heightInrease += 0.618;
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
-            // objects.push(text);
             configurePosition(text, 12 + heightInrease, -1.05);
             heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
-
-            // let textCamera = new THREE.CubeCamera(5, 30000, 256);
-            // textCamera.renderTarget.texture.generateMipmaps = true;
-            // textCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
-            // text.add(textCamera);
+            
             text.lookAt(camera.position);
             text.position.y = water.position.y;
-            // text.children[0].material.envMap = textCamera.renderTarget;
             scene.add(text);
-            // cameras.push(textCamera);
         }
     }
 
@@ -1132,33 +1091,7 @@ let generatePosterShot = () => {
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
-
-    // for (let index = 0; index < cameras.length; index++) {
-    //     // objects[index].children[0].visible = false;
-    //     cameas[index].update(renderer, scene);
-    //     // objects[index].children[0].visible = true;
-    // }
 }
-// let getTextObject = (text, fontSize, align) => {
-//     let fontGeometry = new THREE.TextGeometry(text, {
-//         font: appSettings.font,
-//         size: fontSize,
-//         height: fontSize * 0.05,
-//         curveSegments: 2 + 2 * appSettings.quality,
-//     });
-//     fontGeometry.computeBoundingBox();
-//     let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
-//     let group = new THREE.Group();
-//     let mesh = new THREE.Mesh(fontGeometry, fontMaterial);
-
-//     if (align === 1)
-//         mesh.position.x -= textWidth;
-//     else if (align !== -1)
-//         mesh.position.x -= textWidth / 2;
-
-//     group.add(mesh);
-//     return group;
-// }
 let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     const fontMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(0x666666),
