@@ -1120,7 +1120,7 @@ let generatePosterShot = () => {
     water.position.y = -8;
     height = water.position.y + 1;
 
-    var img = new THREE.MeshPhongMaterial({
+    var img = new THREE.MeshBasicMaterial({
         map: THREE.ImageUtils.loadTexture('textures/logo_mini.png')
     });
     img.transparent = true;
