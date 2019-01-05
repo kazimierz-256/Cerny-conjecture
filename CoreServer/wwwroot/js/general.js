@@ -1098,11 +1098,20 @@ let generatePosterShot = () => {
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
             configurePosition(text, 12 + heightInrease, -1.05);
-            heightInrease += 0.5 + 1.4 * (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
+            heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
+
+            // text.children[0].visible = false;
+            // let textCamera = new THREE.CubeCamera(5, 30000, 256);
+            // textCamera.renderTarget.texture.generateMipmaps = true;
+            // textCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+            // text.add(textCamera);
             text.lookAt(camera.position);
             text.position.y = water.position.y;
+            // text.children[0].material.envMap = textCamera.renderTarget;
             scene.add(text);
+            // textCamera.update(renderer, scene);
+            // text.children[0].visible = true;
         }
     }
 
@@ -1116,18 +1125,12 @@ let generatePosterShot = () => {
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
     configurePosition(plane, far, -1.05);
-    plane.position.y = height + 10; + 17.5;
+    plane.position.y = height + 10;// + 17.5;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
 }
-const fontMaterial = new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0x666666),
-    emissive: new THREE.Color(0x111111),
-    roughness: 0.5,
-    metalness: 0.5
-});
 // let getTextObject = (text, fontSize, align) => {
 //     let fontGeometry = new THREE.TextGeometry(text, {
 //         font: appSettings.font,
@@ -1149,6 +1152,12 @@ const fontMaterial = new THREE.MeshStandardMaterial({
 //     return group;
 // }
 let getTextObjectMatchingWidth = (text, size, align, rotate) => {
+    const fontMaterial = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0x666666),
+        emissive: new THREE.Color(0x111111),
+        roughness: 0.5,
+        metalness: 0.5
+    });
     let fakeFontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
         size: size,
