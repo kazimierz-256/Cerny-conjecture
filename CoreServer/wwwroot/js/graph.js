@@ -770,7 +770,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
     };
     let lastCopierdRemainder = 0;
-    let lastCopiedModCount = 8;
+    let lastCopiedModCount = 4;
     let graphToReturn = new Animatable(update, init, destroy, () => graph);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
