@@ -59,6 +59,8 @@ namespace CoreServer
                 app.UseExceptionHandler("/Error");
             }
 
+
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             Console.WriteLine("To participate in distributed computing project just hook up to '/ua'");

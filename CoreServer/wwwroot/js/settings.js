@@ -15,6 +15,7 @@ class settings {
         // parameters
         this.shineLights = false;
         this.daytime = 0.15;
+        this.probabilityOfUpdate = 0.1;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;
@@ -26,7 +27,7 @@ class settings {
         this.maxSpeedSquared = 0.0;
         this.maxPermissibleSpeedSquared = 100;
         this.deltaTSlowdown = 1;
-        this.quality = 2;
+        this.quality = 4;
         this.repelArrows = false;
 
         this.transitionFocusFraction = 1.0;

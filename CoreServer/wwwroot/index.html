@@ -31,6 +31,7 @@
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            overscroll-behavior-y: none;
         }
 
         .latex-font {
@@ -93,6 +94,10 @@
             background-size: cover;
             z-index: 1;
         }
+
+        audio {
+            display: none !important;
+        }
     </style>
     <link rel="icon" href="icons/IconAlternative2clearSmall.jpg">
     <!-- Compiled and minified CSS -->
@@ -125,11 +130,6 @@
     <script defer src="js/jquery-ui.min.js"></script>
     <script defer src="js/stats.min.js"></script>
     <script defer src="js/three.js"></script>
-    <script defer src="js/CopyShader.js"></script>
-    <script defer src="js/EffectComposer.js"></script>
-    <script defer src="js/RenderPass.js"></script>
-    <script defer src="js/ShaderPass.js"></script>
-    <script defer src="js/OutlinePass.js"></script>
     <script defer src="js/graph.js"></script>
     <script defer src="js/animatable.js"></script>
     <script defer src="js/settings.js"></script>
@@ -138,11 +138,10 @@
     <script defer src="js/Sky.js"></script>
     <script defer src="js/Water.js"></script>
     <script defer src="js/general.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
-    <script defer src="js/deobfuscate.js"></script>
 </head>
 
-<body>
+<body style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;"
+    unselectable="on" onselectstart="return false;">
     <!-- <div id="vignette"></div> -->
     <div id="controls" class="fixed-action-btn toolbar direction-top">
         <a class="btn-floating btn-large waves-effect waves-light pulse" style="background: transparent !important; box-shadow: none !important;"
@@ -360,19 +359,6 @@
                     </li>
                 </ul>
             </div>
-            <div class="divider"></div>
-            <div class="section">
-                <p>This project is intended for viewing purposes only.</p>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <a id="creator-contact" class="waves-effect waves-light btn-small" target="_blank">Get in touch with
-                    the creator</a>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <a id="creator-video" class="waves-effect waves-light btn-small" target="_blank">Showcase video</a>
-            </div>
             <!-- <div class="divider"></div>
             <div class="section">
                 <a class="waves-effect waves-light btn" href="./CADCAM_Project.zip">
@@ -387,6 +373,15 @@
 
     <div id="simulation-settings" class="modal modal-fixed-footer">
         <div class="modal-content">
+
+            <div class="section">
+                <label>Reflection probability of a valid random vertex per frame</label>
+                <p class="range-field">
+                    <input type="range" id="probability" min="0" max="1" value="0.1" step="0.01" />
+                </p>
+            </div>
+
+            <div class="divider"></div>
 
             <div class="section">
                 <label>Toggle lights coming from vertices (requires automaton reconstruction)</label>
@@ -432,13 +427,19 @@
             <div class="section">
                 <p>
                     <label>
-                        <input name="group1" type="radio" id="quality-ultra" class="with-gap" />
+                        <input name="group1" type="radio" id="quality-smooth" class="with-gap" />
+                        <span>Realistically smooth</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input name="group1" type="radio" id="quality-ultra" checked class="with-gap" />
                         <span>Ultra Quality</span>
                     </label>
                 </p>
                 <p>
                     <label>
-                        <input name="group1" type="radio" id="quality-standard" checked class="with-gap" />
+                        <input name="group1" type="radio" id="quality-standard" class="with-gap" />
                         <span>Standard Quality</span>
                     </label>
                 </p>
@@ -455,7 +456,7 @@
                     </label>
                 </p>
             </div>
-            
+
             <div class="divider"></div>
 
             <div class="section">

@@ -155,6 +155,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let spheres = new Array(power);
     let vertexDetails = new Array(power);
     let sphereGroup = new Array(power);
+    let cameraGroup = new Array(power);
     let lights = new Array(power);
     let arrows = new Array(power * 2);
     let arrowTransitions = new Array(power * 2);
@@ -178,10 +179,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             curveSegments: 2 + 2 * appSettings.quality,
         });
         let fontMaterial = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0xffffff),
+            color: new THREE.Color(0x666666),
             emissive: new THREE.Color(0x222222),
             roughness: 0.5,
-            metalness: 0
+            metalness: 0.5
         });
         fontGeometry.computeBoundingBox();
         fontGeometry2.computeBoundingBox();
@@ -225,11 +226,15 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (6 + appSettings.quality));
+        cameraGroup[i].renderTarget.texture.generateMipmaps = true;
+        cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+        scene.add(cameraGroup[i]);
         let material = new THREE.MeshStandardMaterial({
             color: color,
             roughness: 0.6,
             metalness: 0.5,
-            envMap: outline.renderTarget
+            envMap: cameraGroup[i].renderTarget
         });
         sphereGroup[i] = new THREE.Group();
 
@@ -383,13 +388,62 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         graph.add(sphereGroup[i]);
     }
 
-    let init = scene => scene.add(graph);
-    let destroy = (t, appSettings) => {
-        scene.remove(graph);
-    };
+    let init = scene => {
+        scene.add(graph);
+    }
+    let destroy = scene => scene.remove(graph);
     let latestTime = 1.0;
 
-    let update = (t, appSettings) => {
+    let firstUpdate = true;
+    let update = (t, appSettings, renderer, scene) => {
+        let tryCamera = i => {
+            if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth)
+                return false;
+
+            if (!firstUpdate && Math.random() > appSettings.probabilityOfUpdate)
+                return true;
+
+            for (let j = 0; j < power; j++) {
+                if (!isDiscovered[j]) {
+                    continue;
+                }
+                sphereGroup[j].lookAt(sphereGroup[i].position);
+
+                for (let index = 0; index < 2; index++) {
+                    let connectionArrayIndex = index == 0 ? connectionA[j] : connectionB[j];
+
+                    if (vertexDistance[j] > appSettings.maximumConsideringDepth
+                        || vertexDistance[connectionArrayIndex] > appSettings.maximumConsideringDepth)
+                        continue;
+                    if (connectionArrayIndex != j && arrowTransitions[2 * j + index] != undefined) {
+                        arrowTransitions[2 * j + index].lookAt(sphereGroup[i].position);
+                    }
+                }
+            }
+            cameraGroup[i].position.copy(sphereGroup[i].position);
+            sphereGroup[i].visible = false;
+            cameraGroup[i].update(renderer, scene);
+            sphereGroup[i].visible = true;
+            return true;
+        }
+        if (firstUpdate) {
+            for (let i = 0; i < power; i++) {
+                tryCamera(i);
+            }
+            firstUpdate = false;
+        } else {
+            let itry = Math.floor(Math.random() * power);
+            for (; itry < power; itry++) {
+                if (tryCamera(itry))
+                    break;
+            }
+            if (itry == power) {
+                for (let i = 0; i < itry; i++) {
+                    if (tryCamera(i))
+                        break;
+                }
+            }
+        }
         if (appSettings.animating) {
             let deltaT = (t - latestTime) * appSettings.speedup / appSettings.deltaTSlowdown;
             let maxDeltaT = 0.05 * appSettings.speedup;
@@ -423,9 +477,9 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth)
                     continue;
-                FxArr[i] = appSettings.accelX * -10 - vx[i] * appSettings.friction;
-                FyArr[i] = appSettings.accelY * -10 - vy[i] * appSettings.friction;
-                FzArr[i] = appSettings.accelZ * -10 - vz[i] * appSettings.friction;
+                FxArr[i] = appSettings.accelX * -50 - vx[i] * appSettings.friction;
+                FyArr[i] = appSettings.accelY * -50 - vy[i] * appSettings.friction;
+                FzArr[i] = appSettings.accelZ * -50 - vz[i] * appSettings.friction;
                 FwArr[i] = appSettings.threeDimForceFraction == 1.0 ? 0.0 : (- vw[i] * appSettings.friction);
                 FuArr[i] = appSettings.threeDimForceFraction == 1.0 ? 0.0 : (- vu[i] * appSettings.friction);
             }
@@ -688,6 +742,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 } else {
                     sphereGroup[i].visible = true;
                 }
+
                 px[i] -= centeringX;
                 py[i] -= centeringY;
                 pz[i] -= centeringZ;
@@ -700,6 +755,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 );
                 sphereGroup[i].lookAt(appSettings.camera.position);
             }
+
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i])
                     continue;
@@ -756,12 +812,28 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                     continue;
                 }
                 sphereGroup[i].lookAt(appSettings.camera.position);
+
+                for (let index = 0; index < 2; index++) {
+                    let connectionArrayIndex = index == 0 ? connectionA[i] : connectionB[i];
+
+                    if (vertexDistance[i] > appSettings.maximumConsideringDepth
+                        || vertexDistance[connectionArrayIndex] > appSettings.maximumConsideringDepth)
+                        continue;
+                    if (connectionArrayIndex != i && arrowTransitions[2 * i + index] != undefined) {
+                        arrowTransitions[2 * i + index].lookAt(appSettings.camera.position);
+                    }
+                }
             }
         }
     };
-    let graphToReturn = new Animatable(update, init, destroy);
+
+    let graphToReturn = new Animatable(update, init, destroy, () => graph);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
+    graphToReturn.removeDescription = () => {
+        graph.remove(descriptionFontMesh);
+        graph.remove(descriptionFontMesh2);
+    };
     return graphToReturn;
 }
 

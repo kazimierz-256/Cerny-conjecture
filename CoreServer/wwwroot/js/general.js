@@ -2,7 +2,7 @@
 let stats = new Stats();
 let appSettings = new settings(1);
 
-let camera, scene, renderer, controls, mesh, water, composer, cubeCamera, existingGraph, skyParameters, sunLight;
+let camera, scene, renderer, controls, mesh, water, cubeCamera, existingGraph, skyParameters, sunLight;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -126,6 +126,12 @@ let startProcessingSensorData = () => {
                     new THREE.Vector3(0, 0, cameraDistance)
                         .applyQuaternion(camera.quaternion);
 
+                let waterlimit = water.position.y * 0.9;
+                if (newCameraPosition.y < waterlimit) {
+                    newCameraPosition =
+                        new THREE.Vector3(0, 0, cameraDistance * Math.abs(waterlimit / newCameraPosition.y))
+                            .applyQuaternion(camera.quaternion);
+                }
                 camera.position.set(
                     newCameraPosition.x,
                     newCameraPosition.y,
@@ -243,9 +249,6 @@ let init = (createControlFromCamera) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    composer = new THREE.EffectComposer(renderer);
-    composer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
-
     camera = new THREE.PerspectiveCamera(appSettings.exploratoryFOV, window.innerWidth / window.innerHeight, 0.2, 10000);
 
     appSettings.camera = camera;
@@ -286,7 +289,7 @@ let init = (createControlFromCamera) => {
     );
     water.material.uniforms.size.value *= 4;
     water.rotation.x = - Math.PI / 2;
-    water.position.y = -10;
+    water.position.y = -5;
     scene.add(water);
 
     // TODO: remove
@@ -320,9 +323,6 @@ let init = (createControlFromCamera) => {
         inclination: -0.3,
         azimuth: 0.1
     };
-    cubeCamera = new THREE.CubeCamera(1, 20000, 256);
-    cubeCamera.renderTarget.texture.generateMipmaps = true;
-    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
 
     updateSun = () => {
         var theta = Math.PI * (skyParameters.inclination - 0.5);
@@ -332,7 +332,6 @@ let init = (createControlFromCamera) => {
         sunLight.position.z = skyParameters.distance * Math.sin(phi) * Math.cos(theta);
         sky.material.uniforms.sunPosition.value = sunLight.position.copy(sunLight.position);
         water.material.uniforms.sunDirection.value.copy(sunLight.position).normalize();
-        cubeCamera.update(renderer, scene);
     }
 
 
@@ -683,8 +682,13 @@ let init = (createControlFromCamera) => {
         showGraph(graphs.getExtreme4Automaton(appSettings, cubeCamera));
     });
 
+    $("#quality-smooth").on("click", () => {
+        appSettings.quality = 6;
+        M.toast({ html: "Realistically smooth quality setting will be applied once a new automaton is created", displayLength: 4000 })
+    });
+
     $("#quality-ultra").on("click", () => {
-        appSettings.quality = 3;
+        appSettings.quality = 4;
         M.toast({ html: "Ultra quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
@@ -717,6 +721,9 @@ let init = (createControlFromCamera) => {
 
     $("#automaton-speedup").change((e) => {
         appSettings.speedup = parseFloat(e.target.options[e.target.selectedIndex].value);
+    });
+    $("#probability").on("input", (e) => {
+        appSettings.probabilityOfUpdate = e.target.value;
     });
     $("#automaton-repel").on("input", (e) => {
         appSettings.repellingConstant = e.target.value * appSettings.forceStrength;
@@ -834,10 +841,23 @@ let animate = () => {
     frameCount += 1;
     let time = frameCount / appSettings.targetFPS; //window.performance.now() / 1000 - beginTime;
     water.material.uniforms.time.value = time / 3;
-    animatables.forEach(animatable => animatable.update(time, appSettings));
+    animatables.forEach(animatable => animatable.update(time, appSettings, renderer, scene));
     controls.update();
-    renderer.render(scene, camera);
-    // composer.render();
+    // make sure the camera doesn't go underwater
+    let waterlimit = water.position.y * 0.9;
+    if (camera.position.y < waterlimit) {
+        camera.position.y = waterlimit;
+    }
+    if (takeScreenshot) {
+        let scale = parseInt(window.prompt("Please enter the desired scale", "4"));
+        renderer.setSize(window.innerWidth * scale, window.innerHeight * scale);
+        renderer.render(scene, camera);
+        window.open($("body > canvas")[0].toDataURL());
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        takeScreenshot = false;
+    } else {
+        renderer.render(scene, camera);
+    }
     let defaultTimeout = 1000.0 / appSettings.targetFPS;
     let timeout = Math.max(0, defaultTimeout - (window.performance.now() - beforeRender));
     camera.updateProjectionMatrix();
@@ -848,7 +868,6 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 $(document).ready(() => {
@@ -898,10 +917,10 @@ $(document).ready(() => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle = Math.PI * 0.6;//Math.PI * 4 / 5;
-                controls.minPolarAngle = Math.PI * 1 / 5;
+                controls.maxPolarAngle = Math.PI * 0.7;//Math.PI * 4 / 5;
+                controls.minPolarAngle = Math.PI * 0.15;
                 controls.minDistance = 0.7;
-                controls.maxDistance = 30;
+                controls.maxDistance = 100;
                 // controls.enablePan = false;
                 controls.zoomSpeed = 4;
             });
@@ -942,7 +961,7 @@ let showGraph = (graph) => {
 
     if (existingGraph != undefined) {
         animatables = animatables.filter(animatable => animatable !== existingGraph);
-        existingGraph.destroy();
+        existingGraph.destroy(scene);
     }
 
     appSettings.creationStartTime = window.performance.now();
@@ -995,57 +1014,77 @@ let setMood = t => {
 
 
 let generatePosterShot = () => {
+    appSettings.probabilityOfUpdate = 1.0;
     controls.maxDistance = 10000;
     // fov
     camera.fov = 40;
     // rotation
     controls.reset();
     // position
-    let distance = 2;
-    camera.position.set(25 * distance, 5 * distance, -15 * distance);
+    let distance = 0.33;
+    camera.position.set(25 * distance, 1 + 5 * distance, -15 * distance);
     // mood
-    setMood(0.15);
+    setMood(0);
+    existingGraph.removeDescription();
 
     // add text
-    let configurePosition = (thing, angle) => thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
+    let configurePosition = (thing, range, angle) => {
+        thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
+    };
+    toggleFlatForce(true);
+    let far = 200;
+    let height = water.position.y + 2;
 
-    let range = 200;
-    let height = 12;
-    let date = getTextObject("Styczeń 2019", 2, 0);
-    configurePosition(date, -1.55);
-    date.lookAt(camera.position);
-    scene.add(date);
+    const description = [
+        ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
+        ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
+        ["Promotor: dr Michał Dębski"],
+        [""],
+        ["Praca dyplomowa inżynierska polega na obliczeniach eksperymentalnych"],
+        ["Obliczenia mają potwierdzić hipotezę Černego dla niewielkich n lub ją obalić"],
+        [""],
+        ["Projekt składa się na trzy moduły"],
+        ["Klient, Serwer oraz Prezentacja"],
+        [""],
+        ["Klient: Michalina: część algorytmów i analizę matematyczna"],
+        ["Klient: Kazimierz: część algorytmów, komunikacja i zarządzanie obliczeniami"],
+        ["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
+        ["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
+        ["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
+        ["Automata Iterator"],
+        [".Net Core 2.1"],
+        ["WinForms"],
+        ["JavaScript"],
+        ["Three.js"],
+        ["Materialize"],
+        ["MathJax"],
+        [""],
+        ["jQuery"],
+        ["GUST Latin Modern"],
+        [""],
+        [""],
+        ["C#"]
+    ];
 
-    let titles = getTextObject("Automata Iterator", 7, 0);
-    configurePosition(titles, -1.05);
-    titles.position.y += 2;
-    titles.lookAt(camera.position);
-    scene.add(titles);
+    let heightInrease = 0;
+    for (let i = 0; i < description.length; i++) {
+        const descriptor = description[i];
+        if (descriptor == "") {
+            heightInrease += 0.618;
+        } else {
+            let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
+            configurePosition(text, 12 + heightInrease, -1.05);
+            heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
+            text.position.y = camera.position.y;
 
-    let supervisor = getTextObject("Promotor: dr Michał Dębski", 2, -1);
-    supervisor.children[0].position.x -= 13.25;
-    configurePosition(supervisor, -0.6);
-    supervisor.lookAt(camera.position);
-    scene.add(supervisor);
+            text.lookAt(camera.position);
+            text.position.y = water.position.y;
+            scene.add(text);
+        }
+    }
 
-    let michalina = getTextObject("Wykonawcy: Michalina Nikonowicz", 2, -1);
-    michalina.children[0].position.x -= 16.5;
-    configurePosition(michalina, -0.6);
-    michalina.position.y += 8;
-    michalina.lookAt(camera.position);
-    scene.add(michalina);
-
-    let kazimierz = getTextObject("Kazimierz Wojciechowski", 2, -1);
-    configurePosition(kazimierz, -0.6);
-    kazimierz.position.y += 4;
-    kazimierz.lookAt(camera.position);
-    scene.add(kazimierz);
-
-    let wydzial = getTextObject("Wydział Matematyki i Nauk Informacyjnych", 1, 0);
-    configurePosition(wydzial, -1.55);
-    wydzial.position.y = 17;
-    wydzial.lookAt(camera.position);
-    scene.add(wydzial);
+    water.position.y = -8;
+    height = water.position.y + 1;
 
     var img = new THREE.MeshBasicMaterial({
         map: THREE.ImageUtils.loadTexture('textures/logo_mini.png')
@@ -1053,23 +1092,32 @@ let generatePosterShot = () => {
     img.transparent = true;
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
-    configurePosition(plane, -1.55);
-    plane.position.y = 30;
+    configurePosition(plane, far, -1.05);
+    plane.position.y = height + 10;// + 17.5;
     plane.overdraw = true;
+    plane.renderOrder = 1;
     plane.lookAt(camera.position);
     scene.add(plane);
 }
-let getTextObject = (text, fontSize, align) => {
-    let fontMaterial = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0xffffff),
-        emissive: new THREE.Color(0x222222),
+let getTextObjectMatchingWidth = (text, size, align, rotate) => {
+    const fontMaterial = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0x666666),
+        emissive: new THREE.Color(0x111111),
         roughness: 0.5,
-        metalness: 0
+        metalness: 0.5
     });
+    let fakeFontGeometry = new THREE.TextGeometry(text, {
+        font: appSettings.font,
+        size: size,
+        height: 0.05,
+        curveSegments: 2 + 2 * appSettings.quality,
+    });
+    fakeFontGeometry.computeBoundingBox();
+    const scale = size * size / (fakeFontGeometry.boundingBox.max.x - fakeFontGeometry.boundingBox.min.x);
     let fontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
-        size: fontSize,
-        height: fontSize * 0.1,
+        size: scale,
+        height: 0.05,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fontGeometry.computeBoundingBox();
@@ -1081,7 +1129,8 @@ let getTextObject = (text, fontSize, align) => {
         mesh.position.x -= textWidth;
     else if (align !== -1)
         mesh.position.x -= textWidth / 2;
-
+    if (rotate)
+        mesh.rotation.x = -Math.PI / 2;
     group.add(mesh);
     return group;
 }
@@ -1105,12 +1154,31 @@ $(document.body).on("keydown", function (e) {
         case "i":
             generatePosterShot();
             break;
-        case "r":
+        case "y":
             controls.reset();
             camera.position.set(4, 2, 0);
             break;
         case "u":
             controls.maxDistance = 10000;
             break;
+        case "s":
+            takeScreenshot = true;
+            break;
     }
-})
+});
+let takeScreenshot = false;
+let touchDist = undefined;
+let initialZoom;
+$(document.body).on("touchstart", function (e) {
+    if (e.touches.length == 2) {
+        touchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        initialZoom = cameraDistance;
+    }
+});
+$(document.body).on("touchmove", function (e) {
+    if (e.touches.length == 2 && touchDist !== undefined) {
+        let newDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+        let ratio = (touchDist / newDist) ** 2;
+        cameraDistance = Math.min(100, initialZoom * ratio);
+    }
+});
