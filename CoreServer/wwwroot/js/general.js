@@ -848,8 +848,16 @@ let animate = () => {
     if (camera.position.y < waterlimit) {
         camera.position.y = waterlimit;
     }
-    renderer.render(scene, camera);
-    // composer.render();
+    if (takeScreenshot) {
+        let scale = parseInt(window.prompt("Please enter the desired scale", "4"));
+        renderer.setSize(window.innerWidth * scale, window.innerHeight * scale);
+        renderer.render(scene, camera);
+        window.open($("body > canvas")[0].toDataURL());
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        takeScreenshot = false;
+    } else {
+        renderer.render(scene, camera);
+    }
     let defaultTimeout = 1000.0 / appSettings.targetFPS;
     let timeout = Math.max(0, defaultTimeout - (window.performance.now() - beforeRender));
     camera.updateProjectionMatrix();
@@ -1068,7 +1076,7 @@ let generatePosterShot = () => {
             configurePosition(text, 12 + heightInrease, -1.05);
             heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
-            
+
             text.lookAt(camera.position);
             text.position.y = water.position.y;
             scene.add(text);
@@ -1153,9 +1161,12 @@ $(document.body).on("keydown", function (e) {
         case "u":
             controls.maxDistance = 10000;
             break;
+        case "s":
+            takeScreenshot = true;
+            break;
     }
 });
-
+let takeScreenshot = false;
 let touchDist = undefined;
 let initialZoom;
 $(document.body).on("touchstart", function (e) {
