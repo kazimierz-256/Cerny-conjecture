@@ -12,10 +12,10 @@ class settings {
         this.targetFPS = 60;
         this.exploratoryFOV = 75;
         this.focusingFOV = 75;
-        this.computeReflections = false;
         // parameters
         this.shineLights = false;
         this.daytime = 0.15;
+        this.probabilityOfUpdate = 0.1;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;

@@ -707,10 +707,6 @@ let init = (createControlFromCamera) => {
         M.toast({ html: "Minimum quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
-    $("#automaton-reflection").change((e) => {
-        appSettings.computeReflections = e.target.checked;
-    });
-
     $("#automaton-lights").change((e) => {
         appSettings.shineLights = e.target.checked;
         if (appSettings.shineLights)
@@ -725,6 +721,9 @@ let init = (createControlFromCamera) => {
 
     $("#automaton-speedup").change((e) => {
         appSettings.speedup = parseFloat(e.target.options[e.target.selectedIndex].value);
+    });
+    $("#probability").on("input", (e) => {
+        appSettings.probabilityOfUpdate = e.target.value;
     });
     $("#automaton-repel").on("input", (e) => {
         appSettings.repellingConstant = e.target.value * appSettings.forceStrength;
@@ -1007,7 +1006,7 @@ let setMood = t => {
 
 
 let generatePosterShot = () => {
-    appSettings.computeReflections = true;
+    appSettings.probabilityOfUpdate = 1.0;
     controls.maxDistance = 10000;
     // fov
     camera.fov = 40;

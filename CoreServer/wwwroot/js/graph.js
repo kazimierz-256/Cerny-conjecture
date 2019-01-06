@@ -226,7 +226,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
-        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 1.15, 10000, 2 ** (6 + appSettings.quality));
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (6 + appSettings.quality));
         cameraGroup[i].renderTarget.texture.generateMipmaps = true;
         cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
         scene.add(cameraGroup[i]);
@@ -388,11 +388,62 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         graph.add(sphereGroup[i]);
     }
 
-    let init = scene => scene.add(graph);
+    let init = scene => {
+        scene.add(graph);
+    }
     let destroy = scene => scene.remove(graph);
     let latestTime = 1.0;
 
+    let firstUpdate = true;
     let update = (t, appSettings, renderer, scene) => {
+        let tryCamera = i => {
+            if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth)
+                return false;
+
+            if (!firstUpdate && Math.random() > appSettings.probabilityOfUpdate)
+                return true;
+
+            for (let j = 0; j < power; j++) {
+                if (!isDiscovered[j]) {
+                    continue;
+                }
+                sphereGroup[j].lookAt(sphereGroup[i].position);
+
+                for (let index = 0; index < 2; index++) {
+                    let connectionArrayIndex = index == 0 ? connectionA[j] : connectionB[j];
+
+                    if (vertexDistance[j] > appSettings.maximumConsideringDepth
+                        || vertexDistance[connectionArrayIndex] > appSettings.maximumConsideringDepth)
+                        continue;
+                    if (connectionArrayIndex != j && arrowTransitions[2 * j + index] != undefined) {
+                        arrowTransitions[2 * j + index].lookAt(sphereGroup[i].position);
+                    }
+                }
+            }
+            cameraGroup[i].position.copy(sphereGroup[i].position);
+            sphereGroup[i].visible = false;
+            cameraGroup[i].update(renderer, scene);
+            sphereGroup[i].visible = true;
+            return true;
+        }
+        if (firstUpdate) {
+            for (let i = 0; i < power; i++) {
+                tryCamera(i);
+            }
+            firstUpdate = false;
+        } else {
+            let itry = Math.floor(Math.random() * power);
+            for (; itry < power; itry++) {
+                if (tryCamera(itry))
+                    break;
+            }
+            if (itry == power) {
+                for (let i = 0; i < itry; i++) {
+                    if (tryCamera(i))
+                        break;
+                }
+            }
+        }
         if (appSettings.animating) {
             let deltaT = (t - latestTime) * appSettings.speedup / appSettings.deltaTSlowdown;
             let maxDeltaT = 0.05 * appSettings.speedup;
@@ -681,9 +732,6 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 centeringU = sourceFraction * sourceCenteringU + targetFraction * targetCenteringU;
             }
 
-            lastCopierdRemainder += 1;
-            if (lastCopierdRemainder >= lastCopiedModCount)
-                lastCopierdRemainder = 0;
             for (let i = 0; i < power; i++) {
                 if (!isDiscovered[i]) {
                     continue;
@@ -694,17 +742,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 } else {
                     sphereGroup[i].visible = true;
                 }
-                
-                // if (!appSettings.computeReflections) {
-                //     spheres[i].material.envMap = undefined;
-                // }else{
-                //     spheres[i].material.envMap = cameraGroup[i].renderTarget;
-                // }
-                if (i % lastCopiedModCount == lastCopierdRemainder && appSettings.computeReflections) {
-                    cameraGroup[i].position.copy(sphereGroup[i].position);
-                    cameraGroup[i].update(renderer, scene);
-                    // spheres[i].material.envMap = cameraGroup[i].renderTarget.texture;
-                }
+
                 px[i] -= centeringX;
                 py[i] -= centeringY;
                 pz[i] -= centeringZ;
@@ -788,8 +826,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
         }
     };
-    let lastCopierdRemainder = 0;
-    let lastCopiedModCount = 4;
+
     let graphToReturn = new Animatable(update, init, destroy, () => graph);
     // additional functions
     graphToReturn.getPositionOfSphereGroup = (k) => sphereGroup[k].position;
