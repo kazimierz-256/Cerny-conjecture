@@ -17,7 +17,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private const int AutomatonProblemSize = 8;
+        private const int AutomatonProblemSize = 11;
         #endregion
 
         public Startup(IConfiguration configuration)

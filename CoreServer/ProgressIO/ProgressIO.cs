@@ -16,7 +16,7 @@ namespace CoreServer.ProgressIO
         public int Size;
 
         private const string savingAddress = "export.xml";
-        private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}{savingAddress}";
+        private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}-{UnaryAutomataDB.MaximumLongestAutomataCount}-{savingAddress}";
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
             var exported = database.Export();

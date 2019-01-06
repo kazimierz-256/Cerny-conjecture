@@ -21,7 +21,7 @@ namespace CoreServer.UnaryAutomataDatabase
                 return new ServerPresentationComputationSummary()
                 {
                     total = Total,
-                    description = $"Computed {finishedAutomata.Count} out of {Total}. Found interesting {solvedAutomataIndices.Count} automata.",
+                    description = $"Computed {finishedAutomata.Count} out of {Total}.",
                     finishedAutomata = finishedAutomata.ToList()
                 };
             }

@@ -58,8 +58,12 @@ namespace Presentation
                     {
                         Invoke(new Action(() =>
                         {
-                            var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
-                            logBox.Text = resultingTextStatistics.description + $" Total speed: {resultingTextStatistics.finishedAutomata.Count / totalSeconds:F2}";
+                            logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
+                            if (resultingTextStatistics.finishedAutomata.Count > 0)
+                            {
+                                var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
+                                logBox.Text += resultingTextStatistics.description + $" Total speed: {resultingTextStatistics.finishedAutomata.Count / totalSeconds:F2}";
+                            }
                         }));
                     }
                     );
