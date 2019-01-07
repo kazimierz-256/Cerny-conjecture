@@ -17,7 +17,6 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private const int AutomatonProblemSize = 11;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -38,11 +37,20 @@ namespace CoreServer
 #endif
 
             #region Unary automata database singleton
+
+            var AutomatonProblemSize = 8;
+
+#if !DEBUG
+            Console.WriteLine("Please enter the number of states:");
+            var success = false;
+            while (!success || AutomatonProblemSize <= 1)
+            {
+                success = int.TryParse(Console.ReadLine(), out AutomatonProblemSize);
+            }
+#endif
             var database = new UnaryAutomataDB(AutomatonProblemSize);
             ProgressIO.ProgressIO.ImportStateIfPossible(database);
-            services.AddSingleton(
-                    database
-                );
+            services.AddSingleton(database);
             #endregion
         }
 

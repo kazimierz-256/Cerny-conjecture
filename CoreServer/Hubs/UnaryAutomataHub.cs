@@ -25,7 +25,7 @@ namespace CoreServer.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
             else
             {
-                database.ProcessInterestingAutomata(parameters, out var changedMinimum);
+                database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
 
                 if (changedMinimum)
                     await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);

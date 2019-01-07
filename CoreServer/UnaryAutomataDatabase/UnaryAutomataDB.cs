@@ -27,7 +27,7 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum)
+        public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum, string userIdentifier)
         {
             changedMinimum = false;
 
@@ -65,7 +65,8 @@ namespace CoreServer.UnaryAutomataDatabase
                         {
                             solution = parameters.solutions[i],
                             finishTime = finishTime,
-                            issueTime = issueTime[parameters.solutions[i].unaryIndex]
+                            issueTime = issueTime[parameters.solutions[i].unaryIndex],
+                            clientID = userIdentifier
                         });
                         allowedCount += count;//list.Count;
                     }

@@ -17,9 +17,16 @@ namespace CoreServer
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            var builder = WebHost.CreateDefaultBuilder(args)
+                   .UseStartup<Startup>();
+            Console.WriteLine("Please enter the desired address: (e.g. http://localhost:5001/ or http://localhost:62752/)");
+#if !DEBUG
+            
+            builder.UseUrls(Console.ReadLine());
+#endif
+            return builder.Build();
+        }
     }
 }
