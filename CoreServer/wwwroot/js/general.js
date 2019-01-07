@@ -1041,7 +1041,7 @@ let generatePosterShot = () => {
     // rotation
     controls.reset();
     // position
-    let distance = 0.33;
+    let distance = 1.0 / 3;
     camera.position.set(25 * distance, 1 + 5 * distance, -15 * distance);
     // mood
     setMood(0);
@@ -1059,7 +1059,7 @@ let generatePosterShot = () => {
         ["Praca dyplomowa inżynierska polega na obliczeniach eksperymentalnych"],
         ["Obliczenia mają potwierdzić hipotezę Černego dla niewielkich n lub ją obalić"],
         [""],
-        ["Projekt składa się na trzy moduły"],
+        ["Projekt składa się z trzech modułów"],
         ["Klient, Serwer oraz Prezentacja"],
         [""],
         ["Klient: Michalina: część algorytmów i analizę matematyczna"],
@@ -1082,7 +1082,7 @@ let generatePosterShot = () => {
     ];
 
     const size = 12.5;
-    const angle = -1.03;
+    const angle = Math.atan(camera.position.x / camera.position.z);
     let heightInrease = 11.5;
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
