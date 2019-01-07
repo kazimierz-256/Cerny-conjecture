@@ -1037,6 +1037,7 @@ let generatePosterShot = () => {
     let height = water.position.y + 2;
 
     const description = [
+        ["Wysoko wydajne obliczanie słów synchronizujących dla automatów skończonych"],
         ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
         ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
         ["Promotor: dr Michał Dębski"],
@@ -1052,7 +1053,6 @@ let generatePosterShot = () => {
         ["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
         ["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
         ["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
-        ["Automata Iterator"],
         [".Net Core 2.1"],
         ["WinForms"],
         ["JavaScript"],
