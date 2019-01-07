@@ -62,7 +62,13 @@ namespace Presentation
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
-                                logBox.Text += resultingTextStatistics.description + $" Total speed: {resultingTextStatistics.finishedAutomata.Count / totalSeconds:F2}";
+                                int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds;
+                                var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
+                                int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds;
+                                logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
+
+                                materialLabel1.Text = "Całkowity czas obliczeń: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
+                                materialLabel3.Text = "Średni czas analizy jednego automatu unarnego: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, avgMili)).ToString();
                             }
                         }));
                     }
