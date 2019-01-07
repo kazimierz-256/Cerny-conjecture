@@ -1015,6 +1015,7 @@ let setMood = t => {
 
 let generatePosterShot = () => {
     appSettings.probabilityOfUpdate = 1.0;
+    appSettings.quality = 8;
     controls.maxDistance = 10000;
     // fov
     camera.fov = 40;
