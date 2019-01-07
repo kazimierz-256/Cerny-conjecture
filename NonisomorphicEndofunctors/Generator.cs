@@ -37,6 +37,17 @@ namespace UniqueUnaryAutomata
 
         private static int[][][] cachedAutomata = new int[0][][];
         private static object sync = new object();
+        private static int CompareAutomata(int[] a1, int[] a2)
+        {
+            for (int i = 0, max = Math.Min(a1.Length, a2.Length); i < max; i++)
+            {
+                if (a1[i] != a2[i])
+                    return a1[i].CompareTo(a2[i]);
+            }
+            if (a1.Length != a2.Length)
+                return a1.Length.CompareTo(a2.Length);
+            return 0;
+        }
         public static int[] GetUniqueAutomatonFromCached(int size, int index)
         {
             if (size > cachedAutomata.Length)
@@ -46,6 +57,9 @@ namespace UniqueUnaryAutomata
                     if (size > cachedAutomata.Length)
                     {
                         cachedAutomata = EnumerateCollectionsOfNonisomorphicUnaryAutomata().Take(size).ToArray();
+
+                        for (int i = 0; i < cachedAutomata.Length; i++)
+                            Array.Sort(cachedAutomata[i], CompareAutomata);
                     }
                 }
             }

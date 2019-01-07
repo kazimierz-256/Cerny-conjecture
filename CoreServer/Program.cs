@@ -21,9 +21,8 @@ namespace CoreServer
         {
             var builder = WebHost.CreateDefaultBuilder(args)
                    .UseStartup<Startup>();
-            Console.WriteLine("Please enter the desired address: (e.g. http://localhost:5001/ or http://localhost:62752/)");
 #if !DEBUG
-            
+            Console.WriteLine("Please enter the desired address: (e.g. http://localhost:5001/ or http://localhost:62752/)");
             builder.UseUrls(Console.ReadLine());
 #endif
             return builder.Build();
