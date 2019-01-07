@@ -683,7 +683,7 @@ let init = (createControlFromCamera) => {
     });
 
     $("#quality-smooth").on("click", () => {
-        appSettings.quality = 8;
+        appSettings.quality = 6;
         M.toast({ html: "Realistically smooth quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
@@ -1033,7 +1033,7 @@ let setMood = t => {
 
 let generatePosterShot = () => {
     appSettings.probabilityOfUpdate = 1.0;
-    appSettings.quality = 8;
+    appSettings.quality = 6;
     controls.maxDistance = 10000;
     resizeToGoldenRatio();
     // fov
