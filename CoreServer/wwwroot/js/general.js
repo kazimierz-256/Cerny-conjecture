@@ -683,7 +683,7 @@ let init = (createControlFromCamera) => {
     });
 
     $("#quality-smooth").on("click", () => {
-        appSettings.quality = 6;
+        appSettings.quality = 8;
         M.toast({ html: "Realistically smooth quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
@@ -1038,8 +1038,8 @@ let generatePosterShot = () => {
 
     const description = [
         ["Wysoko wydajne obliczanie słów synchronizujących dla automatów skończonych"],
+        ["Michalina Nikonowicz i Kazimierz Wojciechowski"],
         ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
-        ["Wykonali: Michalina Nikonowicz i Kazimierz Wojciechowski"],
         ["Promotor: dr Michał Dębski"],
         [""],
         ["Praca dyplomowa inżynierska polega na obliczeniach eksperymentalnych"],
