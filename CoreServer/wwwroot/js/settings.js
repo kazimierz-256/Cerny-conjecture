@@ -9,7 +9,7 @@ class settings {
         this.previousMaximumConsideringDepth = 1;
         this.maximumConsideringDepth = 1;
         this.maxDistance = 1;
-        this.targetFPS = 60;
+        this.targetFPS = 120;
         this.exploratoryFOV = 75;
         this.focusingFOV = 75;
         // parameters
@@ -25,7 +25,7 @@ class settings {
         this.threeDimForceFraction = 0;
         this.animating = false;
         this.maxSpeedSquared = 0.0;
-        this.maxPermissibleSpeedSquared = 100;
+        this.maxPermissibleSpeedSquared = 200;
         this.deltaTSlowdown = 1;
         this.quality = 4;
         this.repelArrows = false;

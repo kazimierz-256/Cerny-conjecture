@@ -898,10 +898,17 @@ $(document).ready(() => {
             request[pair[0]] = pair[1];
         }
         let showGraphFromRequest = () => {
-            if (request["a"] == undefined) {
+            if (request["quality"] != undefined)
+                appSettings.quality = parseInt(request["quality"]);
+            if (request["fps"] != undefined)
+                appSettings.targetFPS = parseInt(request["fps"]);
+            if (request["probability"] != undefined)
+                appSettings.probabilityOfUpdate = parseFloat(request["probability"]);
+
+            if (request["automaton"] == undefined) {
                 showGraph(graphs.getCernyAutomaton(4, appSettings, cubeCamera));
             } else {
-                showGraph(parseGraph(unescape(request["a"])));
+                showGraph(parseGraph(unescape(request["automaton"])));
             }
         };
 
