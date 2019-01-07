@@ -2,6 +2,7 @@
 using CommunicationContracts;
 using CoreDefinitions;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -61,6 +62,7 @@ namespace Client
                         var shouldReconnect = true;
                         var connection = new HubConnectionBuilder()
                             .WithUrl(address)
+                            .AddMessagePackProtocol()
                             .Build();
 
                         TaskManager<int> taskManager = null;

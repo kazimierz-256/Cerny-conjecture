@@ -31,7 +31,8 @@ namespace CoreServer
         {
             services.AddMvc();
 #if DEBUG
-            services.AddSignalR(opts => opts.EnableDetailedErrors = true);
+            services.AddSignalR(opts => opts.EnableDetailedErrors = true)
+                    .AddMessagePackProtocol();
 #else
             services.AddSignalR();
 #endif

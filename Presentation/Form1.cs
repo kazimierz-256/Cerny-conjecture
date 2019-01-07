@@ -2,6 +2,7 @@
 using MaterialSkin;
 using MaterialSkin.Controls;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -51,6 +52,7 @@ namespace Presentation
                 }
                 connection = new HubConnectionBuilder()
                     .WithUrl(addressBox.Text)
+                    .AddMessagePackProtocol()
                     .Build();
                 connection.On(
                     "ShowSimpleTextStatistics",
