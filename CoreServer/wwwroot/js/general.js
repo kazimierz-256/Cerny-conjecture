@@ -829,8 +829,7 @@ let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
 
 let parseGraph = (specification) => {
     let parsedGraph = JSON.parse(specification);
-    console.log(parsedGraph);
-    return getAnimatableGraph(parsedGraph, appSettings, "User's custom automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
+    return getAnimatableGraph(parsedGraph, appSettings, "Automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
 };
 
 
