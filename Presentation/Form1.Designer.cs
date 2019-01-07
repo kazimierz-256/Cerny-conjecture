@@ -38,6 +38,7 @@
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.tabStatistics = new System.Windows.Forms.TabPage();
             this.materialTabSelector1 = new MaterialSkin.Controls.MaterialTabSelector();
+            this.materialLabelAdres = new MaterialSkin.Controls.MaterialLabel();
             this.materialTabControl1.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.tabStatistics.SuspendLayout();
@@ -54,13 +55,15 @@
             // 
             // prompt
             // 
+            this.prompt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.prompt.Depth = 0;
-            this.prompt.Location = new System.Drawing.Point(124, 93);
+            this.prompt.Location = new System.Drawing.Point(351, 90);
             this.prompt.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.prompt.MouseState = MaterialSkin.MouseState.HOVER;
             this.prompt.Name = "prompt";
             this.prompt.Primary = true;
-            this.prompt.Size = new System.Drawing.Size(258, 53);
+            this.prompt.Size = new System.Drawing.Size(342, 53);
             this.prompt.TabIndex = 4;
             this.prompt.Text = "Prompt for data";
             this.prompt.UseVisualStyleBackColor = true;
@@ -68,13 +71,15 @@
             // 
             // close
             // 
+            this.close.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.close.Depth = 0;
-            this.close.Location = new System.Drawing.Point(124, 169);
+            this.close.Location = new System.Drawing.Point(351, 166);
             this.close.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.close.MouseState = MaterialSkin.MouseState.HOVER;
             this.close.Name = "close";
             this.close.Primary = true;
-            this.close.Size = new System.Drawing.Size(258, 53);
+            this.close.Size = new System.Drawing.Size(342, 53);
             this.close.TabIndex = 5;
             this.close.Text = "Close connection";
             this.close.UseVisualStyleBackColor = true;
@@ -82,10 +87,12 @@
             // 
             // addressBox
             // 
+            this.addressBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.addressBox.BackColor = System.Drawing.Color.White;
             this.addressBox.Depth = 0;
             this.addressBox.Hint = "";
-            this.addressBox.Location = new System.Drawing.Point(124, 49);
+            this.addressBox.Location = new System.Drawing.Point(351, 46);
             this.addressBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.addressBox.MouseState = MaterialSkin.MouseState.HOVER;
             this.addressBox.Name = "addressBox";
@@ -93,7 +100,7 @@
             this.addressBox.SelectedText = "";
             this.addressBox.SelectionLength = 0;
             this.addressBox.SelectionStart = 0;
-            this.addressBox.Size = new System.Drawing.Size(258, 28);
+            this.addressBox.Size = new System.Drawing.Size(342, 28);
             this.addressBox.TabIndex = 6;
             this.addressBox.Text = "http://localhost:62752/ua";
             this.addressBox.UseSystemPasswordChar = false;
@@ -138,6 +145,7 @@
             // 
             // tabSettings
             // 
+            this.tabSettings.Controls.Add(this.materialLabelAdres);
             this.tabSettings.Controls.Add(this.prompt);
             this.tabSettings.Controls.Add(this.addressBox);
             this.tabSettings.Controls.Add(this.close);
@@ -173,6 +181,19 @@
             this.materialTabSelector1.TabIndex = 11;
             this.materialTabSelector1.Text = "materialTabSelector1";
             // 
+            // materialLabelAdres
+            // 
+            this.materialLabelAdres.AutoSize = true;
+            this.materialLabelAdres.Depth = 0;
+            this.materialLabelAdres.Font = new System.Drawing.Font("Roboto", 11F);
+            this.materialLabelAdres.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialLabelAdres.Location = new System.Drawing.Point(347, 20);
+            this.materialLabelAdres.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabelAdres.Name = "materialLabelAdres";
+            this.materialLabelAdres.Size = new System.Drawing.Size(64, 24);
+            this.materialLabelAdres.TabIndex = 7;
+            this.materialLabelAdres.Text = "Adres:";
+            // 
             // Presentation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -181,10 +202,13 @@
             this.Controls.Add(this.materialTabSelector1);
             this.Controls.Add(this.materialTabControl1);
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.MaximumSize = new System.Drawing.Size(1500, 900);
+            this.MinimumSize = new System.Drawing.Size(900, 700);
             this.Name = "Presentation";
             this.Text = "Presentation module";
             this.materialTabControl1.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
+            this.tabSettings.PerformLayout();
             this.tabStatistics.ResumeLayout(false);
             this.tabStatistics.PerformLayout();
             this.ResumeLayout(false);
@@ -202,6 +226,7 @@
         private System.Windows.Forms.TabPage tabSettings;
         private System.Windows.Forms.TabPage tabStatistics;
         private MaterialSkin.Controls.MaterialTabSelector materialTabSelector1;
+        private MaterialSkin.Controls.MaterialLabel materialLabelAdres;
     }
 }
 
