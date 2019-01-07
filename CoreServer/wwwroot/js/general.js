@@ -849,11 +849,15 @@ let animate = () => {
         camera.position.y = waterlimit;
     }
     if (takeScreenshot) {
-        let scale = parseInt(window.prompt("Please enter the desired scale", "4"));
-        renderer.setSize(window.innerWidth * scale, window.innerHeight * scale);
-        renderer.render(scene, camera);
-        window.open($("body > canvas")[0].toDataURL());
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        let w = $("body > canvas")[0].width;
+        let h = $("body > canvas")[0].height;
+        let scale = parseInt(window.prompt(`Please enter the desired scale (${w} * scale by ${h} * scale)`, "4"));
+        if (!isNaN(scale)) {
+            renderer.setSize(w * scale, h * scale);
+            renderer.render(scene, camera);
+            window.open($("body > canvas")[0].toDataURL());
+            renderer.setSize(w, h);
+        }
         takeScreenshot = false;
     } else {
         renderer.render(scene, camera);
@@ -868,6 +872,20 @@ let onWindowResize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+let resizeToGoldenRatio = () => {
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    if (w > h * Math.sqrt(2))
+        w = Math.ceil(h * Math.sqrt(2));
+    else
+        h = Math.ceil(w / Math.sqrt(2));
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+
+    M.toast({ html: "The canvas proportions are now 1 to square root of 2. A3, A2 poster format. Press 's' to make a screenshot.", displayLength: 3000 });
 }
 
 $(document).ready(() => {
@@ -1017,6 +1035,7 @@ let generatePosterShot = () => {
     appSettings.probabilityOfUpdate = 1.0;
     appSettings.quality = 8;
     controls.maxDistance = 10000;
+    resizeToGoldenRatio();
     // fov
     camera.fov = 40;
     // rotation
@@ -1027,11 +1046,6 @@ let generatePosterShot = () => {
     // mood
     setMood(0);
     existingGraph.removeDescription();
-
-    // add text
-    let configurePosition = (thing, range, angle) => {
-        thing.position.set(camera.position.x + Math.sin(angle) * range, height, camera.position.z + Math.cos(angle) * range);
-    };
     toggleFlatForce(true);
     let far = 200;
     let height = water.position.y + 2;
@@ -1067,14 +1081,16 @@ let generatePosterShot = () => {
         ["C#"]
     ];
 
-    let heightInrease = 0;
+    const size = 12.5;
+    const angle = -1.03;
+    let heightInrease = 11.5;
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
             heightInrease += 0.618;
         } else {
-            let text = getTextObjectMatchingWidth(descriptor[0], 16, 4, -1, true);
-            configurePosition(text, 12 + heightInrease, -1.05);
+            let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1, true);
+            text.position.set(camera.position.x + Math.sin(angle) * heightInrease, height, camera.position.z + Math.cos(angle) * heightInrease);
             heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
 
@@ -1093,7 +1109,7 @@ let generatePosterShot = () => {
     img.transparent = true;
     // plane
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
-    configurePosition(plane, far, -1.05);
+    plane.position.set(camera.position.x + Math.sin(angle) * far, height, camera.position.z + Math.cos(angle) * far);
     plane.position.y = height + 10;// + 17.5;
     plane.overdraw = true;
     plane.renderOrder = 1;
@@ -1164,6 +1180,9 @@ $(document.body).on("keydown", function (e) {
             break;
         case "s":
             takeScreenshot = true;
+            break;
+        case "h":
+            resizeToGoldenRatio();
             break;
     }
 });
