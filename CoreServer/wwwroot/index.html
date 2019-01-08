@@ -102,29 +102,32 @@
     <link rel="icon" href="icons/icon-small.jpg">
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="css/materialize.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Compiled and minified JavaScript -->
-    <!-- <script type="x-shader/x-vertex" id="vertexShader">
-        varying vec3 vWorldPosition;
-        void main() {
-            vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-            vWorldPosition = worldPosition.xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    <style>
+        /* fallback */
+        @font-face {
+          font-family: 'Material Icons';
+          font-style: normal;
+          font-weight: 400;
+          src: url(fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
         }
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentShader">
-        uniform vec3 topColor;
-        uniform vec3 bottomColor;
-        uniform float offset;
-        uniform float exponent;
-        varying vec3 vWorldPosition;
-        void main() {
-            float h = normalize( vWorldPosition + offset ).y;
-            gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+        
+        .material-icons {
+          font-family: 'Material Icons';
+          font-weight: normal;
+          font-style: normal;
+          font-size: 24px;
+          line-height: 1;
+          letter-spacing: normal;
+          text-transform: none;
+          display: inline-block;
+          white-space: nowrap;
+          word-wrap: normal;
+          direction: ltr;
+          -webkit-font-feature-settings: 'liga';
+          -webkit-font-smoothing: antialiased;
         }
-    </script> -->
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"></script>
+    </style>
+    <script type="text/javascript" async src="js/MathJax-2.7.5/latest.js?config=TeX-MML-AM_CHTML"></script>
     <script defer src="js/materialize.min.js"></script>
     <script defer src="js/jquery-3.3.1.min.js"></script>
     <script defer src="js/jquery-ui.min.js"></script>
@@ -295,8 +298,7 @@
                 <h5>Exciting unobvious features</h5>
                 <ul class="collection">
                     <li class="collection-item">The automaton is initialized in 5 dimension and then gradually (1min)
-                        compressed to 3 dimensions. How
-                        cool is that!</li>
+                        compressed to 3 dimensions.</li>
                     <li class="collection-item">If the vertices travel too fast, the animation is slowed down. Once
                         particles travel at normal velocities,
                         the animation speeds up to normal speed.</li>
@@ -310,18 +312,14 @@
                         to
                         the center of mass.</li>
                     <li class="collection-item">
-                        This Application makes use of your smartphone's gyroscope and accelerometer! Check out this
-                        website on your mobile device!
-                        (support for accelerometer is only available for Chrome Dev)</li>
+                        This Application makes use of your smartphone's gyroscope and accelerometer. Check out this
+                        website on your mobile device.</li>
                 </ul>
             </div>
             <div class="divider"></div>
             <div class="section">
                 <h5>Credits</h5>
                 <ul class="collection with-header">
-                    <li class="collection-header">
-                        <p>I would like to thank everyone thanks to whom this project was made possible, especially:</p>
-                    </li>
                     <li class="collection-item">
                         <div>Three.js library creators and contributors
                             <a href="https://threejs.org/" target="_blank" class="secondary-content">
