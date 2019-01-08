@@ -25,6 +25,8 @@ namespace Presentation
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
             materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE);
+
+
         }
 
         HubConnection connection = null;
@@ -61,10 +63,22 @@ namespace Presentation
                         Invoke(new Action(() =>
                         {
                             logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
+                            chart1.Series["UnaryFinishedSeries"].Points.Clear();
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Pozostało", resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Wykonano", resultingTextStatistics.finishedAutomata.Count);
+
+
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
-                                logBox.Text += resultingTextStatistics.description + $" Total speed: {resultingTextStatistics.finishedAutomata.Count / totalSeconds:F2}";
+                                int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds*1000;
+                                var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
+                                int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds*1000;
+
+                                logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
+
+                                materialLabel1.Text = "Całkowity czas obliczeń: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
+                                materialLabel3.Text = "Średni czas analizy jednego automatu unarnego: " + (new TimeSpan(0, 0, 0, (int)avgSeconds, avgMili)).ToString();
                             }
                         }));
                     }
