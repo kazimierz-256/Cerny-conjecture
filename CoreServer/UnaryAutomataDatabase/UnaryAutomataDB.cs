@@ -163,7 +163,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; private set; }
         public int MinimalLength { get; private set; }
         public int Total { get; private set; }
-        public int MaximumLongestAutomataCount;
+        public int MaximumLongestAutomataCount = 0;
         private int AllowedCount;
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();

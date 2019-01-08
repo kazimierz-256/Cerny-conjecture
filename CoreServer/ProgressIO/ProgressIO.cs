@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -18,6 +19,7 @@ namespace CoreServer.ProgressIO
         internal int AllowedCount;
         private const string savingAddress = "export.xml";
         private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}-{database.MaximumLongestAutomataCount}-{savingAddress}";
+        private static Semaphore syncObject = new Semaphore(1, 1);
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
             var exported = database.Export();
@@ -28,7 +30,9 @@ namespace CoreServer.ProgressIO
                 using (var w = XmlWriter.Create(sw))
                 {
                     serializer.Serialize(w, exported);
+                    syncObject.WaitOne();
                     await File.WriteAllTextAsync(GetAddress(database), sw.ToString());
+                    syncObject.Release();
                 }
             }
         }

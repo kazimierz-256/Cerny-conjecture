@@ -65,7 +65,7 @@ namespace Presentation
                             logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("Pozostało", resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count);
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Wykonano", resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Obliczono", resultingTextStatistics.finishedAutomata.Count);
 
 
                             if (resultingTextStatistics.finishedAutomata.Count > 0)

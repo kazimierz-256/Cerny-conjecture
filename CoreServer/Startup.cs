@@ -36,7 +36,8 @@ namespace CoreServer
             services.AddSignalR(opts => opts.EnableDetailedErrors = true)
                     .AddMessagePackProtocol();
 #else
-            services.AddSignalR();
+            services.AddSignalR()
+                    .AddMessagePackProtocol();
 #endif
 
             #region Unary automata database singleton
