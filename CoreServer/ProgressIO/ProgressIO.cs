@@ -14,7 +14,8 @@ namespace CoreServer.ProgressIO
     {
         public List<FinishedStatistics> finishedStatistics;
         public int Size;
-
+        internal int MaximumLongestAutomataCount;
+        internal int AllowedCount;
         private const string savingAddress = "export.xml";
         private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}-{UnaryAutomataDB.MaximumLongestAutomataCount}-{savingAddress}";
         public async static Task ExportStateAsync(UnaryAutomataDB database)

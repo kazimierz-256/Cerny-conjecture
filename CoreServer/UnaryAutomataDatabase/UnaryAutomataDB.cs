@@ -68,15 +68,15 @@ namespace CoreServer.UnaryAutomataDatabase
                             issueTime = issueTime[parameters.solutions[i].unaryIndex],
                             clientID = userIdentifier
                         });
-                        allowedCount += count;//list.Count;
+                        AllowedCount += count;//list.Count;
                     }
                 }
 
 
                 #region Update minimum bound
-                if (allowedCount > MaximumLongestAutomataCount)
+                if (AllowedCount > MaximumLongestAutomataCount)
                 {
-                    var leftover = allowedCount;
+                    var leftover = AllowedCount;
                     var removeUpTo = -1;
                     foreach (var item in synchronizingWordLengthToCount)
                     {
@@ -96,7 +96,7 @@ namespace CoreServer.UnaryAutomataDatabase
                         MinimalLength = removeUpTo + 1;
                         changedMinimum = true;
                     }
-                    allowedCount = leftover;
+                    AllowedCount = leftover;
                 }
                 #endregion
 
@@ -137,10 +137,12 @@ namespace CoreServer.UnaryAutomataDatabase
             return toProcess;
         }
 
-        public UnaryAutomataDB(int size)
+        public UnaryAutomataDB(int size, int maximumLongestAutomataCount)
         {
+            MaximumLongestAutomataCount = maximumLongestAutomataCount;
             Size = size;
             MinimalLength = (size - 1) * (size - 1) / 8;
+            AllowedCount = 0;
 
             Total = theory[size - 1];
             var automataIndices = new int[Total];
@@ -158,11 +160,11 @@ namespace CoreServer.UnaryAutomataDatabase
                 leftoverAutomata.Enqueue(automataIndices[i]);
         }
 
-        public int Size { get; }
+        public int Size { get; private set; }
         public int MinimalLength { get; private set; }
-        public int Total { get; }
-        public const int MaximumLongestAutomataCount = 100;
-        private int allowedCount = 0;
+        public int Total { get; private set; }
+        public int MaximumLongestAutomataCount;
+        private int AllowedCount;
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
 
@@ -183,18 +185,24 @@ namespace CoreServer.UnaryAutomataDatabase
                 return new ProgressIO.ProgressIO()
                 {
                     finishedStatistics = finishedAutomata.ToList(),
-                    Size = Size
+                    Size = Size,
+                    MaximumLongestAutomataCount = MaximumLongestAutomataCount,
+                    AllowedCount = AllowedCount
                 };
             }
         }
 
-        // TODO: test this thing
         public void ImportShallow(ProgressIO.ProgressIO data)
         {
-            Console.WriteLine("importing...");
+            Console.WriteLine("importing database from file...");
             var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size - 1]));
             lock (synchronizingObject)
             {
+                Size = data.Size;
+                Total = theory[Size - 1];
+                MaximumLongestAutomataCount = data.MaximumLongestAutomataCount;
+                AllowedCount = data.AllowedCount;
+
                 leftoverAutomata.Clear();
                 issueTime.Clear();
                 processingOrFinishedAutomata.Clear();

@@ -40,6 +40,7 @@ namespace CoreServer
             #region Unary automata database singleton
 
             var AutomatonProblemSize = 8;
+            var maximumCount = 100;
 
 #if !DEBUG
             Console.WriteLine("Please enter the number of states:");
@@ -48,8 +49,15 @@ namespace CoreServer
             {
                 success = int.TryParse(Console.ReadLine(), out AutomatonProblemSize);
             }
+            
+            Console.WriteLine("Please enter the number of maximal found automata:");
+            success = false;
+            while (!success || maximumCount <= 1)
+            {
+                success = int.TryParse(Console.ReadLine(), out maximumCount);
+            }
 #endif
-            var database = new UnaryAutomataDB(AutomatonProblemSize);
+            var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);
             ProgressIO.ProgressIO.ImportStateIfPossible(database);
             services.AddSingleton(database);
             #endregion
