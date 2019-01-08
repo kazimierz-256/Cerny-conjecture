@@ -41,7 +41,7 @@ namespace CoreServer.Hubs
                         automatonSize = database.Size,
                         serverMinimalLength = database.MinimalLength,
                         unaryAutomataIndices = automataIndices,
-                        targetCollectionSize = UnaryAutomataDB.MaximumLongestAutomataCount,
+                        targetCollectionSize = database.MaximumLongestAutomataCount,
                         targetTimeoutSeconds = targetTimeout
                     };
                     await Clients.Caller.SendAsync("ComputeAutomata", parameter);

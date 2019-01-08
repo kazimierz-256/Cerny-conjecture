@@ -54,7 +54,7 @@ namespace Client
                         var resultsMergedTotalAutomata = 0;
 
                         #region address setup
-                        var address = args[0];
+                        var address = $"{args[0]}/ua";
                         Console.WriteLine($"Hello User :) XO XO. Connecting to {address}");
                         #endregion
 

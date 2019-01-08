@@ -17,6 +17,8 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
+        private int AutomatonProblemSize = 8;
+        private int maximumCount = 100;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -39,8 +41,6 @@ namespace CoreServer
 
             #region Unary automata database singleton
 
-            var AutomatonProblemSize = 8;
-            var maximumCount = 100;
 
 #if !DEBUG
             Console.WriteLine("Please enter the number of states:");
@@ -85,7 +85,7 @@ namespace CoreServer
             {
                 routes.MapHub<UnaryAutomataHub>("/ua", options =>
                 {
-                    options.ApplicationMaxBufferSize = UnaryAutomataDB.MaximumLongestAutomataCount * 10 * 1024;
+                    options.ApplicationMaxBufferSize = maximumCount * 10 * 1024;
                     options.TransportMaxBufferSize = options.ApplicationMaxBufferSize;
                 });
             });

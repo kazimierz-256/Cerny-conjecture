@@ -2,7 +2,7 @@
   "profiles": {
     "Client": {
       "commandName": "Project",
-      "commandLineArgs": "http://localhost:62752/ua 4"
+      "commandLineArgs": "http://localhost:62752 4"
     }
   }
 }
