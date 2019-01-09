@@ -693,7 +693,7 @@ let init = (createControlFromCamera) => {
     });
 
     $("#quality-standard").on("click", () => {
-        appSettings.quality = 2;
+        appSettings.quality = 3;
         M.toast({ html: "Standard quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
@@ -1069,7 +1069,7 @@ let generatePosterShot = () => {
     if (generatedAlready)
         return;
     generatedAlready = true;
-    let far = 200;
+    let far = 250;
     let height = water.position.y + 2;
 
     const description = [
@@ -1111,7 +1111,7 @@ let generatePosterShot = () => {
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
-            heightInrease += 0.618;
+            heightInrease += 0.04 * heightInrease;
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1, true);
             text.position.set(camera.position.x + Math.sin(angle) * heightInrease, height, camera.position.z + Math.cos(angle) * heightInrease);
@@ -1124,7 +1124,7 @@ let generatePosterShot = () => {
         }
     }
 
-    water.position.y = -8;
+    water.position.y -= 3;
     height = water.position.y + 1;
 
     var img = new THREE.MeshBasicMaterial({
@@ -1152,7 +1152,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
         font: appSettings.font,
         size: size,
         height: fontHeight,
-        curveSegments: 2 + 2 * appSettings.quality,
+        curveSegments: 2 + 4 * appSettings.quality,
     });
     fakeFontGeometry.computeBoundingBox();
     const scale = size * size / (fakeFontGeometry.boundingBox.max.x - fakeFontGeometry.boundingBox.min.x);
@@ -1160,7 +1160,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
         font: appSettings.font,
         size: scale,
         height: fontHeight,
-        curveSegments: 2 + 2 * appSettings.quality,
+        curveSegments: 2 + 4 * appSettings.quality,
     });
     fontGeometry.computeBoundingBox();
     let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
