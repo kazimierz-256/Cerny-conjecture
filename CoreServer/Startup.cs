@@ -18,7 +18,7 @@ namespace CoreServer
     {
         #region Important parameter
         private int AutomatonProblemSize = 8;
-        private int maximumCount = 0;
+        private int maximumCount = 100;
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -32,36 +32,24 @@ namespace CoreServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-#if DEBUG
             services.AddSignalR(opts => opts.EnableDetailedErrors = true)
                     .AddMessagePackProtocol();
-#else
-            services.AddSignalR()
-                    .AddMessagePackProtocol();
-#endif
-
-            #region Unary automata database singleton
-
-
-#if !DEBUG
-            Console.WriteLine("Please enter the number of states:");
-            var success = false;
-            while (!success || AutomatonProblemSize <= 1)
-            {
-                success = int.TryParse(Console.ReadLine(), out AutomatonProblemSize);
-            }
             
-            Console.WriteLine("Please enter the number of maximal found automata:");
-            success = false;
-            while (!success || maximumCount <= 1)
+            var cmdArgs = Environment.GetCommandLineArgs();
+            if (cmdArgs.Length >= 3)
             {
-                success = int.TryParse(Console.ReadLine(), out maximumCount);
+                if (!int.TryParse(cmdArgs[2], out AutomatonProblemSize))
+                    throw new Exception("Incorrect automaton problem size");
             }
-#endif
+            if (cmdArgs.Length >= 4)
+            {
+                if (!int.TryParse(cmdArgs[3], out maximumCount))
+                    throw new Exception("Incorrect maximal found automata.");
+            }
+
             var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);
             ProgressIO.ProgressIO.ImportStateIfPossible(database);
             services.AddSingleton(database);
-            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
