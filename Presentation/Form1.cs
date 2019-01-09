@@ -62,7 +62,7 @@ namespace Presentation
                     {
                         Invoke(new Action(() =>
                         {
-                            logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
+                            //logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
                             int toCompute = resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count;
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
@@ -76,7 +76,7 @@ namespace Presentation
                                 var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
                                 double leftSeconds = toCompute * totalSeconds / resultingTextStatistics.finishedAutomata.Count;
 
-                                logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
+                                //logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
 
                                 materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
                                 materialLabel3.Text = $"Average speed: {avgSeconds:F2} automata per second.";
@@ -133,5 +133,25 @@ namespace Presentation
             }
         }
 
+        private void runVisualisationButton_Click(object sender, EventArgs e)
+        {
+            if (listOfAutomata.SelectedItem != null)
+            {
+                string automaton = listOfAutomata.SelectedItem.ToString();
+                System.Diagnostics.Process.Start($"{addressBox.Text}/?automaton={automaton}");
+            }
+            else
+            {
+                string message = "You did not selected any automaton. Want to see visualisation of Cerny automaton?\nPS.You can click NO, go back, and select some automaton this time.";
+                string caption = "Not selected automaton";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result;
+                result = MessageBox.Show(message, caption, buttons);
+                if (result == System.Windows.Forms.DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start($"{addressBox.Text}/");
+                }
+            }
+        }
     }
 }

@@ -30,11 +30,10 @@ namespace Presentation
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            this.logBox = new System.Windows.Forms.RichTextBox();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.prompt = new MaterialSkin.Controls.MaterialRaisedButton();
             this.close = new MaterialSkin.Controls.MaterialRaisedButton();
             this.addressBox = new MaterialSkin.Controls.MaterialSingleLineTextField();
@@ -59,26 +58,17 @@ namespace Presentation
             this.tabEXAMPLES.SuspendLayout();
             this.SuspendLayout();
             // 
-            // logBox
-            // 
-            this.logBox.Location = new System.Drawing.Point(370, 328);
-            this.logBox.Margin = new System.Windows.Forms.Padding(2);
-            this.logBox.Name = "logBox";
-            this.logBox.Size = new System.Drawing.Size(216, 161);
-            this.logBox.TabIndex = 1;
-            this.logBox.Text = "";
-            // 
             // prompt
             // 
             this.prompt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.prompt.Depth = 0;
-            this.prompt.Location = new System.Drawing.Point(351, 90);
+            this.prompt.Location = new System.Drawing.Point(43, 81);
             this.prompt.Margin = new System.Windows.Forms.Padding(2);
             this.prompt.MouseState = MaterialSkin.MouseState.HOVER;
             this.prompt.Name = "prompt";
             this.prompt.Primary = true;
-            this.prompt.Size = new System.Drawing.Size(271, 53);
+            this.prompt.Size = new System.Drawing.Size(299, 53);
             this.prompt.TabIndex = 4;
             this.prompt.Text = "Prompt for data";
             this.prompt.UseVisualStyleBackColor = true;
@@ -89,12 +79,12 @@ namespace Presentation
             this.close.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.close.Depth = 0;
-            this.close.Location = new System.Drawing.Point(351, 166);
+            this.close.Location = new System.Drawing.Point(43, 157);
             this.close.Margin = new System.Windows.Forms.Padding(2);
             this.close.MouseState = MaterialSkin.MouseState.HOVER;
             this.close.Name = "close";
             this.close.Primary = true;
-            this.close.Size = new System.Drawing.Size(271, 53);
+            this.close.Size = new System.Drawing.Size(299, 53);
             this.close.TabIndex = 5;
             this.close.Text = "Close connection";
             this.close.UseVisualStyleBackColor = true;
@@ -107,7 +97,7 @@ namespace Presentation
             this.addressBox.BackColor = System.Drawing.Color.White;
             this.addressBox.Depth = 0;
             this.addressBox.Hint = "";
-            this.addressBox.Location = new System.Drawing.Point(351, 46);
+            this.addressBox.Location = new System.Drawing.Point(43, 37);
             this.addressBox.Margin = new System.Windows.Forms.Padding(2);
             this.addressBox.MouseState = MaterialSkin.MouseState.HOVER;
             this.addressBox.Name = "addressBox";
@@ -115,7 +105,7 @@ namespace Presentation
             this.addressBox.SelectedText = "";
             this.addressBox.SelectionLength = 0;
             this.addressBox.SelectionStart = 0;
-            this.addressBox.Size = new System.Drawing.Size(271, 28);
+            this.addressBox.Size = new System.Drawing.Size(299, 28);
             this.addressBox.TabIndex = 6;
             this.addressBox.Text = "http://localhost:62752";
             this.addressBox.UseSystemPasswordChar = false;
@@ -172,7 +162,7 @@ namespace Presentation
             this.tabSettings.Location = new System.Drawing.Point(4, 25);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSettings.Size = new System.Drawing.Size(987, 549);
+            this.tabSettings.Size = new System.Drawing.Size(616, 549);
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "SETTINGS";
             // 
@@ -184,7 +174,7 @@ namespace Presentation
             this.materialLabelAdres.Depth = 0;
             this.materialLabelAdres.Font = new System.Drawing.Font("Roboto", 11F);
             this.materialLabelAdres.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.materialLabelAdres.Location = new System.Drawing.Point(347, 20);
+            this.materialLabelAdres.Location = new System.Drawing.Point(39, 11);
             this.materialLabelAdres.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialLabelAdres.Name = "materialLabelAdres";
             this.materialLabelAdres.Size = new System.Drawing.Size(64, 24);
@@ -198,7 +188,6 @@ namespace Presentation
             this.tabStatistics.Controls.Add(this.chart1);
             this.tabStatistics.Controls.Add(this.materialDivider1);
             this.tabStatistics.Controls.Add(this.materialLabel1);
-            this.tabStatistics.Controls.Add(this.logBox);
             this.tabStatistics.Controls.Add(this.materialLabel3);
             this.tabStatistics.Location = new System.Drawing.Point(4, 25);
             this.tabStatistics.Name = "tabStatistics";
@@ -222,35 +211,37 @@ namespace Presentation
             // 
             // chart1
             // 
-            chartArea4.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.chart1.Legends.Add(legend4);
-            this.chart1.Location = new System.Drawing.Point(28, 253);
+            this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
+            this.chart1.Location = new System.Drawing.Point(21, 253);
             this.chart1.Name = "chart1";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
-            series4.IsValueShownAsLabel = true;
-            series4.Legend = "Legend1";
-            series4.Name = "UnaryFinishedSeries";
-            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
-            this.chart1.Series.Add(series4);
-            this.chart1.Size = new System.Drawing.Size(300, 275);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
+            series1.IsValueShownAsLabel = true;
+            series1.Legend = "Legend1";
+            series1.Name = "UnaryFinishedSeries";
+            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(454, 275);
             this.chart1.TabIndex = 11;
             this.chart1.Text = "chart1";
-            title4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            title4.Name = "automaty unarne";
-            title4.Text = "Unary automata";
-            this.chart1.Titles.Add(title4);
+            title1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            title1.Name = "automaty unarne";
+            title1.Text = "Unary automata";
+            this.chart1.Titles.Add(title1);
             // 
             // materialDivider1
             // 
+            this.materialDivider1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.materialDivider1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.materialDivider1.Depth = 0;
             this.materialDivider1.Location = new System.Drawing.Point(6, 238);
             this.materialDivider1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialDivider1.Name = "materialDivider1";
-            this.materialDivider1.Size = new System.Drawing.Size(341, 305);
+            this.materialDivider1.Size = new System.Drawing.Size(484, 305);
             this.materialDivider1.TabIndex = 10;
             this.materialDivider1.Text = "materialDivider1";
             // 
@@ -304,6 +295,7 @@ namespace Presentation
             this.runVisualisationButton.TabIndex = 1;
             this.runVisualisationButton.Text = "run visualisation";
             this.runVisualisationButton.UseVisualStyleBackColor = true;
+            this.runVisualisationButton.Click += new System.EventHandler(this.runVisualisationButton_Click);
             // 
             // labelAutomataCount
             // 
@@ -326,8 +318,8 @@ namespace Presentation
             this.Controls.Add(this.materialTabSelector1);
             this.Controls.Add(this.materialTabControl1);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.MaximumSize = new System.Drawing.Size(1500, 900);
-            this.MinimumSize = new System.Drawing.Size(300, 700);
+            this.MaximumSize = new System.Drawing.Size(900, 1500);
+            this.MinimumSize = new System.Drawing.Size(600, 600);
             this.Name = "Presentation";
             this.Text = "Presentation module";
             this.materialTabControl1.ResumeLayout(false);
@@ -343,7 +335,6 @@ namespace Presentation
         }
 
         #endregion
-        private System.Windows.Forms.RichTextBox logBox;
         private MaterialSkin.Controls.MaterialRaisedButton prompt;
         private MaterialSkin.Controls.MaterialRaisedButton close;
         private MaterialSkin.Controls.MaterialSingleLineTextField addressBox;
