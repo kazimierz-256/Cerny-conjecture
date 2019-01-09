@@ -34,17 +34,17 @@ namespace CoreServer
             services.AddMvc();
             services.AddSignalR(opts => opts.EnableDetailedErrors = true)
                     .AddMessagePackProtocol();
-            
+
             var cmdArgs = Environment.GetCommandLineArgs();
             if (cmdArgs.Length >= 3)
             {
                 if (!int.TryParse(cmdArgs[2], out AutomatonProblemSize))
                     throw new Exception("Incorrect automaton problem size");
-            }
-            if (cmdArgs.Length >= 4)
-            {
-                if (!int.TryParse(cmdArgs[3], out maximumCount))
-                    throw new Exception("Incorrect maximal found automata.");
+                if (cmdArgs.Length >= 4)
+                {
+                    if (!int.TryParse(cmdArgs[3], out maximumCount))
+                        throw new Exception("Incorrect maximal found automata.");
+                }
             }
 
             var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);

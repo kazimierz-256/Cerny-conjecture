@@ -75,14 +75,15 @@ namespace CoreServer.UnaryAutomataDatabase
                 #region Update minimum bound
                 if (AllowedCount > MaximumLongestAutomataCount)
                 {
-                    var leftover = AllowedCount;
                     var removeUpTo = -1;
+                    var toDeleteWordLength = new List<int>();
                     foreach (var item in synchronizingWordLengthToCount)
                     {
-                        if (leftover > MaximumLongestAutomataCount)
+                        if (AllowedCount > MaximumLongestAutomataCount)
                         {
-                            leftover -= item.Value;
+                            AllowedCount -= item.Value;
                             removeUpTo = item.Key;
+                            toDeleteWordLength.Add(item.Key);
                         }
                         else
                         {
@@ -95,7 +96,26 @@ namespace CoreServer.UnaryAutomataDatabase
                         MinimalLength = removeUpTo + 1;
                         changedMinimum = true;
                     }
-                    AllowedCount = leftover;
+
+                    foreach (var item in toDeleteWordLength)
+                        synchronizingWordLengthToCount.Remove(item);
+
+                    foreach (var item in finishedAutomata)
+                    {
+                        var leftoverSyncLengths = new List<ushort>();
+                        var leftoverBAutomata = new List<byte[]>();
+                        for (int i = 0; i < item.solution.solvedB.Count; i++)
+                        {
+                            if (item.solution.solvedSyncLength[i] >= MinimalLength)
+                            {
+                                leftoverSyncLengths.Add(item.solution.solvedSyncLength[i]);
+                                leftoverBAutomata.Add(item.solution.solvedB[i]);
+                            }
+                        }
+                        item.solution.solvedSyncLength = leftoverSyncLengths;
+                        item.solution.solvedB = leftoverBAutomata;
+
+                    }
                 }
                 #endregion
 
