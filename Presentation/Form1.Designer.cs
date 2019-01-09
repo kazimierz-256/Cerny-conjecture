@@ -111,7 +111,7 @@ namespace Presentation
             this.addressBox.SelectionStart = 0;
             this.addressBox.Size = new System.Drawing.Size(342, 28);
             this.addressBox.TabIndex = 6;
-            this.addressBox.Text = Environment.GetCommandLineArgs().Length >= 2 ? Environment.GetCommandLineArgs()[1] : "http://localhost:62752";
+            this.addressBox.Text = "http://localhost:62752";
             this.addressBox.UseSystemPasswordChar = false;
             // 
             // materialLabel1
