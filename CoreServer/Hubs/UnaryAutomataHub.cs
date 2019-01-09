@@ -18,7 +18,7 @@ namespace CoreServer.Hubs
         private const int targetTimeout = 30;
         private const string solversGroup = "solvers";
         private DateTime lastTimeSaved = DateTime.MinValue;
-        private TimeSpan saveMinimumInterval = TimeSpan.FromMinutes(1);
+        private TimeSpan saveMinimumInterval = TimeSpan.FromSeconds(30);
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
             if (parameters.solutions.Count == 0)

@@ -887,6 +887,20 @@ let resizeToGoldenRatio = () => {
     M.toast({ html: "The canvas proportions are now 1 to square root of 2. A3, A2 poster format. Press 's' to make a screenshot.", displayLength: 3000 });
 }
 
+let resizeToInverseGoldenRatio = () => {
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    if (Math.floor(w * Math.sqrt(2)) > h)
+        w = Math.floor(h / Math.sqrt(2));
+    else
+        h = Math.floor(w * Math.sqrt(2));
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+
+    M.toast({ html: "The canvas proportions are now square root of 2 to 1. A3, A2 poster format. Press 's' to make a screenshot.", displayLength: 3000 });
+}
+
 $(document).ready(() => {
     fontLoader.load('fonts/LM Roman 10_Regular.json', (font) => {
         appSettings.font = font;
@@ -1036,11 +1050,10 @@ let setMood = t => {
     updateSun();
 };
 
-
+let generatedAlready = false;
 let generatePosterShot = () => {
     appSettings.probabilityOfUpdate = 1.0;
-    appSettings.quality = 6;
-    controls.maxDistance = 10000;
+    controls.maxDistance = 100000;
     resizeToGoldenRatio();
     // fov
     camera.fov = 40;
@@ -1053,6 +1066,9 @@ let generatePosterShot = () => {
     setMood(0);
     existingGraph.removeDescription();
     toggleFlatForce(true);
+    if (generatedAlready)
+        return;
+    generatedAlready = true;
     let far = 200;
     let height = water.position.y + 2;
 
@@ -1062,34 +1078,36 @@ let generatePosterShot = () => {
         ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
         ["Promotor: dr Michał Dębski"],
         [""],
-        ["Praca dyplomowa inżynierska polega na obliczeniach eksperymentalnych"],
-        ["Obliczenia mają potwierdzić hipotezę Černego dla niewielkich n lub ją obalić"],
+        ["Obliczenia eksperymentalne"],
+        ["Obliczenia potwierdzają hipotezę Černego dla n < 10"],
         [""],
         ["Projekt składa się z trzech modułów"],
         ["Klient, Serwer oraz Prezentacja"],
         [""],
-        ["Klient: Michalina: część algorytmów i analizę matematyczna"],
-        ["Klient: Kazimierz: część algorytmów, komunikacja i zarządzanie obliczeniami"],
-        ["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
-        ["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
-        ["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
+        //["Klient: Michalina: część algorytmów i analizę matematyczna"],
+        //["Klient: Kazimierz: część algorytmów, komunikacja i zarządzanie obliczeniami"],
+        //["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
+        //["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
+        //["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
         [".Net Core 2.1"],
-        ["WinForms"],
+        [".Net Framework"],
         ["JavaScript"],
+        ["SignalR Core"],
+        ["MessagePack"],
         ["Three.js"],
         ["Materialize"],
+        ["Material Icons"],
+        ["Latin Modern"],
+        ["WinForms"],
         ["MathJax"],
-        [""],
         ["jQuery"],
-        ["GUST Latin Modern"],
-        [""],
-        [""],
+        ["xUnit"],
         ["C#"]
     ];
 
-    const size = 12.5;
+    const size = 13;
     const angle = Math.atan(camera.position.x / camera.position.z);
-    let heightInrease = 11.5;
+    let heightInrease = 12;
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
@@ -1097,7 +1115,7 @@ let generatePosterShot = () => {
         } else {
             let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1, true);
             text.position.set(camera.position.x + Math.sin(angle) * heightInrease, height, camera.position.z + Math.cos(angle) * heightInrease);
-            heightInrease += 0.75 + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
+            heightInrease += 0.04 * heightInrease + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
 
             text.lookAt(camera.position);
@@ -1129,10 +1147,11 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
         roughness: 0.5,
         metalness: 0.5
     });
+    const fontHeight = 0.02;
     let fakeFontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
         size: size,
-        height: 0.05,
+        height: fontHeight,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fakeFontGeometry.computeBoundingBox();
@@ -1140,7 +1159,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     let fontGeometry = new THREE.TextGeometry(text, {
         font: appSettings.font,
         size: scale,
-        height: 0.05,
+        height: fontHeight,
         curveSegments: 2 + 2 * appSettings.quality,
     });
     fontGeometry.computeBoundingBox();
@@ -1182,7 +1201,7 @@ $(document.body).on("keydown", function (e) {
             camera.position.set(4, 2, 0);
             break;
         case "u":
-            controls.maxDistance = 10000;
+            controls.maxDistance = 100000;
             break;
         case "s":
             takeScreenshot = true;

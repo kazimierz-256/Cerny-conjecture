@@ -226,7 +226,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
-        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (6 + appSettings.quality));
+        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (5 + appSettings.quality));
         cameraGroup[i].renderTarget.texture.generateMipmaps = true;
         cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
         scene.add(cameraGroup[i]);
