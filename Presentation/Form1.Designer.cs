@@ -168,6 +168,7 @@ namespace Presentation
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "USTAWIENIA";
             this.tabSettings.UseVisualStyleBackColor = true;
+            this.tabSettings.BackColor = BackColor;
             // 
             // tabStatistics
             // 
@@ -183,6 +184,7 @@ namespace Presentation
             this.tabStatistics.TabIndex = 1;
             this.tabStatistics.Text = "STATYSTYKI";
             this.tabStatistics.UseVisualStyleBackColor = true;
+            this.tabStatistics.BackColor = BackColor;
             // 
             // materialTabSelector1
             // 
@@ -196,6 +198,7 @@ namespace Presentation
             this.materialTabSelector1.Size = new System.Drawing.Size(1247, 56);
             this.materialTabSelector1.TabIndex = 11;
             this.materialTabSelector1.Text = "materialTabSelector1";
+            this.materialTabSelector1.BackColor = BackColor;
             // 
             // materialLabelAdres
             // 
