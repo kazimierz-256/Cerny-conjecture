@@ -63,8 +63,9 @@ namespace Presentation
                         Invoke(new Action(() =>
                         {
                             logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
+                            int toCompute = resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count;
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", resultingTextStatistics.finishedAutomata.Count);
 
 
@@ -73,12 +74,15 @@ namespace Presentation
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
                                 int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
                                 var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
-                                int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds * 1000;
+                                double leftSeconds = toCompute * totalSeconds / resultingTextStatistics.finishedAutomata.Count;
+                                //int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds * 1000;
 
                                 logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
 
                                 materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
-                                materialLabel3.Text = "Automata per second: " + (new TimeSpan(0, 0, 0, (int)avgSeconds, avgMili)).ToString();
+                                materialLabel3.Text = $"Average speed: {avgSeconds:F2} automata per second.";
+                                materialLabel2.Text = "Expected end of computation: " + DateTime.Now.AddSeconds(leftSeconds).ToString() + "automata per second.";
+
                             }
                         }));
                     }
