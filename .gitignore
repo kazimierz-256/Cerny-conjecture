@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /CoreServer/8export.xml
+/CoreServer/8-100-export.xml
