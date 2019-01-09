@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.AspNetCore.SignalR.Protocols.MessagePack</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol">
+            <summary>
+            Implements the SignalR Hub Protocol using MessagePack.
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.Version">
+            <inheritdoc />
+        </member>
+        <member name="P:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.TransferFormat">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.AspNetCore.SignalR.MessagePackHubProtocolOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol"/> class.
+            </summary>
+            <param name="options">The options used to initialize the protocol.</param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.IsVersionSupported(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.TryParseMessage(System.Buffers.ReadOnlySequence{System.Byte}@,Microsoft.AspNetCore.SignalR.IInvocationBinder,Microsoft.AspNetCore.SignalR.Protocol.HubMessage@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.WriteMessage(Microsoft.AspNetCore.SignalR.Protocol.HubMessage,System.Buffers.IBufferWriter{System.Byte})">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.AspNetCore.SignalR.Protocol.MessagePackHubProtocol.GetMessageBytes(Microsoft.AspNetCore.SignalR.Protocol.HubMessage)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.AspNetCore.Internal.MemoryBufferWriter.CompletedBuffer">
+            <summary>
+            Holds a byte[] from the pool and a size value. Basically a Memory but guaranteed to be backed by an ArrayPool byte[], so that we know we can return it.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.MessagePackProtocolDependencyInjectionExtensions">
+            <summary>
+            Extension methods for <see cref="T:Microsoft.AspNetCore.SignalR.ISignalRBuilder"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.MessagePackProtocolDependencyInjectionExtensions.AddMessagePackProtocol``1(``0)">
+            <summary>
+            Enables the MessagePack protocol for SignalR.
+            </summary>
+            <remarks>
+            This has no effect if the MessagePack protocol has already been enabled.
+            </remarks>
+            <param name="builder">The <see cref="T:Microsoft.AspNetCore.SignalR.ISignalRBuilder"/> representing the SignalR server to add MessagePack protocol support to.</param>
+            <returns>The value of <paramref name="builder"/></returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.MessagePackProtocolDependencyInjectionExtensions.AddMessagePackProtocol``1(``0,System.Action{Microsoft.AspNetCore.SignalR.MessagePackHubProtocolOptions})">
+            <summary>
+            Enables the MessagePack protocol for SignalR and allows options for the MessagePack protocol to be configured.
+            </summary>
+            <remarks>
+            Any options configured here will be applied, even if the MessagePack protocol has already been registered.
+            </remarks>
+            <param name="builder">The <see cref="T:Microsoft.AspNetCore.SignalR.ISignalRBuilder"/> representing the SignalR server to add MessagePack protocol support to.</param>
+            <param name="configure">A delegate that can be used to configure the <see cref="T:Microsoft.AspNetCore.SignalR.MessagePackHubProtocolOptions"/></param>
+            <returns>The value of <paramref name="builder"/></returns>
+        </member>
+    </members>
+</doc>

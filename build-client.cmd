@@ -1,0 +1,1 @@
+dotnet publish Client/Client.csproj -c Release -f netcoreapp2.1 --self-contained --runtime win-x64 -o ../Copied-ready-to-run-win-x64/Client
