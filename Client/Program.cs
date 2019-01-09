@@ -30,6 +30,11 @@ namespace Client
         }
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Please enter at least one argument: the address of the server. The second argument is the number of threads the program spawns.");
+                return;
+            }
             while (true)
             {
 
@@ -55,7 +60,7 @@ namespace Client
 
                         #region address setup
                         var address = $"{args[0]}/ua";
-                        Console.WriteLine($"Hello User :) XO XO. Connecting to {address}");
+                        Console.WriteLine($"Connecting to {address}");
                         #endregion
 
                         #region WebSocket connection
@@ -174,7 +179,7 @@ namespace Client
                                     if (shouldReconnect)
                                     {
 #if DEBUG
-                                        SayColoured(ConsoleColor.Red, ":( Closed connection. Reconnecting...");
+                                        SayColoured(ConsoleColor.Red, "Closed connection. Reconnecting...");
 #endif
                                         await Task.Delay((int)(Math.Exp(new Random().Next(0, 6))));
                                         await connection.StartAsync();
@@ -182,7 +187,7 @@ namespace Client
                                     else
                                     {
 #if DEBUG
-                                        SayColoured(ConsoleColor.Magenta, "Connection ended :)");
+                                        SayColoured(ConsoleColor.Magenta, "Connection ended");
 #endif
                                     }
                                 };
