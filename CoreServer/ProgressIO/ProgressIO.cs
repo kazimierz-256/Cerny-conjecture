@@ -17,8 +17,7 @@ namespace CoreServer.ProgressIO
         public int Size;
         internal int MaximumLongestAutomataCount;
         internal int AllowedCount;
-        private const string savingAddress = "export.xml";
-        private static string GetAddress(UnaryAutomataDB database) => $"{database.Size}-{database.MaximumLongestAutomataCount}-{savingAddress}";
+        private static string GetAddress(UnaryAutomataDB database) => $"computation-history-{database.Size}-{database.MaximumLongestAutomataCount}.xml";
         private static Semaphore syncObject = new Semaphore(1, 1);
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
@@ -30,9 +29,11 @@ namespace CoreServer.ProgressIO
                 using (var w = XmlWriter.Create(sw))
                 {
                     serializer.Serialize(w, exported);
+                    var address = GetAddress(database);
                     syncObject.WaitOne();
-                    await File.WriteAllTextAsync(GetAddress(database), sw.ToString());
+                    await File.WriteAllTextAsync(address, sw.ToString());
                     syncObject.Release();
+                    Console.WriteLine($"Successfully exported database at {DateTime.Now} to a file {address}");
                 }
             }
         }

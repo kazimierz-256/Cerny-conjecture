@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.SignalR;
 using CoreServer.Hubs;
 using CoreServer.UnaryAutomataDatabase;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace CoreServer
 {
@@ -36,13 +38,13 @@ namespace CoreServer
                     .AddMessagePackProtocol();
 
             var cmdArgs = Environment.GetCommandLineArgs();
-            if (cmdArgs.Length >= 3)
+            if (cmdArgs.Length >= 2)
             {
-                if (!int.TryParse(cmdArgs[2], out AutomatonProblemSize))
+                if (!int.TryParse(cmdArgs[1], out AutomatonProblemSize))
                     throw new Exception("Incorrect automaton problem size");
-                if (cmdArgs.Length >= 4)
+                if (cmdArgs.Length >= 3)
                 {
-                    if (!int.TryParse(cmdArgs[3], out maximumCount))
+                    if (!int.TryParse(cmdArgs[2], out maximumCount))
                         throw new Exception("Incorrect maximal found automata.");
                 }
             }
@@ -64,7 +66,6 @@ namespace CoreServer
             {
                 app.UseExceptionHandler("/Error");
             }
-
 
             app.UseDefaultFiles();
             app.UseStaticFiles();

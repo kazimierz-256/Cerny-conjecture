@@ -30,11 +30,6 @@ namespace Client
         }
         static void Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Please enter at least one argument: the address of the server. The second argument is the number of threads the program spawns.");
-                return;
-            }
             while (true)
             {
 
@@ -59,7 +54,11 @@ namespace Client
                         var resultsMergedTotalAutomata = 0;
 
                         #region address setup
-                        var address = $"{args[0]}/ua";
+                        var address = $"http://localhost:62752/ua";
+                        if (args.Length >= 1)
+                        {
+                            address = $"{args[0]}/ua";
+                        }
                         Console.WriteLine($"Connecting to {address}");
                         #endregion
 
@@ -115,11 +114,11 @@ namespace Client
                                                 throw new Exception("Not synchronizable!");
                                             }
                                         }
-#if DEBUG
-                                        if (list.Count == 0)
-                                            SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
-                                        else
+                                        if (list.Count > 0)
                                             SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
+#if DEBUG
+                                        else
+                                            SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
 #endif
                                         resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
                                         Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
@@ -140,8 +139,8 @@ namespace Client
                                     Console.WriteLine("Received incorrect automaton size.");
                                     return;
                                 }
-#if DEBUG
                                 SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
+#if DEBUG
                                 var first = true;
                                 foreach (var a in parameters.unaryAutomataIndices)
                                 {

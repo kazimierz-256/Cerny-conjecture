@@ -23,8 +23,10 @@ namespace CoreServer
                    .UseStartup<Startup>();
 
             var cmdArgs = Environment.GetCommandLineArgs();
-            if (cmdArgs.Length >= 2)
-                builder.UseUrls(cmdArgs[1]);
+            if (cmdArgs.Length >= 4)
+                builder.UseUrls(cmdArgs[3]);
+            else
+                builder.UseUrls($"http://localhost:62752/");
 
             return builder.Build();
         }

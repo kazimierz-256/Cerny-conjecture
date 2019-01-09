@@ -17,8 +17,6 @@ namespace CoreServer.Hubs
 
         private const int targetTimeout = 30;
         private const string solversGroup = "solvers";
-        private DateTime lastTimeSaved = DateTime.MinValue;
-        private TimeSpan saveMinimumInterval = TimeSpan.FromSeconds(30);
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
             if (parameters.solutions.Count == 0)
@@ -55,11 +53,7 @@ namespace CoreServer.Hubs
             if (parameters.solutions.Count > 0)
             {
                 await SendStatisticsToAll();
-                if (DateTime.Now - lastTimeSaved > saveMinimumInterval)
-                {
-                    lastTimeSaved = DateTime.Now;
-                    await ProgressIO.ProgressIO.ExportStateAsync(database);
-                }
+                await ProgressIO.ProgressIO.ExportStateAsync(database);
             }
         }
 
