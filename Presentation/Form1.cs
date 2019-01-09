@@ -45,7 +45,7 @@ namespace Presentation
 
         private async Task RefreshConnection()
         {
-            if (!addressBox.Text.Equals(connectionAddress))
+            var connectionText = $"{addressBox.Text}/ua";
             {
                 addressBox.BackColor = Color.OrangeRed;
                 if (connection != null && connection.State == HubConnectionState.Connected)
@@ -53,7 +53,7 @@ namespace Presentation
                     await connection.StopAsync();
                 }
                 connection = new HubConnectionBuilder()
-                    .WithUrl(addressBox.Text)
+                    .WithUrl(connectionText)
                     .AddMessagePackProtocol()
                     .Build();
                 connection.On(
@@ -64,21 +64,21 @@ namespace Presentation
                         {
                             logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Pozostało", resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count);
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Obliczono", resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", resultingTextStatistics.finishedAutomata.Count);
 
 
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
-                                int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds*1000;
+                                int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
                                 var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
-                                int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds*1000;
+                                int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds * 1000;
 
                                 logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
 
-                                materialLabel1.Text = "Całkowity czas obliczeń: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
-                                materialLabel3.Text = "Średni czas analizy jednego automatu unarnego: " + (new TimeSpan(0, 0, 0, (int)avgSeconds, avgMili)).ToString();
+                                materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
+                                materialLabel3.Text = "Automata per second: " + (new TimeSpan(0, 0, 0, (int)avgSeconds, avgMili)).ToString();
                             }
                         }));
                     }
@@ -87,6 +87,7 @@ namespace Presentation
                 try
                 {
                     await connection.StartAsync();
+                    connectionAddress = connectionText;
                 }
                 catch (Exception e)
                 {

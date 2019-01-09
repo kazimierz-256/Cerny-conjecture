@@ -57,7 +57,6 @@ namespace CoreServer.UnaryAutomataDatabase
 
                                 synchronizingWordLengthToCount[syncLength] += 1;
                                 count += 1;
-                                //list.Add(new SolvedOptionalAutomaton((byte[])parameters.solutions[i].unaryArray.Clone(), parameters.solutions[i].solvedB[j], syncLength));
                             }
                         }
                         solvedAutomataIndices.Add(parameters.solutions[i].unaryIndex);//, list);
@@ -68,7 +67,7 @@ namespace CoreServer.UnaryAutomataDatabase
                             issueTime = issueTime[parameters.solutions[i].unaryIndex],
                             clientID = userIdentifier
                         });
-                        AllowedCount += count;//list.Count;
+                        AllowedCount += count;
                     }
                 }
 

@@ -1,4 +1,6 @@
-﻿namespace Presentation
+﻿using System;
+
+namespace Presentation
 {
     partial class Presentation
     {
@@ -62,7 +64,7 @@
             // 
             // prompt
             // 
-            this.prompt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.prompt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.prompt.Depth = 0;
             this.prompt.Location = new System.Drawing.Point(351, 90);
@@ -78,7 +80,7 @@
             // 
             // close
             // 
-            this.close.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.close.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.close.Depth = 0;
             this.close.Location = new System.Drawing.Point(351, 166);
@@ -94,7 +96,7 @@
             // 
             // addressBox
             // 
-            this.addressBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.addressBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.addressBox.BackColor = System.Drawing.Color.White;
             this.addressBox.Depth = 0;
@@ -109,7 +111,7 @@
             this.addressBox.SelectionStart = 0;
             this.addressBox.Size = new System.Drawing.Size(342, 28);
             this.addressBox.TabIndex = 6;
-            this.addressBox.Text = "http://localhost:62752/ua";
+            this.addressBox.Text = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[0] : "http://localhost:62752";
             this.addressBox.UseSystemPasswordChar = false;
             // 
             // materialLabel1
@@ -140,8 +142,8 @@
             // 
             // materialTabControl1
             // 
-            this.materialTabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.materialTabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.materialTabControl1.Controls.Add(this.tabSettings);
             this.materialTabControl1.Controls.Add(this.tabStatistics);
@@ -184,7 +186,7 @@
             // 
             // materialTabSelector1
             // 
-            this.materialTabSelector1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.materialTabSelector1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.materialTabSelector1.BaseTabControl = this.materialTabControl1;
             this.materialTabSelector1.Depth = 0;
