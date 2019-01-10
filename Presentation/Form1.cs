@@ -42,7 +42,7 @@ namespace Presentation
         }
 
         private async void addressBox_TextChanged(object sender, EventArgs e) => await RefreshConnection();
-
+        private List<string> automataToLaunch = new List<string>();
         private async Task RefreshConnection()
         {
             var connectionText = $"{addressBox.Text}/ua";
@@ -83,20 +83,34 @@ namespace Presentation
                                 materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
 
-                            listOfAutomata.Items.Clear();
+                            var sortedLengths = new List<int>();
+                            var sortedResults = new List<string>();
+                            //var results = 
                             foreach (var a in resultingTextStatistics.finishedAutomata)
                             {
                                 if (a.solution.solvedB.Count > 0)
                                 {
-                                    string b_tab,a_tab = byteTabToString(a.solution.unaryArray);
-                                    foreach (var b in a.solution.solvedB)
+                                    string b_tab, a_tab = byteTabToString(a.solution.unaryArray);
+                                    for (int i = 0; i < a.solution.solvedB.Count; i++)
                                     {
+                                        var b = a.solution.solvedB[i];
                                         b_tab = byteTabToString(b);
-                                        listOfAutomata.Items.Add($"[{a_tab},{b_tab}]");
+                                        sortedLengths.Add(-a.solution.solvedSyncLength[i]);
+                                        sortedResults.Add($"[{a_tab},{b_tab}]");
                                     }
                                 }
                             }
 
+                            listOfAutomata.Items.Clear();
+                            automataToLaunch.Clear();
+                            var resultingArray = sortedResults.ToArray();
+                            var resultingLengths = sortedLengths.ToArray();
+                            Array.Sort(resultingLengths, resultingArray);
+                            for (int i = 0; i < resultingArray.Length; i++)
+                            {
+                                automataToLaunch.Add(resultingArray[i]);
+                                listOfAutomata.Items.Add($"{resultingArray[i]} - synchronizing length {-resultingLengths[i]}");
+                            }
                             labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.";
                         }));
                     }
@@ -114,10 +128,10 @@ namespace Presentation
             }
         }
 
-        private string byteTabToString (byte[] tab)
+        private string byteTabToString(byte[] tab)
         {
             string s = tab[0].ToString();
-            for(int i = 1; i < tab.Length; i++)
+            for (int i = 1; i < tab.Length; i++)
             {
                 s += $",{tab[i]}";
             }
@@ -137,7 +151,8 @@ namespace Presentation
         {
             if (listOfAutomata.SelectedItem != null)
             {
-                string automaton = listOfAutomata.SelectedItem.ToString();
+                var automatonIndex = listOfAutomata.SelectedIndex;
+                string automaton = automataToLaunch[automatonIndex];
                 System.Diagnostics.Process.Start($"{addressBox.Text}/?automaton={automaton}");
             }
             else
