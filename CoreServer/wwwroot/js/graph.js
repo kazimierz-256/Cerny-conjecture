@@ -206,6 +206,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     }
     if (outline !== undefined)
         outline.selectedObjects = [];
+    cameraGroup[0] = new THREE.CubeCamera(0.5, 10000, 2 ** (5 + appSettings.quality));
+    cameraGroup[0].renderTarget.texture.generateMipmaps = true;
+    cameraGroup[0].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+    scene.add(cameraGroup[0]);
     for (let i = 0; i < power; i++) {
         if (!isDiscovered[i])
             continue;
@@ -226,15 +230,17 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         color.setHSL(hue, saturation, lighting);
 
-        cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (5 + appSettings.quality));
-        cameraGroup[i].renderTarget.texture.generateMipmaps = true;
-        cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
-        scene.add(cameraGroup[i]);
+        if (appSettings.probabilityOfUpdate > 0) {
+            cameraGroup[i] = new THREE.CubeCamera(mass[i] * 0.5, 10000, 2 ** (5 + appSettings.quality));
+            cameraGroup[i].renderTarget.texture.generateMipmaps = true;
+            cameraGroup[i].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+            scene.add(cameraGroup[i]);
+        }
         let material = new THREE.MeshStandardMaterial({
             color: color,
             roughness: 0.6,
             metalness: 0.5,
-            envMap: cameraGroup[i].renderTarget
+            envMap: cameraGroup[0].renderTarget
         });
         sphereGroup[i] = new THREE.Group();
 
@@ -397,10 +403,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let firstUpdate = true;
     let update = (t, appSettings, renderer, scene) => {
         let tryCamera = i => {
-            if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth)
+            if (!isDiscovered[i] || vertexDistance[i] > appSettings.maximumConsideringDepth || cameraGroup[i] == undefined)
                 return false;
 
-            if (!firstUpdate && Math.random() > appSettings.probabilityOfUpdate)
+            if (Math.random() > appSettings.probabilityOfUpdate)
                 return true;
 
             for (let j = 0; j < power; j++) {
@@ -422,28 +428,35 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
             cameraGroup[i].position.copy(sphereGroup[i].position);
             sphereGroup[i].visible = false;
+            // if (firstUpdate)
+            // graph.visible = false;
             cameraGroup[i].update(renderer, scene);
+            spheres[i].material.envMap = cameraGroup[i].renderTarget;
+            // if (firstUpdate)
+            // graph.visible = true;
             sphereGroup[i].visible = true;
             return true;
         }
-        if (firstUpdate) {
-            for (let i = 0; i < power; i++) {
-                tryCamera(i);
-            }
+        if (firstUpdate || Math.random() < (1.0 - Math.min(0.99, t / 3000))) {
+            graph.visible = false;
+            cameraGroup[0].update(renderer, scene);
+            graph.visible = true;
             firstUpdate = false;
-        } else {
-            let itry = Math.floor(Math.random() * power);
-            for (; itry < power; itry++) {
-                if (tryCamera(itry))
+        }
+
+        let itry = Math.floor(Math.random() * power);
+        for (; itry < power; itry++) {
+            if (tryCamera(itry))
+                break;
+        }
+        if (itry == power) {
+            for (let i = 0; i < itry; i++) {
+                if (tryCamera(i))
                     break;
             }
-            if (itry == power) {
-                for (let i = 0; i < itry; i++) {
-                    if (tryCamera(i))
-                        break;
-                }
-            }
         }
+
+
         if (appSettings.animating) {
             let deltaT = (t - latestTime) * appSettings.speedup / appSettings.deltaTSlowdown;
             let maxDeltaT = 0.05 * appSettings.speedup;
