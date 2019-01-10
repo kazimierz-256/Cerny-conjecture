@@ -16,13 +16,15 @@ namespace CoreServer.UnaryAutomataDatabase
         };
         public ServerPresentationComputationSummary DumpStatistics()
         {
+            var speedStatistics = GetClientPerformanceStatistics();
             lock (synchronizingObject)
             {
                 return new ServerPresentationComputationSummary()
                 {
                     total = Total,
                     description = $"Computed {finishedAutomata.Count} out of {Total}.",
-                    finishedAutomata = finishedAutomata.ToList()
+                    finishedAutomata = finishedAutomata.ToList(),
+                    speedStatistics = speedStatistics
                 };
             }
         }
@@ -119,6 +121,30 @@ namespace CoreServer.UnaryAutomataDatabase
                 }
                 #endregion
 
+            }
+        }
+
+
+        private Dictionary<string, double> connectionIDtoSpeed = new Dictionary<string, double>();
+        public void RecordSpeed(double automataPerSecond, string connectionId)
+        {
+            lock (synchronizingObject)
+            {
+                if (connectionIDtoSpeed.ContainsKey(connectionId))
+                    connectionIDtoSpeed[connectionId] = automataPerSecond;
+                else
+                    connectionIDtoSpeed.Add(connectionId, automataPerSecond);
+            }
+        }
+
+        public List<double> GetClientPerformanceStatistics()
+        {
+            lock (synchronizingObject)
+            {
+                var results = new List<double>();
+                foreach (var item in connectionIDtoSpeed.Values)
+                    results.Add(item);
+                return results;
             }
         }
 

@@ -250,11 +250,15 @@ namespace Client
                                 if (firstTime || results.Count > 0)
                                 {
                                     firstTime = false;
+
+                                    solvedUnaryAutomata += results.Count;
+                                    var automataPerSecond = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
                                     var parameters = new ClientServerRequestForMoreAutomata()
                                     {
                                         nextQuantity = recommendedIntake - unaryResourcesQueue.Count,
                                         suggestedMinimumBound = minimalSynchronizingLength,
-                                        solutions = results
+                                        solutions = results,
+                                        automataPerSecond = automataPerSecond
                                     };
                                     var command = connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters);
                                     if (makeSound)
@@ -268,9 +272,7 @@ namespace Client
                                     SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
                                     Console.WriteLine(" automata");
 
-                                    solvedUnaryAutomata += results.Count;
-                                    var speed = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
-                                    SayColoured(ConsoleColor.DarkGray, $"Total speed: {speed:F2} unary automata per second");
+                                    SayColoured(ConsoleColor.DarkGray, $"Total speed: {automataPerSecond:F2} unary automata per second");
                                     #endregion
 
                                     afterSentDate = DateTime.Now;

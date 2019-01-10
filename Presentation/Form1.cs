@@ -35,8 +35,9 @@ namespace Presentation
         private async void prompt_Click(object sender, EventArgs e)
         {
             await RefreshConnection();
-            if (connection != null)
+            if (connection != null && connection.State == HubConnectionState.Connected)
             {
+                addressBox.BackColor = Color.YellowGreen;
                 await connection.InvokeAsync("SubscribeAndSendStatistics");
             }
         }
@@ -73,13 +74,14 @@ namespace Presentation
                             {
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
                                 int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
-                                var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
-                                double leftSeconds = toCompute * totalSeconds / resultingTextStatistics.finishedAutomata.Count;
+                                //var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
+                                var totalSpeed = resultingTextStatistics.speedStatistics.Sum();
+                                double leftSeconds = toCompute / totalSpeed;
 
                                 //logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
 
-                                materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
-                                materialLabel3.Text = $"Average speed: {avgSeconds:F2} automata per second.";
+                                materialLabel1.Text = "Total computation time (including breaks): " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
+                                materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
                                 materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
 
@@ -115,7 +117,6 @@ namespace Presentation
                         }));
                     }
                     );
-                addressBox.BackColor = Color.YellowGreen;
                 try
                 {
                     await connection.StartAsync();
