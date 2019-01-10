@@ -15,8 +15,8 @@ namespace CoreServer.ProgressIO
     {
         public List<FinishedStatistics> finishedStatistics;
         public int Size;
-        internal int MaximumLongestAutomataCount;
-        internal int AllowedCount;
+        public int MaximumLongestAutomataCount;
+        public int AllowedCount;
         private static string GetAddress(UnaryAutomataDB database) => $"computation-history-{database.Size}-{database.MaximumLongestAutomataCount}.xml";
         private static Semaphore syncObject = new Semaphore(1, 1);
         public async static Task ExportStateAsync(UnaryAutomataDB database)

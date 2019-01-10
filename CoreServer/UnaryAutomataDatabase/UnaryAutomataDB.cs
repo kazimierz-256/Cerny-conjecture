@@ -160,7 +160,7 @@ namespace CoreServer.UnaryAutomataDatabase
         {
             MaximumLongestAutomataCount = maximumLongestAutomataCount;
             Size = size;
-            MinimalLength = (size - 1) * (size - 1) / 8;
+            MinimalLength = 0;
             AllowedCount = 0;
 
             Total = theory[size - 1];
