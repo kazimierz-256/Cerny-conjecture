@@ -20,7 +20,7 @@ namespace CoreServer
     {
         #region Important parameter
         private int AutomatonProblemSize = 10;
-        private int maximumCount = 30;
+        private int maximumCount = 100;
         #endregion
 
         public Startup(IConfiguration configuration)
