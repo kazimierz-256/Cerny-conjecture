@@ -308,7 +308,7 @@ namespace Presentation
             this.labelAutomataCount.Name = "labelAutomataCount";
             this.labelAutomataCount.Size = new System.Drawing.Size(270, 24);
             this.labelAutomataCount.TabIndex = 2;
-            this.labelAutomataCount.Text = "There\'s 0 interesting automata.";
+            this.labelAutomataCount.Text = "For now, there are no interesting automata.";
             // 
             // Presentation
             // 

@@ -80,7 +80,7 @@ namespace Presentation
 
                                 materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
                                 materialLabel3.Text = $"Average speed: {avgSeconds:F2} automata per second.";
-                                materialLabel2.Text = "Expected end of computation: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
+                                materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
 
                             listOfAutomata.Items.Clear();
@@ -97,7 +97,7 @@ namespace Presentation
                                 }
                             }
 
-                            labelAutomataCount.Text = $"There's {listOfAutomata.Items.Count} interesting automata.";
+                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.";
                         }));
                     }
                     );
