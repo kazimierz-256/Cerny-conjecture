@@ -330,14 +330,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Presentation.exe" size="20984">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Presentation.exe" size="21496">
       <assemblyIdentity name="Presentation" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>zhg8n90FRN3Ngw58+WxUr2JQ4D12Vxpj0B49kOUAI0U=</dsig:DigestValue>
+        <dsig:DigestValue>EZpkiVamC5O+EIZgggg5zw8ftt9E9r8XVYajzMTvFOU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +14,19 @@ namespace Client
 {
     class Program
     {
+        private class MicroSolution
+        {
+            public int unaryIndex;
+            public byte[] unaryItself;
+            public List<ISolvedOptionalAutomaton> solvedAutomata;
+
+            public MicroSolution(int unaryIndex, byte[] unaryItself, List<ISolvedOptionalAutomaton> solvedAutomata)
+            {
+                this.unaryIndex = unaryIndex;
+                this.unaryItself = unaryItself;
+                this.solvedAutomata = solvedAutomata;
+            }
+        }
         private static object consoleSync = new object();
         private static void SayColoured(ConsoleColor color, string text, bool newline = true)
         {
@@ -32,7 +46,6 @@ namespace Client
         {
             while (true)
             {
-
                 try
                 {
                     using (
@@ -40,9 +53,16 @@ namespace Client
                          solutionSemaphore = new Semaphore(0, int.MaxValue)
                          )
                     {
+                        var makeSound = false;
+                        if (args.Length >= 3)
+                        {
+                            if (int.TryParse(args[2], out var makeIt))
+                                if (makeIt != 0)
+                                    makeSound = true;
+                        }
                         var maximumAutomatonCollectionSize = int.MaxValue;
                         var targetTimeout = TimeSpan.FromSeconds(10);
-                        var threads = args.Length > 1 ? int.Parse(args[1]) : Environment.ProcessorCount;
+                        var threads = args.Length >= 2 ? int.Parse(args[1]) : Environment.ProcessorCount;
                         var minimalIntake = threads;
                         var recommendedIntake = minimalIntake * 4;
                         var askedForMore = true;
@@ -50,7 +70,7 @@ namespace Client
                         var size = -1;
                         var minimalSynchronizingLength = 0;
                         var unaryResourcesQueue = new ConcurrentQueue<int>();
-                        var resultsMerged = new ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>>();
+                        var resultsMerged = new ConcurrentQueue<MicroSolution>();
                         var resultsMergedTotalAutomata = 0;
 
                         #region address setup
@@ -104,6 +124,11 @@ namespace Client
                                     index =>
                                     {
                                         var list = new List<ISolvedOptionalAutomaton>();
+                                        var uniqueAutomaton = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
+                                        var uniqueAutomatonBytes = new byte[uniqueAutomaton.Length];
+                                        for (int i = 0; i < uniqueAutomaton.Length; i++)
+                                            uniqueAutomatonBytes[i] = (byte)uniqueAutomaton[i];
+
                                         foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
                                         {
                                             if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
@@ -114,13 +139,14 @@ namespace Client
                                                 throw new Exception("Not synchronizable!");
                                             }
                                         }
+
                                         if (list.Count > 0)
                                             SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
 #if DEBUG
                                         else
                                             SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
 #endif
-                                        resultsMerged.Enqueue(new Tuple<int, List<ISolvedOptionalAutomaton>>(index, list));
+                                        resultsMerged.Enqueue(new MicroSolution(index, uniqueAutomatonBytes, list));
                                         Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
                                     },
                                     async () =>
@@ -230,7 +256,10 @@ namespace Client
                                         suggestedMinimumBound = minimalSynchronizingLength,
                                         solutions = results
                                     };
-                                    connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters).Wait();
+                                    var command = connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", parameters);
+                                    if (makeSound)
+                                        Console.Beep();
+                                    command.Wait();
 
                                     #region Sent back description
                                     Console.Write("Sent back ");
@@ -285,7 +314,7 @@ namespace Client
         }
 
         static List<SolvedAutomatonMessage> PrepareNextRound(
-            ConcurrentQueue<Tuple<int, List<ISolvedOptionalAutomaton>>> resultsMerged,
+            ConcurrentQueue<MicroSolution> resultsMerged,
             ref int resultsMergedTotalAutomata,
             ref int maximumAutomatonCollectionSize,
             ref int minimalSynchronizingLength,
@@ -298,11 +327,11 @@ namespace Client
             toSendAutomataCount = 0;
             while (resultsMerged.TryDequeue(out var mergedResult))
             {
-                Interlocked.Add(ref resultsMergedTotalAutomata, -mergedResult.Item2.Count);
+                Interlocked.Add(ref resultsMergedTotalAutomata, -mergedResult.solvedAutomata.Count);
 
                 var syncLengths = new List<ushort>();
                 var solvedBs = new List<byte[]>();
-                foreach (var automaton in mergedResult.Item2)
+                foreach (var automaton in mergedResult.solvedAutomata)
                 {
                     syncLengths.Add(automaton.SynchronizingWordLength.Value);
                     solvedBs.Add(automaton.TransitionFunctionsB);
@@ -314,11 +343,10 @@ namespace Client
 
                 results.Add(new SolvedAutomatonMessage()
                 {
-                    unaryIndex = mergedResult.Item1,
+                    unaryIndex = mergedResult.unaryIndex,
                     solvedB = solvedBs,
                     solvedSyncLength = syncLengths,
-                    // IMPORTANT: assuming first transition function is the same
-                    unaryArray = (mergedResult.Item2.Count > 0) ? mergedResult.Item2[0].TransitionFunctionsA : new byte[0]
+                    unaryArray = mergedResult.unaryItself
                 });
 
                 toSendAutomataCount += syncLengths.Count;

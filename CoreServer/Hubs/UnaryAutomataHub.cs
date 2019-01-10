@@ -23,6 +23,10 @@ namespace CoreServer.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
             else
             {
+                // different answer size!
+                if (parameters.solutions[0].unaryArray.Length != database.Size)
+                    return;
+
                 database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
 
                 if (changedMinimum)

@@ -240,11 +240,20 @@ namespace CoreServer.UnaryAutomataDatabase
                         synchronizingWordLengthToCount[automatonLength] += 1;
                     }
                 }
+                var automataIndices = new int[leftoverAutomataIndices.Count];
+                leftoverAutomataIndices.CopyTo(automataIndices);
+                var random = new Random(1);
+                var automataValues = new double[automataIndices.Length];
+                for (int i = 0; i < automataIndices.Length; i += 1)
+                    automataValues[i] = random.NextDouble();
+
+                Array.Sort(automataValues, automataIndices);
+                foreach (var item in automataIndices)
+                {
+                    leftoverAutomata.Enqueue(item);
+                }
             }
-            foreach (var item in leftoverAutomataIndices)
-            {
-                leftoverAutomata.Enqueue(item);
-            }
+
         }
     }
 }
