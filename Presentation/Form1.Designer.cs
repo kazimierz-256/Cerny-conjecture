@@ -214,7 +214,7 @@ namespace Presentation
             this.chart1.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(21, 253);
+            this.chart1.Location = new System.Drawing.Point(21, 230);
             this.chart1.Name = "chart1";
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
@@ -223,7 +223,7 @@ namespace Presentation
             series1.Name = "UnaryFinishedSeries";
             series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
             this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(487, 285);
+            this.chart1.Size = new System.Drawing.Size(609, 305);
             this.chart1.TabIndex = 11;
             this.chart1.Text = "chart1";
             title1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
@@ -238,10 +238,10 @@ namespace Presentation
             | System.Windows.Forms.AnchorStyles.Right)));
             this.materialDivider1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.materialDivider1.Depth = 0;
-            this.materialDivider1.Location = new System.Drawing.Point(6, 238);
+            this.materialDivider1.Location = new System.Drawing.Point(6, 215);
             this.materialDivider1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialDivider1.Name = "materialDivider1";
-            this.materialDivider1.Size = new System.Drawing.Size(517, 315);
+            this.materialDivider1.Size = new System.Drawing.Size(639, 335);
             this.materialDivider1.TabIndex = 10;
             this.materialDivider1.Text = "materialDivider1";
             // 
