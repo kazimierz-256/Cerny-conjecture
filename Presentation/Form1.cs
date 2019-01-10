@@ -62,7 +62,7 @@ namespace Presentation
                     {
                         Invoke(new Action(() =>
                         {
-                            logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
+                            //logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
                             int toCompute = resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count;
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
@@ -75,15 +75,29 @@ namespace Presentation
                                 int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
                                 var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
                                 double leftSeconds = toCompute * totalSeconds / resultingTextStatistics.finishedAutomata.Count;
-                                //int avgMili = (int)(avgSeconds * 1000) - (int)avgSeconds * 1000;
 
-                                logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
+                                //logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
 
                                 materialLabel1.Text = "Total computation time: " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
                                 materialLabel3.Text = $"Average speed: {avgSeconds:F2} automata per second.";
-                                materialLabel2.Text = "Expected end of computation: " + DateTime.Now.AddSeconds(leftSeconds).ToString() + "automata per second.";
-
+                                materialLabel2.Text = "Expected end of computation: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
+
+                            listOfAutomata.Items.Clear();
+                            foreach (var a in resultingTextStatistics.finishedAutomata)
+                            {
+                                if (a.solution.solvedB.Count > 0)
+                                {
+                                    string b_tab,a_tab = byteTabToString(a.solution.unaryArray);
+                                    foreach (var b in a.solution.solvedB)
+                                    {
+                                        b_tab = byteTabToString(b);
+                                        listOfAutomata.Items.Add($"[{a_tab},{b_tab}]");
+                                    }
+                                }
+                            }
+
+                            labelAutomataCount.Text = $"There's {listOfAutomata.Items.Count} interesting automata.";
                         }));
                     }
                     );
@@ -100,6 +114,16 @@ namespace Presentation
             }
         }
 
+        private string byteTabToString (byte[] tab)
+        {
+            string s = tab[0].ToString();
+            for(int i = 1; i < tab.Length; i++)
+            {
+                s += $",{tab[i]}";
+            }
+            return $"[{s}]";
+        }
+
         private async void close_Click(object sender, EventArgs e)
         {
             if (connection != null)
@@ -109,5 +133,25 @@ namespace Presentation
             }
         }
 
+        private void runVisualisationButton_Click(object sender, EventArgs e)
+        {
+            if (listOfAutomata.SelectedItem != null)
+            {
+                string automaton = listOfAutomata.SelectedItem.ToString();
+                System.Diagnostics.Process.Start($"{addressBox.Text}/?automaton={automaton}");
+            }
+            else
+            {
+                string message = "You did not selected any automaton. Want to see visualisation of Cerny automaton?\nPS.You can click NO, go back, and select some automaton this time.";
+                string caption = "Not selected automaton";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result;
+                result = MessageBox.Show(message, caption, buttons);
+                if (result == System.Windows.Forms.DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start($"{addressBox.Text}/");
+                }
+            }
+        }
     }
 }
