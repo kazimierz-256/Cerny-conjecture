@@ -437,7 +437,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             sphereGroup[i].visible = true;
             return true;
         }
-        if (firstUpdate || Math.random() < (1.0 - Math.min(0.99, t / 3000))) {
+        if (firstUpdate || Math.random() < (1.0 - Math.min(1.0, t / 5000))) {
             graph.visible = false;
             cameraGroup[0].update(renderer, scene);
             graph.visible = true;
