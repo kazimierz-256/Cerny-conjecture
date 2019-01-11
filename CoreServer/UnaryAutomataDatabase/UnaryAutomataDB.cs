@@ -29,6 +29,8 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
+        private int IgnoreThreshold(int n) => (n - 1) * (n - 1);
+
         public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum, string userIdentifier)
         {
             changedMinimum = false;
@@ -45,9 +47,8 @@ namespace CoreServer.UnaryAutomataDatabase
                 {
                     if (!solvedAutomataIndices.Contains(parameters.solutions[i].unaryIndex))
                     {
-                        //var list = new List<ISolvedOptionalAutomaton>();
                         var count = 0;
-                        // update sync word length stats
+                        var ignoreThreshold = IgnoreThreshold(Size);
 
                         for (int j = 0; j < parameters.solutions[i].solvedB.Count; j++)
                         {
@@ -58,7 +59,8 @@ namespace CoreServer.UnaryAutomataDatabase
                                     synchronizingWordLengthToCount.Add(syncLength, 0);
 
                                 synchronizingWordLengthToCount[syncLength] += 1;
-                                count += 1;
+                                if (syncLength < ignoreThreshold)
+                                    count += 1;
                             }
                         }
                         solvedAutomataIndices.Add(parameters.solutions[i].unaryIndex);//, list);

@@ -315,7 +315,9 @@ namespace Client
 
         }
 
-        static List<SolvedAutomatonMessage> PrepareNextRound(
+        private static int IgnoreThreshold(int n) => (n - 1) * (n - 1);
+
+        private static List<SolvedAutomatonMessage> PrepareNextRound(
             ConcurrentQueue<MicroSolution> resultsMerged,
             ref int resultsMergedTotalAutomata,
             ref int maximumAutomatonCollectionSize,
@@ -333,9 +335,14 @@ namespace Client
 
                 var syncLengths = new List<ushort>();
                 var solvedBs = new List<byte[]>();
+                var threshold = IgnoreThreshold(mergedResult.unaryItself.Length);
                 foreach (var automaton in mergedResult.solvedAutomata)
                 {
                     syncLengths.Add(automaton.SynchronizingWordLength.Value);
+                    if (automaton.SynchronizingWordLength.Value < threshold)
+                    {
+                        toSendAutomataCount += 1;
+                    }
                     solvedBs.Add(automaton.TransitionFunctionsB);
 
                     if (!synchronizingLengthToCount.ContainsKey(automaton.SynchronizingWordLength.Value))
@@ -350,19 +357,16 @@ namespace Client
                     solvedSyncLength = syncLengths,
                     unaryArray = mergedResult.unaryItself
                 });
-
-                toSendAutomataCount += syncLengths.Count;
             }
 
             if (toSendAutomataCount > maximumAutomatonCollectionSize)
             {
-                var leftover = toSendAutomataCount;
                 var removeUpTo = -1;
                 foreach (var item in synchronizingLengthToCount)
                 {
-                    if (leftover > maximumAutomatonCollectionSize)
+                    if (toSendAutomataCount > maximumAutomatonCollectionSize)
                     {
-                        leftover -= item.Value;
+                        toSendAutomataCount -= item.Value;
                         removeUpTo = item.Key;
                     }
                     else
@@ -375,7 +379,6 @@ namespace Client
                 {
                     minimalSynchronizingLength = removeUpTo + 1;
                 }
-                toSendAutomataCount = leftover;
 
                 foreach (var automatonSolution in results)
                 {
