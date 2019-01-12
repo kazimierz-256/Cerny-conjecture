@@ -195,6 +195,8 @@ let mouseDownConsideringVertex = -1;
 let allowVertexFocus = 0;
 
 let travelToVertex = (toVertex, easing, duration, onComplete) => {
+    if (travelTimeout != undefined)
+        clearTimeout(travelTimeout);
     appSettings.previousVertexFocus = appSettings.currentVertexFocus;
     appSettings.currentVertexFocus = toVertex;
     $(focusAnimation).stop(true, false);
@@ -242,6 +244,7 @@ let togglethreeDimForce = (isOn) => {
     });
 }
 
+let travelTimeout = undefined;
 let init = (createControlFromCamera) => {
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -414,7 +417,9 @@ let init = (createControlFromCamera) => {
         let animateFurther = Array(appSettings.shortestPath.length);
         for (let i = 0; i < appSettings.shortestPath.length; i++) {
             animateFurther[i] = () => {
-                setTimeout(() => travelToVertex(appSettings.shortestPath[i], appSettings.travelEasing, undefined, animateFurther[i - 1]), 600);
+                if (travelTimeout != undefined)
+                    clearTimeout(travelTimeout);
+                travelToVertex(appSettings.shortestPath[i], appSettings.travelEasing, undefined, animateFurther[i - 1]);
             }
         }
         animateFurther[animateFurther.length - 1]();
@@ -1026,9 +1031,9 @@ let showGraph = (graph) => {
         M.toast({ html: "Ha! You're out of luck. This automaton is not synchronizable!", displayLength: 3000 });
     if (flatTimeout != undefined)
         clearTimeout(flatTimeout);
-    flatTimeout = setTimeout(() => {
-        M.toast({ html: "This graph is now entirely in three dimensions! Other coordinates are now zeroes.", displayLength: 3000 });
-    }, appSettings.flatteningForceTimeout);
+    // flatTimeout = setTimeout(() => {
+    //     M.toast({ html: "This graph is now entirely in three dimensions! Other coordinates are now zeroes.", displayLength: 3000 });
+    // }, appSettings.flatteningForceTimeout);
 
     if (stayFlat) {
         flatForce.foo = 0.0;
