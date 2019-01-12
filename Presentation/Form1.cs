@@ -48,7 +48,7 @@ namespace Presentation
         {
             var connectionText = $"{addressBox.Text}/ua";
             {
-                addressBox.BackColor = Color.OrangeRed;
+                //addressBox.BackColor = Color.OrangeRed;
                 if (connection != null && connection.State == HubConnectionState.Connected)
                 {
                     await connection.StopAsync();
@@ -144,7 +144,7 @@ namespace Presentation
             if (connection != null)
             {
                 await connection.StopAsync();
-                addressBox.BackColor = Color.OrangeRed;
+                //addressBox.BackColor = Color.OrangeRed;
             }
         }
 
