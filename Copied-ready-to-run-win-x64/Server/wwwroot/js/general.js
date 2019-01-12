@@ -201,16 +201,16 @@ let travelToVertex = (toVertex, easing, duration, onComplete) => {
     appSettings.currentVertexFocus = toVertex;
     $(focusAnimation).stop(true, false);
     focusAnimation.foo = appSettings.transitionFocusFraction = 0.0;
-    let beforeFOV = camera.fov;
+    // let beforeFOV = camera.fov;
     $(focusAnimation).animate({ foo: 1.0 }, {
         duration: duration == undefined ? appSettings.moveFocusTimout : duration,
         easing: easing == undefined ? appSettings.smoothOutEasing : easing,
         step: (now) => {
-            if (toVertex == -1) {
-                camera.fov = beforeFOV + (appSettings.exploratoryFOV - beforeFOV) * now;
-            } else {
-                camera.fov = beforeFOV + (appSettings.focusingFOV - beforeFOV) * now;
-            }
+            // if (toVertex == -1) {
+            //     camera.fov = beforeFOV + (appSettings.exploratoryFOV - beforeFOV) * now;
+            // } else {
+            //     camera.fov = beforeFOV + (appSettings.focusingFOV - beforeFOV) * now;
+            // }
             appSettings.transitionFocusFraction = now;
         },
         complete: () => {
@@ -1061,11 +1061,11 @@ let generatePosterShot = () => {
     controls.maxDistance = 100000;
     resizeToGoldenRatio();
     // fov
-    camera.fov = 40;
+    camera.fov = 35;
     // rotation
     controls.reset();
     // position
-    let distance = 1.0 / 3;
+    let distance = 1.0 / 2;
     camera.position.set(25 * distance, 1 + 5 * distance, -15 * distance);
     // mood
     setMood(0);
@@ -1074,53 +1074,46 @@ let generatePosterShot = () => {
     if (generatedAlready)
         return;
     generatedAlready = true;
-    let far = 250;
+    let far = 300;
     let height = water.position.y + 2;
 
     const description = [
         ["Wysoko wydajne obliczanie słów synchronizujących dla automatów skończonych"],
         ["Michalina Nikonowicz i Kazimierz Wojciechowski"],
-        ["Styczeń 2019, Wydział Matematyki i Nauk Informacyjnych"],
+        ["Wydział Matematyki i Nauk Informacyjnych"],
+        ["Styczeń 2019, Politechnika Warszawska"],
         ["Promotor: dr Michał Dębski"],
         [""],
-        ["Obliczenia eksperymentalne"],
         ["Obliczenia potwierdzają hipotezę Černego dla n < 10"],
         [""],
         ["Projekt składa się z trzech modułów"],
         ["Klient, Serwer oraz Prezentacja"],
         [""],
-        //["Klient: Michalina: część algorytmów i analizę matematyczna"],
-        //["Klient: Kazimierz: część algorytmów, komunikacja i zarządzanie obliczeniami"],
-        //["Serwer: Kazimierz: komunikacja i rozporządzanie zadaniami"],
-        //["Prezentacja: Michalina: statystyczne wnioski obliczeń"],
-        //["Prezentacja: Kazimierz: wizualizacja i komunikacja"],
-        [".Net Core 2.1"],
-        [".Net Framework"],
-        ["JavaScript"],
-        ["SignalR Core"],
-        ["MessagePack"],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        ["SignalR"],
         ["Three.js"],
-        ["Materialize"],
-        ["Material Icons"],
-        ["Latin Modern"],
-        ["WinForms"],
-        ["MathJax"],
-        ["jQuery"],
-        ["xUnit"],
-        ["C#"]
+        ["Materialize"]
     ];
 
-    const size = 13;
+    const size = 14;
     const angle = Math.atan(camera.position.x / camera.position.z);
-    let heightInrease = 12;
+    let textDistance = 15.5;
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
-            heightInrease += 0.04 * heightInrease;
+            textDistance += 0.04 * textDistance;
         } else {
-            let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1, true);
-            text.position.set(camera.position.x + Math.sin(angle) * heightInrease, height, camera.position.z + Math.cos(angle) * heightInrease);
-            heightInrease += 0.04 * heightInrease + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
+            let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1);
+            text.position.set(camera.position.x + Math.sin(angle) * textDistance, height, camera.position.z + Math.cos(angle) * textDistance);
+            textDistance += 0.04 * textDistance + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
 
             text.lookAt(camera.position);
@@ -1129,7 +1122,7 @@ let generatePosterShot = () => {
         }
     }
 
-    water.position.y -= 3;
+    water.position.y -= 13;
     height = water.position.y + 1;
 
     var img = new THREE.MeshBasicMaterial({
@@ -1137,9 +1130,10 @@ let generatePosterShot = () => {
     });
     img.transparent = true;
     // plane
-    var plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), img);
+    const logoSize = 20;
+    var plane = new THREE.Mesh(new THREE.PlaneGeometry(logoSize, logoSize), img);
     plane.position.set(camera.position.x + Math.sin(angle) * far, height, camera.position.z + Math.cos(angle) * far);
-    plane.position.y = height + 10;// + 17.5;
+    plane.position.y = water.position.y + logoSize / 2 + 2;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
@@ -1148,8 +1142,8 @@ let generatePosterShot = () => {
 let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     const fontMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(0x666666),
-        emissive: new THREE.Color(0x111111),
-        roughness: 0.5,
+        emissive: new THREE.Color(0x000000),
+        roughness: 0.8,
         metalness: 0.5
     });
     const fontHeight = 0.02;
@@ -1213,6 +1207,12 @@ $(document.body).on("keydown", function (e) {
             break;
         case "h":
             resizeToGoldenRatio();
+            break;
+        case "n":
+            existingGraph.subject().rotation.y += 0.1;
+            break;
+        case "m":
+            existingGraph.subject().rotation.y -= 0.1;
             break;
     }
 });

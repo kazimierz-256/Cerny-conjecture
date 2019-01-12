@@ -179,7 +179,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             curveSegments: 2 + 2 * appSettings.quality,
         });
         let fontMaterial = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0x666666),
+            color: new THREE.Color(0x888888),
             emissive: new THREE.Color(0x222222),
             roughness: 0.5,
             metalness: 0.5
