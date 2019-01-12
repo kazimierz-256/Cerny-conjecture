@@ -41,7 +41,7 @@ class settings {
         this.zoomEasing = "easeOutSine";
         this.zoomTimeout = 100;
 
-        this.targetStringLength = 0.618;
+        this.targetStringLength = 0.4;
 
         // UI specific
         this.maxBlur = 100;

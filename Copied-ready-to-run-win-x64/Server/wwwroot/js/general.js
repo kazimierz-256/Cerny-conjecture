@@ -1208,12 +1208,6 @@ $(document.body).on("keydown", function (e) {
         case "h":
             resizeToGoldenRatio();
             break;
-        case "n":
-            existingGraph.subject().rotation.y += 0.03;
-            break;
-        case "m":
-            existingGraph.subject().rotation.y -= 0.03;
-            break;
     }
 });
 let takeScreenshot = false;
