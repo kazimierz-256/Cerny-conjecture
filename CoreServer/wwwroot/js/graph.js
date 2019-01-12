@@ -206,7 +206,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     }
     if (outline !== undefined)
         outline.selectedObjects = [];
-    cameraGroup[0] = new THREE.CubeCamera(0.5, 10000, 2 ** (5 + appSettings.quality));
+    cameraGroup[0] = new THREE.CubeCamera(0.5, 10000, 2 ** (6 + appSettings.quality));
     cameraGroup[0].renderTarget.texture.generateMipmaps = true;
     cameraGroup[0].renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
     scene.add(cameraGroup[0]);
