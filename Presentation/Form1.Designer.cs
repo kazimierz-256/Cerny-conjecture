@@ -227,7 +227,7 @@ namespace Presentation
             this.chart1.TabIndex = 11;
             this.chart1.Text = "chart1";
             title1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            title1.Name = "automaty unarne";
+            title1.Name = "UnaryTitle";
             title1.Text = "Unary automata";
             this.chart1.Titles.Add(title1);
             // 

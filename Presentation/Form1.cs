@@ -63,23 +63,29 @@ namespace Presentation
                     {
                         Invoke(new Action(() =>
                         {
-                            //logBox.Text = $"{resultingTextStatistics.finishedAutomata.Sum(s => s.solution.solvedB.Count)} total interesting.";
                             int toCompute = resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count;
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", resultingTextStatistics.finishedAutomata.Count);
 
-
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
+                                chart1.Titles[0].Text = $"Unary Automata with n = {resultingTextStatistics.finishedAutomata[0].solution.unaryArray.Length}";
                                 var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
                                 int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
-                                //var avgSeconds = resultingTextStatistics.finishedAutomata.Count / totalSeconds;
                                 var totalSpeed = resultingTextStatistics.speedStatistics.Sum();
-                                double leftSeconds = toCompute / totalSpeed;
-
-                                //logBox.Text += resultingTextStatistics.description + $" Total speed: {avgSeconds:F2}";
-
+                                double leftSeconds;
+                                if (totalSpeed == 0)
+                                {
+                                    if (toCompute == 0)
+                                        leftSeconds = 0;
+                                    else
+                                        leftSeconds = Double.MaxValue;                                   
+                                }
+                                else
+                                {
+                                    leftSeconds = toCompute / totalSpeed;
+                                }
                                 materialLabel1.Text = "Total computation time (including breaks): " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
                                 materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
                                 materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
