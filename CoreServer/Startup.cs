@@ -19,7 +19,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private int AutomatonProblemSize = 7;
+        private int AutomatonProblemSize = 8;
         private int maximumCount = 100;
         #endregion
 
@@ -48,7 +48,9 @@ namespace CoreServer
                         throw new Exception("Incorrect maximal found automata.");
                 }
             }
-
+            Console.WriteLine($"Automata size: {AutomatonProblemSize}");
+            Console.WriteLine($"Maximum count of interesting automata: {maximumCount}.");
+            Console.WriteLine("Please note that automata violating Cerny Conjecture are collected without limits.");
             var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);
             ProgressIO.ProgressIO.ImportStateIfPossible(database);
             services.AddSingleton(database);
