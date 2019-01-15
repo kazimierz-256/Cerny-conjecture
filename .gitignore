@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /CoreServer/8export.xml
 /CoreServer/8-100-export.xml
+/CoreServer/computation-history-8-100.xml

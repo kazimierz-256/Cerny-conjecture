@@ -438,14 +438,14 @@ let init = (createControlFromCamera) => {
             }
         });
     }
-    $("#zoomin").click((e) => {
-        dolly(cameraDistance / zoomFactor);
-        e.stopPropagation();
-    });
-    $("#zoomout").click((e) => {
-        dolly(cameraDistance * zoomFactor);
-        e.stopPropagation();
-    });
+    // $("#zoomin").click((e) => {
+    //     dolly(cameraDistance / zoomFactor);
+    //     e.stopPropagation();
+    // });
+    // $("#zoomout").click((e) => {
+    //     dolly(cameraDistance * zoomFactor);
+    //     e.stopPropagation();
+    // });
     $("#flat3d").click((e) => {
         stayFlat = !stayFlat;
         toggleFlatForce(stayFlat);
@@ -965,17 +965,20 @@ $(document).ready(() => {
                 controls.minDistance = 0.7;
                 controls.maxDistance = 100;
                 // controls.enablePan = false;
-                controls.zoomSpeed = 4;
+                controls.zoomSpeed = 2;
             });
+
             if (!('ontouchstart' in window)) {
                 camera.position.setY(2);
                 camera.position.setX(4);
             } else {
+                camera.position.setY(2);
+                camera.position.setX(4);
                 // $(".btn-floating").addClass("btn-small");
             }
 
-            $("#zoomin").remove();
-            $("#zoomout").remove();
+            // $("#zoomin").remove();
+            // $("#zoomout").remove();
             showGraphFromRequest();
             animate();
             // $(window).blur(() => {
