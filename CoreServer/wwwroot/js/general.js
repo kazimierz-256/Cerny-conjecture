@@ -853,16 +853,18 @@ let animate = () => {
         camera.position.y = waterlimit;
     }
     if (takeScreenshot) {
+        takeScreenshot = false;
         let w = $("body > canvas")[0].width;
         let h = $("body > canvas")[0].height;
-        let scale = parseInt(window.prompt(`Please enter the desired scale (${w} * scale by ${h} * scale)`, "4"));
-        if (!isNaN(scale)) {
-            renderer.setSize(w * scale, h * scale);
+        let desiredWidth = parseInt(window.prompt(`Please enter the desired width in pixels`, "2000"));
+        desiredWidth = Math.floor(desiredWidth / window.devicePixelRatio);
+        if (!isNaN(desiredWidth)) {
+            let desiredHeight = Math.floor(desiredWidth * h / w);
+            renderer.setSize(desiredWidth, desiredHeight);
             renderer.render(scene, camera);
-            window.open($("body > canvas")[0].toDataURL());
-            renderer.setSize(w, h);
+            downloadURI($("body > canvas")[0].toDataURL(), "poster.png");
+            onWindowResize();
         }
-        takeScreenshot = false;
     } else {
         renderer.render(scene, camera);
     }
@@ -1057,7 +1059,15 @@ let setMood = t => {
     skyParameters.azimuth = 0.1 + t * 0.4;
     updateSun();
 };
-
+let downloadURI = (uri, name) => {
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    delete link;
+}
 let generatedAlready = false;
 let generatePosterShot = () => {
     appSettings.probabilityOfUpdate = 1.0;
@@ -1077,7 +1087,7 @@ let generatePosterShot = () => {
     if (generatedAlready)
         return;
     generatedAlready = true;
-    let far = 300;
+    let far = 450;
     let height = water.position.y + 2;
 
     const description = [
@@ -1133,7 +1143,7 @@ let generatePosterShot = () => {
     });
     img.transparent = true;
     // plane
-    const logoSize = 20;
+    const logoSize = 34;
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(logoSize, logoSize), img);
     plane.position.set(camera.position.x + Math.sin(angle) * far, height, camera.position.z + Math.cos(angle) * far);
     plane.position.y = water.position.y + logoSize / 2 + 2;

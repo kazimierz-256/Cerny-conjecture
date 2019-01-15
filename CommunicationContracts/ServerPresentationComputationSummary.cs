@@ -16,8 +16,6 @@ namespace CommunicationContracts
     public class FinishedStatistics
     {
         public SolvedAutomatonMessage solution;
-        public DateTime finishTime;
-        public DateTime issueTime;
         public string clientID;
     }
 }

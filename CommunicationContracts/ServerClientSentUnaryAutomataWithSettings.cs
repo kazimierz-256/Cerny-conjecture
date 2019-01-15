@@ -11,5 +11,6 @@ namespace CommunicationContracts
         public int serverMinimalLength;
         public List<int> unaryAutomataIndices;
         public int targetTimeoutSeconds;
+        public bool givenAsManyAsRequested;
     }
 }

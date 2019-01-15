@@ -42,7 +42,6 @@ namespace CoreServer.UnaryAutomataDatabase
                     MinimalLength = parameters.suggestedMinimumBound;
                     changedMinimum = true;
                 }
-                var finishTime = DateTime.Now;
                 for (int i = 0; i < parameters.solutions.Count; i += 1)
                 {
                     if (!solvedAutomataIndices.Contains(parameters.solutions[i].unaryIndex))
@@ -67,9 +66,7 @@ namespace CoreServer.UnaryAutomataDatabase
                         finishedAutomata.Enqueue(new FinishedStatistics()
                         {
                             solution = parameters.solutions[i],
-                            finishTime = finishTime,
-                            issueTime = issueTime[parameters.solutions[i].unaryIndex],
-                            clientID = userIdentifier
+                            clientID = userIdentifier,
                         });
                         AllowedCount += count;
                     }
@@ -172,13 +169,10 @@ namespace CoreServer.UnaryAutomataDatabase
                         toProcess.Add(dequeued);
                     }
                 }
-
-                var time = DateTime.Now;
+                
                 foreach (var index in toProcess)
                 {
                     processingOrFinishedAutomata.Enqueue(index);
-                    if (!issueTime.ContainsKey(index))
-                        issueTime.Add(index, time);
                 }
             }
             return toProcess;
@@ -215,7 +209,6 @@ namespace CoreServer.UnaryAutomataDatabase
 
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
 
-        private readonly Dictionary<int, DateTime> issueTime = new Dictionary<int, DateTime>();
         // may contain already computed!
         private readonly Queue<int> processingOrFinishedAutomata = new Queue<int>();
         private readonly Queue<FinishedStatistics> finishedAutomata = new Queue<FinishedStatistics>();
@@ -251,7 +244,6 @@ namespace CoreServer.UnaryAutomataDatabase
                 AllowedCount = data.AllowedCount;
 
                 leftoverAutomata.Clear();
-                issueTime.Clear();
                 processingOrFinishedAutomata.Clear();
                 finishedAutomata.Clear();
                 synchronizingWordLengthToCount.Clear();

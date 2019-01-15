@@ -19,13 +19,8 @@ namespace Client
             public int unaryIndex;
             public byte[] unaryItself;
             public List<ISolvedOptionalAutomaton> solvedAutomata;
-
-            public MicroSolution(int unaryIndex, byte[] unaryItself, List<ISolvedOptionalAutomaton> solvedAutomata)
-            {
-                this.unaryIndex = unaryIndex;
-                this.unaryItself = unaryItself;
-                this.solvedAutomata = solvedAutomata;
-            }
+            public DateTime startTime;
+            public DateTime finishTime;
         }
         private static object consoleSync = new object();
         private static void SayColoured(ConsoleColor color, string text, bool newline = true)
@@ -63,8 +58,9 @@ namespace Client
                         var maximumAutomatonCollectionSize = int.MaxValue;
                         var targetTimeout = TimeSpan.FromSeconds(10);
                         var threads = args.Length >= 2 ? int.Parse(args[1]) : Environment.ProcessorCount;
-                        var minimalIntake = threads;
-                        var recommendedIntake = minimalIntake * 4;
+                        var minimalIntake = 0;
+                        var recommendedIntake = 1;
+                        var serverHasLessThanRequested = false;
                         var askedForMore = true;
 
                         var size = -1;
@@ -100,6 +96,8 @@ namespace Client
                         var firstTimeSetup = true;
                         connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
                             {
+                                if (!parameters.givenAsManyAsRequested)
+                                    serverHasLessThanRequested = true;
                                 targetTimeout = TimeSpan.FromSeconds(parameters.targetTimeoutSeconds);
                                 maximumAutomatonCollectionSize = parameters.targetCollectionSize;
 
@@ -123,6 +121,7 @@ namespace Client
                                     leftover => (leftover <= minimalIntake),
                                     index =>
                                     {
+                                        var startTime = DateTime.Now;
                                         var list = new List<ISolvedOptionalAutomaton>();
                                         var uniqueAutomaton = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
                                         var uniqueAutomatonBytes = new byte[uniqueAutomaton.Length];
@@ -146,7 +145,15 @@ namespace Client
                                         else
                                             SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
 #endif
-                                        resultsMerged.Enqueue(new MicroSolution(index, uniqueAutomatonBytes, list));
+                                        var finishedTime = DateTime.Now;
+                                        resultsMerged.Enqueue(new MicroSolution()
+                                        {
+                                            unaryIndex = index,
+                                            unaryItself = uniqueAutomatonBytes,
+                                            solvedAutomata = list,
+                                            startTime = startTime,
+                                            finishTime = finishedTime
+                                        });
                                         Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
                                     },
                                     async () =>
@@ -289,17 +296,17 @@ namespace Client
                             {
                                 solutionSemaphore.WaitOne(targetTimeout - elapsedTimeout);
                                 elapsedTimeout = DateTime.Now - afterSentDate;
-                                if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
+                                if (!serverHasLessThanRequested && !askedForMore && unaryResourcesQueue.Count <= minimalIntake)
+                                {
+                                    askedForMore = true;
+                                    minimalIntake += 1;
+                                    recommendedIntake += 1;
+                                    minimalIntake = (int)Math.Ceiling(minimalIntake * 1.5);
+                                    recommendedIntake *= 2;
+                                    SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}, minimal to {minimalIntake}");
                                     break;
+                                }
                             } while (targetTimeout > elapsedTimeout);
-
-                            if (!askedForMore && unaryResourcesQueue.Count <= minimalIntake)
-                            {
-                                askedForMore = true;
-                                minimalIntake += Environment.ProcessorCount;
-                                recommendedIntake += Environment.ProcessorCount * 4;
-                                SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}");
-                            }
 
 
                         }
@@ -318,7 +325,7 @@ namespace Client
         private static int IgnoreThreshold(int n) => (n - 1) * (n - 1);
 
         private static List<SolvedAutomatonMessage> PrepareNextRound(
-            ConcurrentQueue<MicroSolution> resultsMerged,
+            ConcurrentQueue<MicroSolution> solutions,
             ref int resultsMergedTotalAutomata,
             ref int maximumAutomatonCollectionSize,
             ref int minimalSynchronizingLength,
@@ -329,17 +336,18 @@ namespace Client
             var synchronizingLengthToCount = new SortedDictionary<int, int>();
 
             toSendAutomataCount = 0;
-            while (resultsMerged.TryDequeue(out var mergedResult))
+            while (solutions.TryDequeue(out var solution))
             {
-                Interlocked.Add(ref resultsMergedTotalAutomata, -mergedResult.solvedAutomata.Count);
+                Interlocked.Add(ref resultsMergedTotalAutomata, -solution.solvedAutomata.Count);
 
                 var syncLengths = new List<ushort>();
                 var solvedBs = new List<byte[]>();
-                var threshold = IgnoreThreshold(mergedResult.unaryItself.Length);
-                foreach (var automaton in mergedResult.solvedAutomata)
+                var ignoreLimitsThreshold = IgnoreThreshold(solution.unaryItself.Length);
+
+                foreach (var automaton in solution.solvedAutomata)
                 {
                     syncLengths.Add(automaton.SynchronizingWordLength.Value);
-                    if (automaton.SynchronizingWordLength.Value < threshold)
+                    if (automaton.SynchronizingWordLength.Value < ignoreLimitsThreshold)
                     {
                         toSendAutomataCount += 1;
                     }
@@ -352,10 +360,12 @@ namespace Client
 
                 results.Add(new SolvedAutomatonMessage()
                 {
-                    unaryIndex = mergedResult.unaryIndex,
+                    unaryIndex = solution.unaryIndex,
                     solvedB = solvedBs,
                     solvedSyncLength = syncLengths,
-                    unaryArray = mergedResult.unaryItself
+                    unaryArray = solution.unaryItself,
+                    startTime = solution.startTime,
+                    finishTime = solution.finishTime
                 });
             }
 

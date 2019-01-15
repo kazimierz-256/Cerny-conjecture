@@ -17,5 +17,7 @@ namespace CommunicationContracts
         public byte[] unaryArray;
         public List<ushort> solvedSyncLength;
         public List<byte[]> solvedB;
+        public DateTime startTime;
+        public DateTime finishTime;
     }
 }
