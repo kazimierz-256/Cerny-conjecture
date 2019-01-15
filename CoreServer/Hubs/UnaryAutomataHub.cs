@@ -19,7 +19,7 @@ namespace CoreServer.Hubs
         private const string solversGroup = "solvers";
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
-            if (parameters.solutions.Count == 0)
+            if (parameters.firstTimeConnect)
                 await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
             else
             {

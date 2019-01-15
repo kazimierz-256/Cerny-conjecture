@@ -9,6 +9,7 @@ namespace CommunicationContracts
         public int nextQuantity;
         public int suggestedMinimumBound;
         public double automataPerSecond;
+        public bool firstTimeConnect;
     }
 
     public class SolvedAutomatonMessage
