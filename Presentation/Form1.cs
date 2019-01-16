@@ -44,6 +44,9 @@ namespace Presentation
 
         private async void addressBox_TextChanged(object sender, EventArgs e) => await RefreshConnection();
         private List<string> automataToLaunch = new List<string>();
+        private bool timerLaunched = false;
+        private TimeSpan totalComputingTime;
+        private DateTime startCountingTime;
         private async Task RefreshConnection()
         {
             var connectionText = $"{addressBox.Text}/ua";
@@ -53,6 +56,7 @@ namespace Presentation
                 {
                     await connection.StopAsync();
                 }
+
                 connection = new HubConnectionBuilder()
                     .WithUrl(connectionText)
                     .AddMessagePackProtocol()
@@ -71,7 +75,7 @@ namespace Presentation
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
                                 chart1.Titles[0].Text = $"Unary Automata with n = {resultingTextStatistics.finishedAutomata[0].solution.unaryArray.Length}";
-                                var totalComputingTime = GetTotalComputationTime(resultingTextStatistics.finishedAutomata);
+                                totalComputingTime = GetTotalComputationTime(resultingTextStatistics.finishedAutomata);
                                 var totalSpeed = GetAverageSpeed(resultingTextStatistics.finishedAutomata);
                                 double leftSeconds;
                                 if (totalSpeed == 0)
@@ -85,7 +89,26 @@ namespace Presentation
                                 {
                                     leftSeconds = toCompute / totalSpeed;
                                 }
-                                materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
+
+                                startCountingTime = DateTime.Now;
+                                if (!timerLaunched && resultingTextStatistics.finishedAutomata.Count == resultingTextStatistics.total)
+                                {
+                                    materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
+                                }
+                                else if (!timerLaunched && resultingTextStatistics.finishedAutomata.Count < resultingTextStatistics.total)
+                                {
+                                    timer1.Tick += (o, e) =>
+                                    {
+                                        materialLabel1.Text = "Total computation time: " + (totalComputingTime + (DateTime.Now - startCountingTime)).ToString();
+                                    };
+                                    timer1.Start();
+                                    timerLaunched = true;
+                                }
+                                else if (resultingTextStatistics.finishedAutomata.Count == resultingTextStatistics.total)
+                                {
+                                    timer1.Stop();
+                                    timerLaunched = false;
+                                }
                                 materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
                                 materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
