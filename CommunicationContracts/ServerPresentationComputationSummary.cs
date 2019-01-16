@@ -10,11 +10,11 @@ namespace CommunicationContracts
         public string description;
         public List<FinishedStatistics> finishedAutomata;
         public int total;
-        public List<double> speedStatistics;
     }
 
     public class FinishedStatistics
     {
+        public bool solved;
         public SolvedAutomatonMessage solution;
         public string clientID;
     }

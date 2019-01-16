@@ -103,7 +103,7 @@ namespace Client
                 TaskManager<int> taskManager = null;
                 connection.On("NoMoreAutomataThankYou", async () =>
                 {
-                    SayColoured(ConsoleColor.Magenta, "No more automata, thanks");
+                    SayColoured(ConsoleColor.Magenta, "No more automata needed to compute");
                     shouldReconnect = false;
                     await connection.StopAsync();
                     try
@@ -284,7 +284,6 @@ namespace Client
                                 nextQuantity = recommendedIntake - unaryResourcesQueue.Count,
                                 suggestedMinimumBound = minimalSynchronizingLength,
                                 solutions = results,
-                                automataPerSecond = automataPerSecond,
                                 firstTimeConnect = firstTime
                             };
                             firstTime = false;
@@ -300,7 +299,7 @@ namespace Client
                             SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
                             Console.WriteLine(" automata");
 
-                            SayColoured(ConsoleColor.DarkGray, $"Total speed: {automataPerSecond:F2} unary automata per second");
+                            SayColoured(ConsoleColor.DarkGray, $"Total speed including communication time gaps: {automataPerSecond:F2} unary automata per second");
                             #endregion
 
                             afterSentDate = DateTime.Now;
@@ -328,9 +327,7 @@ namespace Client
                         {
                             askedForMore = true;
                             minimalIntake += 1;
-                            recommendedIntake += 1;
-                            minimalIntake = (int)Math.Ceiling(minimalIntake * 1.5);
-                            recommendedIntake *= 2;
+                            recommendedIntake += 2;
                             SayColoured(ConsoleColor.DarkRed, $"Increased recommended intake to {recommendedIntake}, minimal to {minimalIntake}");
                             break;
                         }

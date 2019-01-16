@@ -19,7 +19,7 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameter
-        private int AutomatonProblemSize = 7;
+        private int AutomatonProblemSize = 8;
         private int maximumCount = 100;
         #endregion
 

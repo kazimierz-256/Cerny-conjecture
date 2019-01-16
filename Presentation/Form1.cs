@@ -71,22 +71,21 @@ namespace Presentation
                             if (resultingTextStatistics.finishedAutomata.Count > 0)
                             {
                                 chart1.Titles[0].Text = $"Unary Automata with n = {resultingTextStatistics.finishedAutomata[0].solution.unaryArray.Length}";
-                                var totalSeconds = (resultingTextStatistics.finishedAutomata.Max(r => r.finishTime) - resultingTextStatistics.finishedAutomata.Min(r => r.issueTime)).TotalSeconds;
-                                int totalMili = (int)(totalSeconds * 1000) - (int)totalSeconds * 1000;
-                                var totalSpeed = resultingTextStatistics.speedStatistics.Sum();
+                                var totalComputingTime = GetTotalComputationTime(resultingTextStatistics.finishedAutomata);
+                                var totalSpeed = GetAverageSpeed(resultingTextStatistics.finishedAutomata);
                                 double leftSeconds;
                                 if (totalSpeed == 0)
                                 {
                                     if (toCompute == 0)
                                         leftSeconds = 0;
                                     else
-                                        leftSeconds = Double.MaxValue;                                   
+                                        leftSeconds = Double.MaxValue;
                                 }
                                 else
                                 {
                                     leftSeconds = toCompute / totalSpeed;
                                 }
-                                materialLabel1.Text = "Total computation time (including breaks): " + (new TimeSpan(0, 0, 0, (int)totalSeconds, totalMili)).ToString();
+                                materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
                                 materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
                                 materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
                             }
@@ -133,6 +132,79 @@ namespace Presentation
 
                 }
             }
+        }
+
+        private double marginalTime = 1d / TimeSpan.FromDays(365).TotalSeconds;
+        private double GetAverageSpeed(List<FinishedStatistics> statistics)
+        {
+            ExtractSpeeds(statistics, out var times, out var aps);
+            var totalUsefulTime = TimeSpan.Zero;
+            var totalUseful = 0d;
+            for (int i = 0; i < aps.Count; i++)
+            {
+                if (aps[i] > marginalTime)
+                {
+                    totalUsefulTime += times[i];
+                    totalUseful += times[i].TotalMilliseconds * aps[i];
+                }
+            }
+            return totalUseful / totalUsefulTime.TotalMilliseconds;
+        }
+
+        private void ExtractSpeeds(List<FinishedStatistics> statistics, out List<TimeSpan> times, out List<double> automataPerSecond)
+        {
+            var timeEvents = new SortedDictionary<DateTime, double>();
+            foreach (var statistic in statistics)
+            {
+                var start = statistic.solution.startTime;
+                var finish = statistic.solution.finishTime;
+                if (finish <= start)
+                    continue;
+                var durationSedonds = (finish - start).TotalSeconds;
+                var aps = 1d / durationSedonds;
+
+                if (timeEvents.ContainsKey(start))
+                    timeEvents[start] += aps;
+                else
+                    timeEvents.Add(start, aps);
+
+                if (timeEvents.ContainsKey(finish))
+                    timeEvents[finish] -= aps;
+                else
+                    timeEvents.Add(finish, -aps);
+            }
+
+            times = new List<TimeSpan>();
+            automataPerSecond = new List<double>();
+            var lastTime = DateTime.MinValue;
+            var lastSpeed = 0d;
+            foreach (var timeEvent in timeEvents)
+            {
+                if (lastTime == DateTime.MinValue)
+                {
+                    lastTime = timeEvent.Key;
+                    lastSpeed = timeEvent.Value;
+                }
+                else
+                {
+                    times.Add(timeEvent.Key - lastTime);
+                    lastTime = timeEvent.Key;
+                    automataPerSecond.Add(lastSpeed);
+                    lastSpeed += timeEvent.Value;
+                }
+            }
+        }
+
+        private TimeSpan GetTotalComputationTime(List<FinishedStatistics> statistics)
+        {
+            ExtractSpeeds(statistics, out var times, out var aps);
+            var totalTime = TimeSpan.Zero;
+            for (int i = 0; i < aps.Count; i++)
+            {
+                if (aps[i] > marginalTime)
+                    totalTime += times[i];
+            }
+            return totalTime;
         }
 
         private string byteTabToString(byte[] tab)

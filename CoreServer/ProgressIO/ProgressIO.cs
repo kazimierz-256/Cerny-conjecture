@@ -13,7 +13,7 @@ namespace CoreServer.ProgressIO
 {
     public class ProgressIO
     {
-        public List<FinishedStatistics> finishedStatistics;
+        public FinishedStatistics[] finishedStatistics;
         public int Size;
         public int MaximumLongestAutomataCount;
         public int AllowedCount;

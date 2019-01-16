@@ -16,15 +16,13 @@ namespace CoreServer.UnaryAutomataDatabase
         };
         public ServerPresentationComputationSummary DumpStatistics()
         {
-            var speedStatistics = GetClientPerformanceStatistics();
             lock (synchronizingObject)
             {
                 return new ServerPresentationComputationSummary()
                 {
                     total = Total,
-                    description = $"Computed {finishedAutomata.Count} out of {Total}.",
-                    finishedAutomata = finishedAutomata.ToList(),
-                    speedStatistics = speedStatistics
+                    description = $"Computed {finishedAutomata.Count(finished => finished != null)} out of {Total}.",
+                    finishedAutomata = finishedAutomata.ToList()
                 };
             }
         }
@@ -44,7 +42,7 @@ namespace CoreServer.UnaryAutomataDatabase
                 }
                 for (int i = 0; i < parameters.solutions.Count; i += 1)
                 {
-                    if (!solvedAutomataIndices.Contains(parameters.solutions[i].unaryIndex))
+                    if (!finishedAutomata[parameters.solutions[i].unaryIndex].solved)
                     {
                         var count = 0;
                         var ignoreThreshold = IgnoreThreshold(Size);
@@ -62,12 +60,16 @@ namespace CoreServer.UnaryAutomataDatabase
                                     count += 1;
                             }
                         }
-                        solvedAutomataIndices.Add(parameters.solutions[i].unaryIndex);//, list);
-                        finishedAutomata.Enqueue(new FinishedStatistics()
+
+                        foreach (var message in parameters.solutions)
                         {
-                            solution = parameters.solutions[i],
-                            clientID = userIdentifier,
-                        });
+                            finishedAutomata[message.unaryIndex] = new FinishedStatistics()
+                            {
+                                solution = message,
+                                clientID = userIdentifier,
+                                solved = true
+                            };
+                        }
                         AllowedCount += count;
                     }
                 }
@@ -103,47 +105,25 @@ namespace CoreServer.UnaryAutomataDatabase
 
                     foreach (var item in finishedAutomata)
                     {
-                        var leftoverSyncLengths = new List<ushort>();
-                        var leftoverBAutomata = new List<byte[]>();
-                        for (int i = 0; i < item.solution.solvedB.Count; i++)
+                        if (item.solved)
                         {
-                            if (item.solution.solvedSyncLength[i] >= MinimalLength)
+                            var leftoverSyncLengths = new List<ushort>();
+                            var leftoverBAutomata = new List<byte[]>();
+                            for (int i = 0; i < item.solution.solvedB.Count; i++)
                             {
-                                leftoverSyncLengths.Add(item.solution.solvedSyncLength[i]);
-                                leftoverBAutomata.Add(item.solution.solvedB[i]);
+                                if (item.solution.solvedSyncLength[i] >= MinimalLength)
+                                {
+                                    leftoverSyncLengths.Add(item.solution.solvedSyncLength[i]);
+                                    leftoverBAutomata.Add(item.solution.solvedB[i]);
+                                }
                             }
+                            item.solution.solvedSyncLength = leftoverSyncLengths;
+                            item.solution.solvedB = leftoverBAutomata;
                         }
-                        item.solution.solvedSyncLength = leftoverSyncLengths;
-                        item.solution.solvedB = leftoverBAutomata;
-
                     }
                 }
                 #endregion
 
-            }
-        }
-
-
-        private Dictionary<string, double> connectionIDtoSpeed = new Dictionary<string, double>();
-        public void RecordSpeed(double automataPerSecond, string connectionId)
-        {
-            lock (synchronizingObject)
-            {
-                if (connectionIDtoSpeed.ContainsKey(connectionId))
-                    connectionIDtoSpeed[connectionId] = automataPerSecond;
-                else
-                    connectionIDtoSpeed.Add(connectionId, automataPerSecond);
-            }
-        }
-
-        public List<double> GetClientPerformanceStatistics()
-        {
-            lock (synchronizingObject)
-            {
-                var results = new List<double>();
-                foreach (var item in connectionIDtoSpeed.Values)
-                    results.Add(item);
-                return results;
             }
         }
 
@@ -153,26 +133,16 @@ namespace CoreServer.UnaryAutomataDatabase
 
             lock (synchronizingObject)
             {
-
                 while (leftoverAutomata.Count > 0 && toProcess.Count < quantity)
-                    toProcess.Add(leftoverAutomata.Dequeue());
-
-                while (processingOrFinishedAutomata.Count > 0 && toProcess.Count < quantity)
                 {
-                    var dequeued = processingOrFinishedAutomata.Dequeue();
-                    if (solvedAutomataIndices.Contains(dequeued))
-                    {
-                        // discard the item, it is already computed (in the finished queue)
-                    }
-                    else
-                    {
+                    var dequeued = leftoverAutomata.Dequeue();
+                    if (!finishedAutomata[dequeued].solved)
                         toProcess.Add(dequeued);
-                    }
                 }
-                
+
                 foreach (var index in toProcess)
                 {
-                    processingOrFinishedAutomata.Enqueue(index);
+                    leftoverAutomata.Enqueue(index);
                 }
             }
             return toProcess;
@@ -187,12 +157,14 @@ namespace CoreServer.UnaryAutomataDatabase
 
             Total = theory[size - 1];
             var automataIndices = new int[Total];
+            finishedAutomata = new FinishedStatistics[Total];
             var random = new Random(1);
             var automataValues = new double[Total];
             for (int i = 0; i < Total; i += 1)
             {
                 automataIndices[i] = i;
                 automataValues[i] = random.NextDouble();
+                finishedAutomata[i] = new FinishedStatistics();
             }
 
             Array.Sort(automataValues, automataIndices);
@@ -207,14 +179,10 @@ namespace CoreServer.UnaryAutomataDatabase
         public int MaximumLongestAutomataCount = 0;
         private int AllowedCount;
 
-        private readonly Queue<int> leftoverAutomata = new Queue<int>();
-
         // may contain already computed!
-        private readonly Queue<int> processingOrFinishedAutomata = new Queue<int>();
-        private readonly Queue<FinishedStatistics> finishedAutomata = new Queue<FinishedStatistics>();
-
+        private readonly Queue<int> leftoverAutomata = new Queue<int>();
+        private FinishedStatistics[] finishedAutomata = new FinishedStatistics[0];
         private readonly SortedDictionary<int, int> synchronizingWordLengthToCount = new SortedDictionary<int, int>();
-        private readonly HashSet<int> solvedAutomataIndices = new HashSet<int>();
 
         private readonly object synchronizingObject = new object();
 
@@ -224,7 +192,7 @@ namespace CoreServer.UnaryAutomataDatabase
             {
                 return new ProgressIO.ProgressIO()
                 {
-                    finishedStatistics = finishedAutomata.ToList(),
+                    finishedStatistics = finishedAutomata,
                     Size = Size,
                     MaximumLongestAutomataCount = MaximumLongestAutomataCount,
                     AllowedCount = AllowedCount
@@ -244,15 +212,11 @@ namespace CoreServer.UnaryAutomataDatabase
                 AllowedCount = data.AllowedCount;
 
                 leftoverAutomata.Clear();
-                processingOrFinishedAutomata.Clear();
-                finishedAutomata.Clear();
+                finishedAutomata = data.finishedStatistics;
                 synchronizingWordLengthToCount.Clear();
-                solvedAutomataIndices.Clear();
                 foreach (var item in data.finishedStatistics)
                 {
                     leftoverAutomataIndices.Remove(item.solution.unaryIndex);
-                    finishedAutomata.Enqueue(item);
-                    solvedAutomataIndices.Add(item.solution.unaryIndex);
                     foreach (var automatonLength in item.solution.solvedSyncLength)
                     {
                         if (!synchronizingWordLengthToCount.ContainsKey(automatonLength))

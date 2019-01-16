@@ -26,8 +26,7 @@ namespace CoreServer.Hubs
                 // different answer size!
                 if (parameters.solutions[0].unaryArray.Length != database.Size)
                     return;
-
-                database.RecordSpeed(parameters.automataPerSecond, Context.ConnectionId);
+                
                 database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
 
                 if (changedMinimum)
