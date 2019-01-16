@@ -249,13 +249,14 @@ namespace Presentation
             }
         }
 
-        private void runVisualisationButton_Click(object sender, EventArgs e)
+        private void Visualize(bool powerGraph)
         {
             if (listOfAutomata.SelectedItem != null)
             {
                 var automatonIndex = listOfAutomata.SelectedIndex;
                 string automaton = automataToLaunch[automatonIndex];
-                System.Diagnostics.Process.Start($"{addressBox.Text}/?automaton={automaton}");
+                var powerGraphString = powerGraph ? '1' : '0';
+                System.Diagnostics.Process.Start($"{addressBox.Text}/?automaton={automaton}&powerGraph={powerGraphString}");
             }
             else
             {
@@ -269,6 +270,16 @@ namespace Presentation
                     System.Diagnostics.Process.Start($"{addressBox.Text}/");
                 }
             }
+        }
+
+        private void runVisualisationButton_Click(object sender, EventArgs e)
+        {
+            Visualize(false);
+        }
+
+        private void materialRaisedButton1_Click(object sender, EventArgs e)
+        {
+            Visualize(true);
         }
     }
 }

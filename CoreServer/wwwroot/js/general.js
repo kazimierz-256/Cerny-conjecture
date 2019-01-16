@@ -166,19 +166,24 @@ let startProcessingSensorData = () => {
 }
 
 let updateAnimatingControls = () => {
-
-    if (appSettings.maximumConsideringDepth >= appSettings.maxDistance) {
-        appSettings.maximumConsideringDepth = appSettings.maxDistance;
-        $("#animateForward").addClass("disabled");
-        $("#animateBack").removeClass("disabled");
-    } else if (appSettings.maximumConsideringDepth <= 1) {
-        appSettings.maximumConsideringDepth = 1;
-        $("#animateForward").removeClass("disabled");
-        $("#animateBack").addClass("disabled");
+    if (appSettings.showPowerAutomaton) {
+        if (appSettings.maximumConsideringDepth >= appSettings.maxDistance) {
+            appSettings.maximumConsideringDepth = appSettings.maxDistance;
+            $("#animateForward").addClass("disabled");
+            $("#animateBack").removeClass("disabled");
+        } else if (appSettings.maximumConsideringDepth <= 1) {
+            appSettings.maximumConsideringDepth = 1;
+            $("#animateForward").removeClass("disabled");
+            $("#animateBack").addClass("disabled");
+        } else {
+            $("#animateForward").removeClass("disabled");
+            $("#animateBack").removeClass("disabled");
+        }
+        $("#animateForward").show();
+        $("#animateBack").show();
     } else {
-
-        $("#animateForward").removeClass("disabled");
-        $("#animateBack").removeClass("disabled");
+        $("#animateForward").hide();
+        $("#animateBack").hide();
     }
 };
 
@@ -949,10 +954,10 @@ $(document).ready(() => {
             if (request["probability"] != undefined)
                 appSettings.probabilityOfUpdate = parseFloat(request["probability"]);
 
-            if (request["power"] != undefined)
-                appSettings.showPowerAutomaton = 0 !== parseInt(request["power"]);
-
-            $(appSettings.showPowerAutomaton ? "#showNormalNotPowerGraph" : "#showPowerGraph").click();
+            if (request["powerGraph"] != undefined)
+                appSettings.showPowerAutomaton = 0 !== parseInt(request["powerGraph"]);
+            
+            $(appSettings.showPowerAutomaton ? "#showPowerGraph" : "#showNormalNotPowerGraph").click();
 
             if (request["automaton"] == undefined) {
                 generateAction = () => graphs.getCernyAutomaton(4, appSettings, cubeCamera);

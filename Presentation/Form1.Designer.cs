@@ -53,6 +53,7 @@ namespace Presentation
             this.listOfAutomata = new System.Windows.Forms.ListBox();
             this.materialTabSelector1 = new MaterialSkin.Controls.MaterialTabSelector();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.materialRaisedButton1 = new MaterialSkin.Controls.MaterialRaisedButton();
             this.materialTabControl1.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.tabStatistics.SuspendLayout();
@@ -143,7 +144,7 @@ namespace Presentation
             this.materialTabControl1.Controls.Add(this.tabEXAMPLES);
             this.materialTabControl1.Depth = 0;
             this.materialTabControl1.Location = new System.Drawing.Point(3, 188);
-            this.materialTabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialTabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.materialTabControl1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialTabControl1.Name = "materialTabControl1";
             this.materialTabControl1.SelectedIndex = 0;
@@ -158,9 +159,9 @@ namespace Presentation
             this.tabSettings.Controls.Add(this.addressBox);
             this.tabSettings.Controls.Add(this.close);
             this.tabSettings.Location = new System.Drawing.Point(4, 33);
-            this.tabSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabSettings.Margin = new System.Windows.Forms.Padding(4);
             this.tabSettings.Name = "tabSettings";
-            this.tabSettings.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(4);
             this.tabSettings.Size = new System.Drawing.Size(895, 845);
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "SETTINGS";
@@ -190,10 +191,10 @@ namespace Presentation
             this.tabStatistics.Controls.Add(this.materialLabel1);
             this.tabStatistics.Controls.Add(this.materialLabel3);
             this.tabStatistics.Location = new System.Drawing.Point(4, 33);
-            this.tabStatistics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabStatistics.Margin = new System.Windows.Forms.Padding(4);
             this.tabStatistics.Name = "tabStatistics";
-            this.tabStatistics.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.tabStatistics.Size = new System.Drawing.Size(895, 845);
+            this.tabStatistics.Padding = new System.Windows.Forms.Padding(4);
+            this.tabStatistics.Size = new System.Drawing.Size(895, 928);
             this.tabStatistics.TabIndex = 1;
             this.tabStatistics.Text = "STATISTICS";
             // 
@@ -221,7 +222,7 @@ namespace Presentation
             legend2.Name = "Legend1";
             this.chart1.Legends.Add(legend2);
             this.chart1.Location = new System.Drawing.Point(29, 345);
-            this.chart1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
@@ -246,7 +247,7 @@ namespace Presentation
             this.materialDivider1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.materialDivider1.Depth = 0;
             this.materialDivider1.Location = new System.Drawing.Point(8, 322);
-            this.materialDivider1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialDivider1.Margin = new System.Windows.Forms.Padding(4);
             this.materialDivider1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialDivider1.Name = "materialDivider1";
             this.materialDivider1.Size = new System.Drawing.Size(879, 502);
@@ -255,13 +256,14 @@ namespace Presentation
             // 
             // tabEXAMPLES
             // 
+            this.tabEXAMPLES.Controls.Add(this.materialRaisedButton1);
             this.tabEXAMPLES.Controls.Add(this.labelAutomataCount);
             this.tabEXAMPLES.Controls.Add(this.runVisualisationButton);
             this.tabEXAMPLES.Controls.Add(this.listOfAutomata);
             this.tabEXAMPLES.Location = new System.Drawing.Point(4, 33);
-            this.tabEXAMPLES.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabEXAMPLES.Margin = new System.Windows.Forms.Padding(4);
             this.tabEXAMPLES.Name = "tabEXAMPLES";
-            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(4);
             this.tabEXAMPLES.Size = new System.Drawing.Size(895, 845);
             this.tabEXAMPLES.TabIndex = 2;
             this.tabEXAMPLES.Text = "EXAMPLES";
@@ -274,7 +276,7 @@ namespace Presentation
             this.labelAutomataCount.Depth = 0;
             this.labelAutomataCount.Font = new System.Drawing.Font("Roboto", 11F);
             this.labelAutomataCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.labelAutomataCount.Location = new System.Drawing.Point(8, 738);
+            this.labelAutomataCount.Location = new System.Drawing.Point(8, 655);
             this.labelAutomataCount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelAutomataCount.MouseState = MaterialSkin.MouseState.HOVER;
             this.labelAutomataCount.Name = "labelAutomataCount";
@@ -286,14 +288,14 @@ namespace Presentation
             // 
             this.runVisualisationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.runVisualisationButton.Depth = 0;
-            this.runVisualisationButton.Location = new System.Drawing.Point(580, 712);
-            this.runVisualisationButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.runVisualisationButton.Location = new System.Drawing.Point(552, 629);
+            this.runVisualisationButton.Margin = new System.Windows.Forms.Padding(4);
             this.runVisualisationButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.runVisualisationButton.Name = "runVisualisationButton";
             this.runVisualisationButton.Primary = true;
-            this.runVisualisationButton.Size = new System.Drawing.Size(297, 90);
+            this.runVisualisationButton.Size = new System.Drawing.Size(325, 90);
             this.runVisualisationButton.TabIndex = 1;
-            this.runVisualisationButton.Text = "run visualisation";
+            this.runVisualisationButton.Text = "visualize automaton";
             this.runVisualisationButton.UseVisualStyleBackColor = true;
             this.runVisualisationButton.Click += new System.EventHandler(this.runVisualisationButton_Click);
             // 
@@ -306,9 +308,9 @@ namespace Presentation
             this.listOfAutomata.FormattingEnabled = true;
             this.listOfAutomata.ItemHeight = 25;
             this.listOfAutomata.Location = new System.Drawing.Point(8, 9);
-            this.listOfAutomata.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listOfAutomata.Margin = new System.Windows.Forms.Padding(4);
             this.listOfAutomata.Name = "listOfAutomata";
-            this.listOfAutomata.Size = new System.Drawing.Size(874, 654);
+            this.listOfAutomata.Size = new System.Drawing.Size(874, 554);
             this.listOfAutomata.TabIndex = 0;
             // 
             // materialTabSelector1
@@ -319,7 +321,7 @@ namespace Presentation
             this.materialTabSelector1.BaseTabControl = this.materialTabControl1;
             this.materialTabSelector1.Depth = 0;
             this.materialTabSelector1.Location = new System.Drawing.Point(-8, 94);
-            this.materialTabSelector1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialTabSelector1.Margin = new System.Windows.Forms.Padding(4);
             this.materialTabSelector1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialTabSelector1.Name = "materialTabSelector1";
             this.materialTabSelector1.Size = new System.Drawing.Size(927, 84);
@@ -329,6 +331,21 @@ namespace Presentation
             // timer1
             // 
             this.timer1.Interval = 16;
+            // 
+            // materialRaisedButton1
+            // 
+            this.materialRaisedButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.materialRaisedButton1.Depth = 0;
+            this.materialRaisedButton1.Location = new System.Drawing.Point(552, 744);
+            this.materialRaisedButton1.Margin = new System.Windows.Forms.Padding(4);
+            this.materialRaisedButton1.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialRaisedButton1.Name = "materialRaisedButton1";
+            this.materialRaisedButton1.Primary = true;
+            this.materialRaisedButton1.Size = new System.Drawing.Size(325, 90);
+            this.materialRaisedButton1.TabIndex = 3;
+            this.materialRaisedButton1.Text = "Visualize power graph";
+            this.materialRaisedButton1.UseVisualStyleBackColor = true;
+            this.materialRaisedButton1.Click += new System.EventHandler(this.materialRaisedButton1_Click);
             // 
             // Presentation
             // 
@@ -372,6 +389,7 @@ namespace Presentation
         private MaterialSkin.Controls.MaterialLabel labelAutomataCount;
         private MaterialSkin.Controls.MaterialRaisedButton runVisualisationButton;
         private System.Windows.Forms.Timer timer1;
+        private MaterialSkin.Controls.MaterialRaisedButton materialRaisedButton1;
     }
 }
 
