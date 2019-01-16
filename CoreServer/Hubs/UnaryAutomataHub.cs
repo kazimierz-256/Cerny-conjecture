@@ -31,6 +31,7 @@ namespace CoreServer.Hubs
 
                 if (changedMinimum)
                     await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
+                await Clients.All.SendAsync("AlreadyComputed", database.GetAlreadyComputed());
             }
             if (parameters.nextQuantity > 0)
             {

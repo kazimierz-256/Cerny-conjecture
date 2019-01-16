@@ -77,12 +77,16 @@ namespace Client
                 var recommendedIntake = 1;
                 var serverHasLessThanRequested = false;
                 var askedForMore = true;
+                var wakeupTimeout = TimeSpan.FromSeconds(1);
 
                 var size = -1;
                 var minimalSynchronizingLength = 0;
                 var unaryResourcesQueue = new ConcurrentQueue<int>();
                 var resultsMerged = new ConcurrentQueue<MicroSolution>();
                 var resultsMergedTotalAutomata = 0;
+
+                var alreadyComputed = new bool[0];
+                var locallyComputing = new bool[0];
 
                 #region address setup
                 var address = $"http://localhost:62752/ua";
@@ -103,118 +107,149 @@ namespace Client
                 TaskManager<int> taskManager = null;
                 connection.On("NoMoreAutomataThankYou", async () =>
                 {
-                    SayColoured(ConsoleColor.Magenta, "No more automata needed to compute");
-                    shouldReconnect = false;
-                    await connection.StopAsync();
                     try
                     {
-                        solutionSemaphore.Release();
+                        SayColoured(ConsoleColor.Magenta, "No more automata needed to compute");
+                        shouldReconnect = false;
+                        await connection.StopAsync();
+                    }
+                    catch { }
+                }
+                );
+                connection.On("AlreadyComputed", async (List<int> computed) =>
+                {
+                    try
+                    {
+                        SayColoured(ConsoleColor.DarkGreen, $"Already computed {computed.Count} automata");
+                        foreach (var item in computed)
+                            alreadyComputed[item] = true;
                     }
                     catch { }
                 }
                 );
                 var firstTimeSetup = true;
-                connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
+
+
+                var theory = new long[]
                 {
-                    if (!parameters.givenAsManyAsRequested)
-                        serverHasLessThanRequested = true;
-                    targetTimeout = TimeSpan.FromSeconds(parameters.targetTimeoutSeconds);
-                    maximumAutomatonCollectionSize = parameters.targetCollectionSize;
-
-                    if (parameters.serverMinimalLength != minimalSynchronizingLength)
-                        SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
-
-                    // no need for pedantic synchronization, the server will ultimately handle everything synchronously
-                    if (minimalSynchronizingLength < parameters.serverMinimalLength)
-                        minimalSynchronizingLength = parameters.serverMinimalLength;
-
-                    if (firstTimeSetup)
-                    {
-                        firstTimeSetup = false;
-                        size = parameters.automatonSize;
-                        #region SETUP
-
-                        taskManager?.Abort();
-
-                        taskManager = new TaskManager<int>(
-                        threads,
-                        leftover => (leftover <= minimalIntake),
-                        index =>
-                        {
-                            var startTime = DateTime.Now;
-                            var list = new List<ISolvedOptionalAutomaton>();
-                            var uniqueAutomaton = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
-                            var uniqueAutomatonBytes = new byte[uniqueAutomaton.Length];
-                            for (int i = 0; i < uniqueAutomaton.Length; i++)
-                                uniqueAutomatonBytes[i] = (byte)uniqueAutomaton[i];
-
-                            foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
+                    1, 3, 7, 19, 47, 130, 343, 951, 2615, 7318, 20491, 57903, 163898, 466199, 1328993, 3799624, 10884049, 31241170
+                };
+                connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
                             {
-                                if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
-                                    list.Add(automaton.DeepClone());
-
-                                if (list.Count > 0 && !list[list.Count - 1].SynchronizingWordLength.HasValue)
+                                try
                                 {
-                                    throw new Exception("Not synchronizable!");
+                                    if (!parameters.givenAsManyAsRequested)
+                                        serverHasLessThanRequested = true;
+                                    targetTimeout = TimeSpan.FromSeconds(parameters.targetTimeoutSeconds);
+                                    maximumAutomatonCollectionSize = parameters.targetCollectionSize;
+
+                                    if (parameters.serverMinimalLength != minimalSynchronizingLength)
+                                        SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
+
+                                    // no need for pedantic synchronization, the server will ultimately handle everything synchronously
+                                    if (minimalSynchronizingLength < parameters.serverMinimalLength)
+                                        minimalSynchronizingLength = parameters.serverMinimalLength;
+
+                                    if (firstTimeSetup)
+                                    {
+                                        firstTimeSetup = false;
+                                        size = parameters.automatonSize;
+                                        alreadyComputed = new bool[theory[size - 1]];
+                                        locallyComputing = new bool[theory[size - 1]];
+                                        #region SETUP
+
+                                        taskManager?.Abort();
+
+                                        taskManager = new TaskManager<int>(
+                                        threads,
+                                        leftover => (leftover <= minimalIntake),
+                                        index =>
+                                        {
+                                            if (alreadyComputed[index] || locallyComputing[index])
+                                                return;
+                                            try
+                                            {
+                                                locallyComputing[index] = true;
+
+                                                var startTime = DateTime.Now;
+                                                var list = new List<ISolvedOptionalAutomaton>();
+                                                var uniqueAutomaton = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
+                                                var uniqueAutomatonBytes = new byte[uniqueAutomaton.Length];
+                                                for (int i = 0; i < uniqueAutomaton.Length; i++)
+                                                    uniqueAutomatonBytes[i] = (byte)uniqueAutomaton[i];
+
+                                                foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
+                                                {
+                                                    if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
+                                                        list.Add(automaton.DeepClone());
+                                                }
+
+                                                if (list.Count > 0)
+                                                    SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
+#if DEBUG
+                                                else
+                                                    SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
+#endif
+                                                var finishedTime = DateTime.Now;
+                                                resultsMerged.Enqueue(new MicroSolution()
+                                                {
+                                                    unaryIndex = index,
+                                                    unaryItself = uniqueAutomatonBytes,
+                                                    solvedAutomata = list,
+                                                    startTime = startTime,
+                                                    finishTime = finishedTime
+                                                });
+                                                Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
+                                            }
+                                            catch (Exception)
+                                            {
+                                                locallyComputing[index] = false;
+                                                throw;
+                                            }
+                                        },
+                                        async () =>
+                                        {
+                                            solutionSemaphore.Release();
+                                        },
+                                        unaryResourcesQueue,
+                                        questSemaphore
+                                        );
+
+                                        taskManager.Launch();
+                                        #endregion
+                                    }
+                                    else if (size != parameters.automatonSize)
+                                    {
+                                        Console.WriteLine("Received incorrect automaton size.");
+                                        return;
+                                    }
+                                    SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
+#if DEBUG
+                                    var first = true;
+                                    foreach (var a in parameters.unaryAutomataIndices)
+                                    {
+                                        if (first)
+                                            Console.Write($"{a}");
+                                        else
+                                            Console.Write($",{a}");
+
+                                        first = false;
+                                    }
+                                    Console.WriteLine();
+#endif
+
+                                    foreach (var unaryIndex in parameters.unaryAutomataIndices)
+                                    {
+                                        unaryResourcesQueue.Enqueue(unaryIndex);
+                                        questSemaphore.Release();
+                                    }
+                                    askedForMore = false;
+                                }
+                                catch (Exception)
+                                {
                                 }
                             }
-
-                            if (list.Count > 0)
-                                SayColoured(ConsoleColor.Blue, $"Completed unary {index} (found {list.Count})");
-#if DEBUG
-                            else
-                                SayColoured(ConsoleColor.DarkGray, $"Completed unary {index} (not found any)");
-#endif
-                            var finishedTime = DateTime.Now;
-                            resultsMerged.Enqueue(new MicroSolution()
-                            {
-                                unaryIndex = index,
-                                unaryItself = uniqueAutomatonBytes,
-                                solvedAutomata = list,
-                                startTime = startTime,
-                                finishTime = finishedTime
-                            });
-                            Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
-                        },
-                        async () =>
-                        {
-                            solutionSemaphore.Release();
-                        },
-                        unaryResourcesQueue,
-                        questSemaphore
                         );
-
-                        taskManager.Launch();
-                        #endregion
-                    }
-                    else if (size != parameters.automatonSize)
-                    {
-                        Console.WriteLine("Received incorrect automaton size.");
-                        return;
-                    }
-                    SayColoured(ConsoleColor.Green, $"Received {parameters.unaryAutomataIndices.Count} unary automata of size {parameters.automatonSize}");
-#if DEBUG
-                    var first = true;
-                    foreach (var a in parameters.unaryAutomataIndices)
-                    {
-                        if (first)
-                            Console.Write($"{a}");
-                        else
-                            Console.Write($",{a}");
-
-                        first = false;
-                    }
-                    Console.WriteLine();
-#endif
-
-                    foreach (var unaryIndex in parameters.unaryAutomataIndices)
-                    {
-                        unaryResourcesQueue.Enqueue(unaryIndex);
-                        questSemaphore.Release();
-                    }
-                    askedForMore = false;
-                }
-                );
 
                 #region Updating minimum synchronizing word length
                 connection.On("UpdateLength", async (int serverMinimalLength) =>
@@ -233,8 +268,14 @@ namespace Client
 #if DEBUG
                         SayColoured(ConsoleColor.Red, "Closed connection. Reconnecting...");
 #endif
-                        await Task.Delay((int)(Math.Exp(new Random().NextDouble() * 6)));
-                        await connection.StartAsync();
+                        try
+                        {
+                            await Task.Delay((int)(Math.Exp(new Random().NextDouble() * 6)));
+                            await connection.StartAsync();
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                     else
                     {
@@ -316,7 +357,11 @@ namespace Client
                         return;
                     do
                     {
-                        solutionSemaphore.WaitOne(targetTimeout - elapsedTimeout);
+                        var waitTime = targetTimeout - elapsedTimeout;
+                        if (wakeupTimeout < waitTime)
+                            waitTime = wakeupTimeout;
+
+                        solutionSemaphore.WaitOne(waitTime);
                         if (!shouldReconnect)
                             return;
                         elapsedTimeout = DateTime.Now - afterSentDate;

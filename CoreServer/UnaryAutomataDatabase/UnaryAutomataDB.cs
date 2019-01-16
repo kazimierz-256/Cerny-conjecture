@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunicationContracts;
 using CoreDefinitions;
@@ -127,6 +128,18 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
+        public List<int> GetAlreadyComputed()
+        {
+            var finished = new List<int>();
+            lock (synchronizingObject)
+            {
+                foreach (var item in finishedAutomata)
+                    if (item.solved)
+                        finished.Add(item.solution.unaryIndex);
+            }
+            return finished;
+        }
+        private Random randomizer = new Random(0);
         public List<int> GetUnaryAutomataToProcessAndMarkAsProcessing(int quantity)
         {
             var toProcess = new List<int>();
@@ -139,10 +152,22 @@ namespace CoreServer.UnaryAutomataDatabase
                     if (!finishedAutomata[dequeued].solved)
                         toProcess.Add(dequeued);
                 }
-
-                foreach (var index in toProcess)
+                if (leftoverAutomata.Count == 0)
                 {
-                    leftoverAutomata.Enqueue(index);
+
+                    var numbers = new double[toProcess.Count];
+                    for (int i = 0; i < toProcess.Count; i++)
+                        numbers[i] = randomizer.NextDouble();
+                    var arrayNumbers = toProcess.ToArray();
+                    Array.Sort(numbers, arrayNumbers);
+
+                    foreach (var index in arrayNumbers)
+                        leftoverAutomata.Enqueue(index);
+                }
+                else
+                {
+                    foreach (var index in toProcess)
+                        leftoverAutomata.Enqueue(index);
                 }
             }
             return toProcess;
