@@ -15,7 +15,6 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let vertexHighlightedBits = new Int16Array(power);
     let preceedingVertex = new Int16Array(power);
     let succeedingVertex = new Int16Array(power);
-    let missingBits = new Int16Array(power);
 
     let connectionA = new Int16Array(power);
     let connectionB = new Int16Array(power);
@@ -28,10 +27,12 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let transitionB = new Int16Array(n);
 
     let startingVertex = power - 1;
-    discoveredQueue[0] = startingVertex;
-    vertexDistance[startingVertex] = 1;
-    isDiscovered[startingVertex] = true;
-    preceedingVertex[startingVertex] = startingVertex;
+    if (appSettings.showPowerAutomaton) {
+        discoveredQueue[0] = startingVertex;
+        vertexDistance[startingVertex] = 1;
+        isDiscovered[startingVertex] = true;
+        preceedingVertex[startingVertex] = startingVertex;
+    }
     let discoveredSingleton = false;
     let singletonVertex = -1;
 
@@ -43,89 +44,112 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     }
 
     let maxDistance = 1;
-    while (readingIndex < writingIndex) {
-        let consideringVertex = discoveredQueue[readingIndex++];
+    if (!appSettings.showPowerAutomaton) {
+        singletonVertex = 1;
+        maxDistance = 2;
+        appSettings.shortestPath = [];
+        for (let consideringVertex = 1; consideringVertex < power; consideringVertex *= 2) {
 
-        if (vertexDistance[consideringVertex] > maxDistance)
-            maxDistance = vertexDistance[consideringVertex];
+            isDiscovered[consideringVertex] = true;
+            let goA = 0;
+            let goB = 0;
+            let bitsCons = 0;
+            for (let i = 0; i < n; i++) {
+                if (((consideringVertex >>> i) & 1) === 1) {
+                    goA |= transitionA[i];
+                    goB |= transitionB[i];
 
-        let goA = 0;
-        let goB = 0;
-        let missingA = missingBits[consideringVertex];
-        let missingB = missingBits[consideringVertex];
-        let bitsCons = 0;
-        for (let i = 0; i < n; i++) {
-            if (((consideringVertex >>> i) & 1) === 1) {
-                goA |= transitionA[i];
-                goB |= transitionB[i];
-
-                if (!Number.isInteger(problem[0][i]) || problem[0][i] >= n)
-                    missingA += 1;
-                if (!Number.isInteger(problem[1][i]) || problem[1][i] >= n)
-                    missingB += 1;
-                bitsCons++;
-            } else {
-                // bit not set
-            }
-        }
-
-        connectionA[consideringVertex] = goA;
-        connectionB[consideringVertex] = goB;
-
-        vertexHighlightedBits[consideringVertex] = bitsCons;
-        // check whether they form a new vertex
-        if (isDiscovered[goA] === false) {
-            missingBits[goA] = missingA;
-            if (!discoveredSingleton) {
-                if (0 == (goA & (goA - 1)) && missingA == 0) {
-                    discoveredSingleton = true;
-                    singletonVertex = goA;
+                    bitsCons++;
+                } else {
+                    // bit not set
                 }
             }
-            discoveredQueue[writingIndex++] = goA;
-            vertexDistance[goA] = vertexDistance[consideringVertex] + 1;
-            isDiscovered[goA] = true;
+
+            connectionA[consideringVertex] = goA;
+            connectionB[consideringVertex] = goB;
             preceedingVertex[goA] = consideringVertex;
-            wentByB[goA] = false;
+            preceedingVertex[goB] = consideringVertex;
+            partOfShortestWord[consideringVertex] = true;
+            vertexDistance[consideringVertex] = 2;
+
+            vertexHighlightedBits[consideringVertex] = bitsCons;
         }
-        if (isDiscovered[goB] === false) {
-            missingBits[goB] = missingB;
-            if (!discoveredSingleton) {
-                if (0 == (goB & (goB - 1)) && missingB == 0) {
-                    discoveredSingleton = true;
-                    singletonVertex = goB;
+    } else {
+        while (readingIndex < writingIndex) {
+            let consideringVertex = discoveredQueue[readingIndex++];
+
+            if (vertexDistance[consideringVertex] > maxDistance)
+                maxDistance = vertexDistance[consideringVertex];
+
+            let goA = 0;
+            let goB = 0;
+            let bitsCons = 0;
+            for (let i = 0; i < n; i++) {
+                if (((consideringVertex >>> i) & 1) === 1) {
+                    goA |= transitionA[i];
+                    goB |= transitionB[i];
+                    bitsCons++;
+                } else {
+                    // bit not set
                 }
             }
-            discoveredQueue[writingIndex++] = goB;
-            vertexDistance[goB] = vertexDistance[consideringVertex] + 1;
-            isDiscovered[goB] = true;
-            preceedingVertex[goB] = consideringVertex;
-            wentByB[goA] = true;
+
+            connectionA[consideringVertex] = goA;
+            connectionB[consideringVertex] = goB;
+
+            vertexHighlightedBits[consideringVertex] = bitsCons;
+            // check whether they form a new vertex
+            if (isDiscovered[goA] === false) {
+                if (!discoveredSingleton) {
+                    if (0 == (goA & (goA - 1))) {
+                        discoveredSingleton = true;
+                        singletonVertex = goA;
+                    }
+                }
+                discoveredQueue[writingIndex++] = goA;
+                vertexDistance[goA] = vertexDistance[consideringVertex] + 1;
+                isDiscovered[goA] = true;
+                preceedingVertex[goA] = consideringVertex;
+                wentByB[goA] = false;
+            }
+            if (isDiscovered[goB] === false) {
+                if (!discoveredSingleton) {
+                    if (0 == (goB & (goB - 1))) {
+                        discoveredSingleton = true;
+                        singletonVertex = goB;
+                    }
+                }
+                discoveredQueue[writingIndex++] = goB;
+                vertexDistance[goB] = vertexDistance[consideringVertex] + 1;
+                isDiscovered[goB] = true;
+                preceedingVertex[goB] = consideringVertex;
+                wentByB[goA] = true;
+            }
         }
     }
     appSettings.maxDistance = maxDistance;
     appSettings.maximumConsideringDepth = maxDistance;
-
-    appSettings.shortestPath = undefined;
-    if (discoveredSingleton) {
-        appSettings.shortestPath = [];
-        partOfShortestWord[startingVertex] = true;
-        let elevatingVertex = singletonVertex;
-        while (true) {
-            appSettings.shortestPath.push(elevatingVertex);
-            partOfShortestWord[elevatingVertex] = true;
-            let newElevatingVertex = preceedingVertex[elevatingVertex];
-            succeedingVertex[newElevatingVertex] = elevatingVertex;
-            if (newElevatingVertex == startingVertex) {
-                appSettings.shortestPath.push(startingVertex);
-                break;
-            } else {
-                elevatingVertex = newElevatingVertex;
+    if (appSettings.showPowerAutomaton) {
+        appSettings.shortestPath = undefined;
+        if (discoveredSingleton) {
+            appSettings.shortestPath = [];
+            partOfShortestWord[startingVertex] = true;
+            let elevatingVertex = singletonVertex;
+            while (true) {
+                appSettings.shortestPath.push(elevatingVertex);
+                partOfShortestWord[elevatingVertex] = true;
+                let newElevatingVertex = preceedingVertex[elevatingVertex];
+                succeedingVertex[newElevatingVertex] = elevatingVertex;
+                if (newElevatingVertex == startingVertex) {
+                    appSettings.shortestPath.push(startingVertex);
+                    break;
+                } else {
+                    elevatingVertex = newElevatingVertex;
+                }
             }
         }
     }
-
-    appSettings.isSynchronizable = discoveredSingleton;
+    appSettings.isSynchronizable = !appSettings.showPowerAutomaton || discoveredSingleton;
 
     let vx = new Float32Array(power);
     let vy = new Float32Array(power);
@@ -145,7 +169,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
     let FwArr = new Float32Array(power);
     let FuArr = new Float32Array(power);
 
-    appSettings.recomputeForces(10 / power);
+    appSettings.recomputeForces(1);
 
     let sphereSize = 1;
     let distanceToSize = (dist) => sphereSize / Math.sqrt(dist);
@@ -262,7 +286,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         if (outline !== undefined)
             outline.selectedObjects.push(spheres[i]);
 
-        let textTosShow = (i >>> 0).toString(2).padStart(n, "0") + (missingBits[i] > 0 ? " (" + missingBits[i] + ")" : "");
+        let textTosShow = (i >>> 0).toString(2).padStart(n, "0");
         let fontSize = mass[i] * 1.9 / textTosShow.length;
         let fontGeometry = new THREE.TextGeometry(
             textTosShow, {
@@ -324,7 +348,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             if (i == j)
                 continue;
 
-            let partOfShortestPath = (partOfShortestWord[i] && partOfShortestWord[j] && preceedingVertex[j] == i);
+            let partOfShortestPath = !appSettings.showPowerAutomaton || (partOfShortestWord[i] && partOfShortestWord[j] && preceedingVertex[j] == i);
             // let color = new THREE.Color(0x222222);
             // let hue = index == 0 ? 0.6 : 0.0;
             // let saturation = 0;

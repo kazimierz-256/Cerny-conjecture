@@ -15,8 +15,3 @@ To launch an instance of a Client please provide the following parameters:
 To launch an instance of a Presentation please provide the following parameters:
   run-presentation.cmd http://192.168.145.184:62752
 * where http://192.168.145.184:62752 is the address and port of the Server
-
-*** VISUALIZATION
-To launch the Visualization please run the script without parameters
-  run-visualization-independently.cmd
-* please make sure the browser supports loading local files, try Firefox if assets won't load

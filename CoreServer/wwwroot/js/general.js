@@ -3,6 +3,7 @@ let stats = new Stats();
 let appSettings = new settings(1);
 
 let camera, scene, renderer, controls, mesh, water, cubeCamera, existingGraph, skyParameters, sunLight;
+let generateAction = undefined;
 let cameraDistance = 3;
 const zoomFactor = 2;
 let animatables = [];
@@ -446,6 +447,22 @@ let init = (createControlFromCamera) => {
     //     dolly(cameraDistance * zoomFactor);
     //     e.stopPropagation();
     // });
+    $("#showPowerGraph").click((e) => {
+        appSettings.showPowerAutomaton = true;
+        $("#showPowerGraph").hide();
+        $("#showNormalNotPowerGraph").show();
+
+        if (generateAction != undefined)
+            showGraph(generateAction());
+    });
+    $("#showNormalNotPowerGraph").click((e) => {
+        appSettings.showPowerAutomaton = false;
+        $("#showPowerGraph").show();
+        $("#showNormalNotPowerGraph").hide();
+
+        if (generateAction != undefined)
+            showGraph(generateAction());
+    });
     $("#flat3d").click((e) => {
         stayFlat = !stayFlat;
         toggleFlatForce(stayFlat);
@@ -669,22 +686,28 @@ let init = (createControlFromCamera) => {
     updateAnimatingButtons();
 
     $("#random-graph-generate").on("click", () => {
-        showGraph(graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings, cubeCamera));
+        generateAction = () => graphs.getRandomAutomaton($("#random-graph-size").val(), appSettings, cubeCamera);
+        showGraph(generateAction());
     });
     $("#cerny-graph-generate").on("click", () => {
-        showGraph(graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings, cubeCamera));
+        generateAction = () => graphs.getCernyAutomaton($("#cerny-graph-size").val(), appSettings, cubeCamera);
+        showGraph(generateAction());
     });
     $("#custom-graph-generate").on("click", () => {
-        showGraph(parseGraph($("#custom-graph-transitions").val(), cubeCamera));
+        generateAction = () => parseGraph($("#custom-graph-transitions").val(), cubeCamera);
+        showGraph(generateAction());
     });
     $("#generate-karis-automaton").on("click", () => {
-        showGraph(graphs.getKarisAutomaton(appSettings, cubeCamera));
+        generateAction = () => graphs.getKarisAutomaton(appSettings, cubeCamera);
+        showGraph(generateAction());
     });
     $("#generate-extreme-3-automaton").on("click", () => {
-        showGraph(graphs.getExtreme3Automaton(appSettings, cubeCamera));
+        generateAction = () => graphs.getExtreme3Automaton(appSettings, cubeCamera);
+        showGraph(generateAction());
     });
     $("#generate-extreme-4-automaton").on("click", () => {
-        showGraph(graphs.getExtreme4Automaton(appSettings, cubeCamera));
+        generateAction = () => graphs.getExtreme4Automaton(appSettings, cubeCamera);
+        showGraph(generateAction());
     });
 
     $("#quality-smooth").on("click", () => {
@@ -926,11 +949,18 @@ $(document).ready(() => {
             if (request["probability"] != undefined)
                 appSettings.probabilityOfUpdate = parseFloat(request["probability"]);
 
+            if (request["power"] != undefined)
+                appSettings.showPowerAutomaton = 0 !== parseInt(request["power"]);
+
+            $(appSettings.showPowerAutomaton ? "#showNormalNotPowerGraph" : "#showPowerGraph").click();
+
             if (request["automaton"] == undefined) {
-                showGraph(graphs.getCernyAutomaton(4, appSettings, cubeCamera));
+                generateAction = () => graphs.getCernyAutomaton(4, appSettings, cubeCamera);
             } else {
-                showGraph(parseGraph(unescape(request["automaton"])));
+                generateAction = () => parseGraph(unescape(request["automaton"]));
             }
+
+            showGraph(generateAction());
         };
 
         if ('LinearAccelerationSensor' in window && ('ontouchstart' in window)) {
