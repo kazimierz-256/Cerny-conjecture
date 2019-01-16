@@ -862,7 +862,7 @@ let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
 
 let parseGraph = (specification) => {
     let parsedGraph = JSON.parse(specification);
-    return getAnimatableGraph(parsedGraph, appSettings, "Automaton of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
+    return getAnimatableGraph(parsedGraph, appSettings, (appSettings.showPowerAutomaton ? "Power graph of an automaton" : "Automaton") + " of size " + Math.min(parsedGraph[0].length, parsedGraph[1].length), cubeCamera);
 };
 
 
@@ -956,7 +956,7 @@ $(document).ready(() => {
 
             if (request["powerGraph"] != undefined)
                 appSettings.showPowerAutomaton = 0 !== parseInt(request["powerGraph"]);
-            
+
             $(appSettings.showPowerAutomaton ? "#showPowerGraph" : "#showNormalNotPowerGraph").click();
 
             if (request["automaton"] == undefined) {

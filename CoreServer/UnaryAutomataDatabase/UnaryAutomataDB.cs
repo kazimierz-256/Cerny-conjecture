@@ -241,12 +241,15 @@ namespace CoreServer.UnaryAutomataDatabase
                 synchronizingWordLengthToCount.Clear();
                 foreach (var item in data.finishedStatistics)
                 {
-                    leftoverAutomataIndices.Remove(item.solution.unaryIndex);
-                    foreach (var automatonLength in item.solution.solvedSyncLength)
+                    if (item.solved)
                     {
-                        if (!synchronizingWordLengthToCount.ContainsKey(automatonLength))
-                            synchronizingWordLengthToCount.Add(automatonLength, 0);
-                        synchronizingWordLengthToCount[automatonLength] += 1;
+                        leftoverAutomataIndices.Remove(item.solution.unaryIndex);
+                        foreach (var automatonLength in item.solution.solvedSyncLength)
+                        {
+                            if (!synchronizingWordLengthToCount.ContainsKey(automatonLength))
+                                synchronizingWordLengthToCount.Add(automatonLength, 0);
+                            synchronizingWordLengthToCount[automatonLength] += 1;
+                        }
                     }
                 }
                 var automataIndices = new int[leftoverAutomataIndices.Count];

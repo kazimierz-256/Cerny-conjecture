@@ -286,10 +286,10 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         if (outline !== undefined)
             outline.selectedObjects.push(spheres[i]);
 
-        let textTosShow = (i >>> 0).toString(2).padStart(n, "0");
-        let fontSize = mass[i] * 1.9 / textTosShow.length;
+        let textToShow = (i >>> 0).toString(2).padStart(n, "0");
+        let fontSize = mass[i] * 1.9 / textToShow.length;
         let fontGeometry = new THREE.TextGeometry(
-            textTosShow, {
+            textToShow, {
                 font: appSettings.font,
                 size: fontSize,
                 height: fontSize * 0.1,
@@ -307,8 +307,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
 
 
         let fontMesh = new THREE.Mesh(fontGeometry, fontMaterial);
-        fontMesh.position.y = -textHeight / 2;
-        fontMesh.position.x = -textWidth / 2;
+        fontMesh.position.y -= textHeight / 2;
+        fontMesh.position.x -= textWidth / 2;
         fontMesh.position.z = mass[i] * 1;
 
         vertexDetails[i] = new THREE.Group();
@@ -884,7 +884,7 @@ class graphFactory {
             goB[i] = Math.floor(Math.random() * size);
         }
 
-        return getAnimatableGraph([goA, goB], appSettings, "Some random automaton of size " + size, outline);
+        return getAnimatableGraph([goA, goB], appSettings, (appSettings.showPowerAutomaton ? "Power graph of some" : "Some") + " random automaton of size " + size, outline);
     }
 
     getCernyAutomaton(size, appSettings, outline) {
@@ -898,27 +898,27 @@ class graphFactory {
         goA[0] = 1;
         goB[size - 1] = 0;
 
-        return getAnimatableGraph([goA, goB], appSettings, "Černý automaton of size " + size, outline);
+        return getAnimatableGraph([goA, goB], appSettings, (appSettings.showPowerAutomaton ? "Power graph of " : "") + "Černý automaton of size " + size, outline);
     }
 
     getKarisAutomaton(appSettings, outline) {
         return getAnimatableGraph([
             [1, 2, 0, 5, 3, 4],
             [0, 1, 3, 2, 2, 5]
-        ], appSettings, "Kari's automaton", outline);
+        ], appSettings, (appSettings.showPowerAutomaton ? "Power graph of " : "") + "Kari's automaton", outline);
     }
 
     getExtreme4Automaton(appSettings, outline) {
         return getAnimatableGraph([
             [0, 2, 1, 2],
             [3, 0, 2, 1]
-        ], appSettings, "Extreme automaton of size 4", outline);
+        ], appSettings, (appSettings.showPowerAutomaton ? "Power graph of an extreme" : "Extreme") + " automaton of size 4", outline);
     }
 
     getExtreme3Automaton(appSettings, outline) {
         return getAnimatableGraph([
             [1, 0, 1],
             [1, 2, 0]
-        ], appSettings, "Extreme automaton of size 3", outline);
+        ], appSettings, (appSettings.showPowerAutomaton ? "Power graph of an extreme" : "Extreme") + " automaton of size 3", outline);
     }
 }
