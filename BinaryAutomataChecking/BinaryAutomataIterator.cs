@@ -19,27 +19,6 @@ namespace BinaryAutomataChecking
         public IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllSolved(int size, int index)
             => GetAllSolvedRecursively(size, index);
 
-        //pawdopodobnie jest coś źle
-        public IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllSolvedIncrementally(int size, int index)
-            => solutionMapper1.SelectAsSolved(GetAllFullAutomataToCheckIncrementally(size, index));
-
-        private IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomataToCheckIncrementally(int size, int index)
-        {
-            int maxLength = (size - 1) * (size - 1);
-
-            foreach (var AcAutomaton in solutionMapper2.SelectAsSolved(GetAllAcAutomataToCheck(size, index)))
-            {
-                if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength * 2) + 1 > maxLength)
-                {
-                    MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton);
-                    foreach (var fullAutomaton in makingFullAutomata.GenerateIncrementally())
-                    {
-                        yield return fullAutomaton;
-                    }
-                }
-            }
-        }
-
         public IEnumerable<CoreDefinitions.ISolvedOptionalAutomaton> GetAllSolvedRecursively(int size, int index)
             => solutionMapper1.SelectAsSolved(GetAllFullAutomataToCheckRecursively(size, index));
 

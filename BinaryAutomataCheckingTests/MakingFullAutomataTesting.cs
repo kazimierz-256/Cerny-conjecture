@@ -15,7 +15,7 @@ namespace BinaryAutomataCheckingTests
         [InlineData(7, 263)]
         public void CheckIfDifferentFullAutomataIncrementally(int size, int index)
         {
-            IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolvedIncrementally(size, index);
+            IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolvedRecursively(size, index);
             IEnumerable<byte[]> solvedOptionalAutomatons2 =
                 from a in solvedOptionalAutomatons
                 where a.SynchronizingWordLength.HasValue && a.SynchronizingWordLength.Value > 23
@@ -81,7 +81,7 @@ namespace BinaryAutomataCheckingTests
             IOptionalAutomaton Ac = new OptionalAutomaton(a_tab, b_tab);
             MakingFullAutomata makingFullAutomata = new MakingFullAutomata(Ac);
 
-            IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.GenerateIncrementally();
+            IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
             IEnumerable<byte[]> fullAutomata2 =
                 from a in FullAutomata
                 select CopyArray(a.TransitionFunctionsB);
@@ -260,7 +260,7 @@ namespace BinaryAutomataCheckingTests
             MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
 
             IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
-            IEnumerable<IOptionalAutomaton> FullAutomataIncremental = makingFullAutomata.GenerateIncrementally();
+            IEnumerable<IOptionalAutomaton> FullAutomataIncremental = makingFullAutomata.Generate();
 
             var fullIterator = FullAutomata.GetEnumerator();
             var fullIncrementalIterator = FullAutomataIncremental.GetEnumerator();

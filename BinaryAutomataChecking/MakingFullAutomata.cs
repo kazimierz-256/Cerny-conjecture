@@ -32,64 +32,7 @@ namespace BinaryAutomataChecking
                 helpList[i] = automata.TransitionFunctionsB[i] == CoreDefinitions.OptionalAutomaton.MissingTransition ? null : TransitionsFromA[automata.TransitionFunctionsB[i]];
             }
         }
-
-        /// <summary>
-        /// Be careful! Not entirely sure it is correct
-        /// </summary>
-        public IEnumerable<CoreDefinitions.IOptionalAutomaton> GenerateIncrementally()
-        {
-            for (int place = 0; place < n; place++)
-            {
-                if (helpList[place] == null)
-                    automata.TransitionFunctionsB[place] = 0;
-                else
-                {
-                    if (helpList[place].Count == 0)
-                        yield break;
-
-                    automata.TransitionFunctionsB[place] = helpList[place][0];
-                }
-            }
-
-            yield return automata;
-            var initialBs = (byte[])automata.TransitionFunctionsB.Clone();
-            var helpListIter = new int[n];
-
-            while (true)
-            {
-                int place = n - 1;
-                for (; place >= 0; place -= 1)
-                {
-                    if (helpList[place] == null)
-                    {
-                        if (automata.TransitionFunctionsB[place] + 1 == n)
-                        {
-                            automata.TransitionFunctionsB[place] = initialBs[place];
-                            continue;
-                        }
-                        else
-                        {
-                            automata.TransitionFunctionsB[place] += 1;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (helpListIter[place] + 1 == helpList[place].Count)
-                            helpListIter[place] = 0;
-                        else
-                            helpListIter[place] += 1;
-
-                        automata.TransitionFunctionsB[place] = helpList[place][helpListIter[place]];
-                    }
-                }
-
-                if (place < 0)
-                    yield break;
-                else
-                    yield return automata;
-            }
-        }
+        
 
         public IEnumerable<CoreDefinitions.IOptionalAutomaton> Generate()
         {

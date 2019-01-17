@@ -27,19 +27,19 @@ namespace NonisomorphicEndofunctorsTests
         [InlineData(7)]
         public void UnaryNonisomorphicAutomataGenerator(int maxSize)
         {
-            foreach (var automata in UniqueUnaryAutomata.Generator.EnumerateCollectionsOfNonisomorphicUnaryAutomata().Take(maxSize))
+            for (int i = 0; i < UniqueUnaryAutomata.Generator.theory[maxSize - 1]; i++)
             {
-                for (int i = 0; i < automata.Length - 1; i++)
+                for (int j = 0; j < UniqueUnaryAutomata.Generator.theory[maxSize - 1]; j++)
                 {
-                    Assert.True(UniqueUnaryAutomata.AutomatonIsomorphism.AreAutomataIsomorphic(automata[i], automata[i]));
-                    for (int j = i + 1; j < automata.Length; j += 1)
-                    {
-                        var iIsomorphicToJ = UniqueUnaryAutomata.AutomatonIsomorphism.AreAutomataIsomorphic(automata[i], automata[j]);
-                        var jIsomorphicToI = UniqueUnaryAutomata.AutomatonIsomorphism.AreAutomataIsomorphic(automata[j], automata[i]);
+                    var automatonI = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(maxSize, i);
+                    var automatonJ = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(maxSize, j);
 
+                    var iIsomorphicToJ = UniqueUnaryAutomata.AutomatonIsomorphism.AreAutomataIsomorphic(automatonI, automatonJ);
+
+                    if (i == j)
+                        Assert.True(iIsomorphicToJ);
+                    else
                         Assert.False(iIsomorphicToJ);
-                        Assert.False(jIsomorphicToI);
-                    }
                 }
             }
         }

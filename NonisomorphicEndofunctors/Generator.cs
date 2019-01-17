@@ -12,7 +12,7 @@ namespace UniqueUnaryAutomata
 {
     public static class Generator
     {
-        private readonly static long[] theory = new long[]
+        public readonly static long[] theory = new long[]
         {
             1, 3, 7, 19, 47, 130, 343, 951, 2615, 7318, 20491, 57903, 163898, 466199, 1328993, 3799624, 10884049, 31241170
         };
