@@ -126,7 +126,8 @@ namespace Presentation
                                         var b = a.solution.solvedB[i];
                                         b_tab = byteTabToString(b);
                                         sortedLengths.Add(-a.solution.solvedSyncLength[i]);
-                                        sortedResults.Add($"[{a_tab},{b_tab}]");
+                                        sortedResults.Add($"[{a_tab},{b_tab}], index = {a.solution.unaryIndex}"); //do testów
+                                        //sortedResults.Add($"[{a_tab},{b_tab}]");
                                     }
                                 }
                             }
