@@ -10,6 +10,43 @@ namespace BinaryAutomataCheckingTests
     public class MakingFullAutomataTesting
     {
         [Theory]
+        [InlineData(9,1549)]
+        public void CheckIfDifferentFullAutomata(int size, int index)
+        {
+            IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolved(size, index);
+            IEnumerable<byte[]> solvedOptionalAutomatons2 =
+                from a in solvedOptionalAutomatons
+                where a.SynchronizingWordLength.HasValue && a.SynchronizingWordLength.Value > 23
+                select CopyArray(a.TransitionFunctionsB);
+            byte[][] TabSolvedOptionalAutomatons = solvedOptionalAutomatons2.ToArray();
+            for(int i = 0; i < TabSolvedOptionalAutomatons.Length - 1; i++)
+            {
+                for (int j = i+1; j < TabSolvedOptionalAutomatons.Length; j++)
+                {
+                    Assert.NotEqual(TabSolvedOptionalAutomatons[i], TabSolvedOptionalAutomatons[j]);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(9, 1549)]
+        public void CheckIfDifferentAcAutomata(int size, int index)
+        {
+            IEnumerable<IOptionalAutomaton> optionalAutomatons = new BinaryAutomataIterator().GetAllAcAutomataToCheck(size, index);
+            IEnumerable<byte[]> solvedOptionalAutomatons2 =
+                from a in optionalAutomatons
+                select CopyArray(a.TransitionFunctionsB);
+            byte[][] TabSolvedOptionalAutomatons = solvedOptionalAutomatons2.ToArray();
+            for (int i = 0; i < TabSolvedOptionalAutomatons.Length - 1; i++)
+            {
+                for (int j = i + 1; j < TabSolvedOptionalAutomatons.Length; j++)
+                {
+                    Assert.NotEqual(TabSolvedOptionalAutomatons[i], TabSolvedOptionalAutomatons[j]);
+                }
+            }
+        }
+
+        [Theory]
         [InlineData(new byte[] { 1, 2, 2 }, new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
             new byte[] { },
             new byte[] { 0 },

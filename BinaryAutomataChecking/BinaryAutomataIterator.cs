@@ -36,7 +36,7 @@ namespace BinaryAutomataChecking
             }
         }
 
-        private IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomataToCheck(int size, int index)
+        public IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomataToCheck(int size, int index)
         {
             byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
