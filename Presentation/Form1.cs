@@ -114,7 +114,7 @@ namespace Presentation
                             }
 
                             var sortedLengths = new List<int>();
-                            var sortedResults = new List<string>();
+                            var sortedResults = new List<Tuple<int, string>>();
                             //var results = 
                             foreach (var a in resultingTextStatistics.finishedAutomata)
                             {
@@ -126,7 +126,7 @@ namespace Presentation
                                         var b = a.solution.solvedB[i];
                                         b_tab = byteTabToString(b);
                                         sortedLengths.Add(-a.solution.solvedSyncLength[i]);
-                                        sortedResults.Add($"[{a_tab},{b_tab}], index = {a.solution.unaryIndex}"); //do testów
+                                        sortedResults.Add( new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
                                         //sortedResults.Add($"[{a_tab},{b_tab}]");
                                     }
                                 }
@@ -139,8 +139,8 @@ namespace Presentation
                             Array.Sort(resultingLengths, resultingArray);
                             for (int i = 0; i < resultingArray.Length; i++)
                             {
-                                automataToLaunch.Add(resultingArray[i]);
-                                listOfAutomata.Items.Add($"{resultingArray[i]} - synchronizing length {-resultingLengths[i]}");
+                                automataToLaunch.Add(resultingArray[i].Item2);
+                                listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-resultingLengths[i]}");
                             }
                             labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.";
                         }));
@@ -246,7 +246,7 @@ namespace Presentation
             if (connection != null)
             {
                 await connection.StopAsync();
-                //addressBox.BackColor = Color.OrangeRed;
+                addressBox.BackColor = Color.Empty;
             }
         }
 

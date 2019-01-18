@@ -1,3 +1,3 @@
 start run-client
-start run-server 8 20
+start run-server 3 100
 start run-presentation
