@@ -63,20 +63,20 @@ namespace Presentation
                     .Build();
                 connection.On(
                     "ShowSimpleTextStatistics",
-                    (ServerPresentationComputationSummary resultingTextStatistics) =>
+                    (ServerPresentationComputationSummary summary) =>
                     {
                         Invoke(new Action(() =>
                         {
-                            int toCompute = resultingTextStatistics.total - resultingTextStatistics.finishedAutomata.Count;
+                            int toCompute = summary.total - summary.finishedAutomata.Count;
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", resultingTextStatistics.finishedAutomata.Count);
+                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
 
-                            if (resultingTextStatistics.finishedAutomata.Count > 0)
+                            if (summary.finishedAutomata.Count > 0)
                             {
-                                chart1.Titles[0].Text = $"Unary Automata with n = {resultingTextStatistics.finishedAutomata[0].solution.unaryArray.Length}";
-                                totalComputingTime = GetTotalComputationTime(resultingTextStatistics.finishedAutomata);
-                                var totalSpeed = GetAverageSpeed(resultingTextStatistics.finishedAutomata);
+                                chart1.Titles[0].Text = $"Unary Automata with n = {summary.n}";
+                                totalComputingTime = GetTotalComputationTime(summary.finishedAutomata);
+                                var totalSpeed = GetAverageSpeed(summary.finishedAutomata);
                                 double leftSeconds;
                                 if (totalSpeed == 0)
                                 {
@@ -91,11 +91,11 @@ namespace Presentation
                                 }
 
                                 startCountingTime = DateTime.Now;
-                                if (!timerLaunched && resultingTextStatistics.finishedAutomata.Count == resultingTextStatistics.total)
+                                if (!timerLaunched && summary.finishedAutomata.Count == summary.total)
                                 {
                                     materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
                                 }
-                                else if (!timerLaunched && resultingTextStatistics.finishedAutomata.Count < resultingTextStatistics.total)
+                                else if (!timerLaunched && summary.finishedAutomata.Count < summary.total)
                                 {
                                     timer1.Tick += (o, e) =>
                                     {
@@ -104,7 +104,7 @@ namespace Presentation
                                     timer1.Start();
                                     timerLaunched = true;
                                 }
-                                else if (resultingTextStatistics.finishedAutomata.Count == resultingTextStatistics.total)
+                                else if (summary.finishedAutomata.Count == summary.total)
                                 {
                                     timer1.Stop();
                                     timerLaunched = false;
@@ -116,7 +116,7 @@ namespace Presentation
                             var sortedLengths = new List<int>();
                             var sortedResults = new List<Tuple<int, string>>();
                             //var results = 
-                            foreach (var a in resultingTextStatistics.finishedAutomata)
+                            foreach (var a in summary.finishedAutomata)
                             {
                                 if (a.solution.solvedB.Count > 0)
                                 {
@@ -126,7 +126,7 @@ namespace Presentation
                                         var b = a.solution.solvedB[i];
                                         b_tab = byteTabToString(b);
                                         sortedLengths.Add(-a.solution.solvedSyncLength[i]);
-                                        sortedResults.Add( new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
+                                        sortedResults.Add(new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
                                         //sortedResults.Add($"[{a_tab},{b_tab}]");
                                     }
                                 }
@@ -142,7 +142,10 @@ namespace Presentation
                                 automataToLaunch.Add(resultingArray[i].Item2);
                                 listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-resultingLengths[i]}");
                             }
-                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.";
+                            var cernyLength = (summary.n - 1) * (summary.n - 1);
+                            var cernyConjectureViolated = resultingLengths.Length > 0 && resultingLengths[0] > cernyLength;
+                            var cernyConjectureViolatedText = cernyConjectureViolated ? "VIOLATED!" : $"not violated for n={summary.n}.";
+                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata. Cerny conjecture is {cernyConjectureViolatedText}";
                         }));
                     }
                     );
@@ -261,8 +264,8 @@ namespace Presentation
             }
             else
             {
-                string message = "You did not selected any automaton. Want to see visualisation of Cerny automaton?\nPS.You can click NO, go back, and select some automaton this time.";
-                string caption = "Not selected automaton";
+                string message = "You did not selected any automaton. Would you like to see Cerny automaton?";
+                string caption = "No automaton selected";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 DialogResult result;
                 result = MessageBox.Show(message, caption, buttons);

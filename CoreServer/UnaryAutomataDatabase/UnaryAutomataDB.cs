@@ -23,7 +23,8 @@ namespace CoreServer.UnaryAutomataDatabase
                 {
                     total = Total,
                     description = $"Computed {finishedAutomata.Count(finished => finished != null)} out of {Total}.",
-                    finishedAutomata = finishedAutomata.Where(automaton => automaton.solved).ToList()
+                    finishedAutomata = finishedAutomata.Where(automaton => automaton.solved).ToList(),
+                    n = Size
                 };
             }
         }

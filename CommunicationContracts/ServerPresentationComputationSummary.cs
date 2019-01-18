@@ -10,6 +10,7 @@ namespace CommunicationContracts
         public string description;
         public List<FinishedStatistics> finishedAutomata;
         public int total;
+        public int n;
     }
 
     public class FinishedStatistics
