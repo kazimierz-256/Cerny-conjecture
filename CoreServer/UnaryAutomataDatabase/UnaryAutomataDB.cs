@@ -42,38 +42,34 @@ namespace CoreServer.UnaryAutomataDatabase
                     MinimalLength = parameters.suggestedMinimumBound;
                     changedMinimum = true;
                 }
-                for (int i = 0; i < parameters.solutions.Count; i += 1)
+
+                if (!finishedAutomata[parameters.solution.unaryIndex].solved)
                 {
-                    if (!finishedAutomata[parameters.solutions[i].unaryIndex].solved)
+                    var count = 0;
+
+                    for (int j = 0; j < parameters.solution.solvedB.Count; j++)
                     {
-                        var count = 0;
-
-                        for (int j = 0; j < parameters.solutions[i].solvedB.Count; j++)
+                        var syncLength = parameters.solution.solvedSyncLength[j];
+                        if (syncLength >= MinimalLength)
                         {
-                            var syncLength = parameters.solutions[i].solvedSyncLength[j];
-                            if (syncLength >= MinimalLength)
-                            {
-                                if (!synchronizingWordLengthToCount.ContainsKey(syncLength))
-                                    synchronizingWordLengthToCount.Add(syncLength, 0);
+                            if (!synchronizingWordLengthToCount.ContainsKey(syncLength))
+                                synchronizingWordLengthToCount.Add(syncLength, 0);
 
-                                synchronizingWordLengthToCount[syncLength] += 1;
-                                if (syncLength < ignoreThreshold)
-                                    count += 1;
-                            }
+                            synchronizingWordLengthToCount[syncLength] += 1;
+                            if (syncLength < ignoreThreshold)
+                                count += 1;
                         }
-
-                        foreach (var message in parameters.solutions)
-                        {
-                            finishedAutomata[message.unaryIndex] = new FinishedStatistics()
-                            {
-                                solution = message,
-                                clientID = userIdentifier,
-                                solved = true
-                            };
-                        }
-                        AllowedCount += count;
                     }
+
+                    finishedAutomata[parameters.solution.unaryIndex] = new FinishedStatistics()
+                    {
+                        solution = parameters.solution,
+                        clientID = userIdentifier,
+                        solved = true
+                    };
+                    AllowedCount += count;
                 }
+
 
 
                 #region Update minimum bound
@@ -140,37 +136,24 @@ namespace CoreServer.UnaryAutomataDatabase
             return finished;
         }
         private Random randomizer = new Random(0);
-        public List<int> GetUnaryAutomataToProcessAndMarkAsProcessing(int quantity)
+        public bool GetUnaryAutomataToProcessAndMarkAsProcessing(out int automatonIndex)
         {
-            var toProcess = new List<int>();
+            automatonIndex = -1;
 
             lock (synchronizingObject)
             {
-                while (leftoverAutomata.Count > 0 && toProcess.Count < quantity)
+                while (leftoverAutomata.Count > 0 && automatonIndex == -1)
                 {
                     var dequeued = leftoverAutomata.Dequeue();
                     if (!finishedAutomata[dequeued].solved)
-                        toProcess.Add(dequeued);
+                        automatonIndex = dequeued;
                 }
-                if (leftoverAutomata.Count == 0)
+                if (automatonIndex != -1)
                 {
-
-                    var numbers = new double[toProcess.Count];
-                    for (int i = 0; i < toProcess.Count; i++)
-                        numbers[i] = randomizer.NextDouble();
-                    var arrayNumbers = toProcess.ToArray();
-                    Array.Sort(numbers, arrayNumbers);
-
-                    foreach (var index in arrayNumbers)
-                        leftoverAutomata.Enqueue(index);
-                }
-                else
-                {
-                    foreach (var index in toProcess)
-                        leftoverAutomata.Enqueue(index);
+                    leftoverAutomata.Enqueue(automatonIndex);
                 }
             }
-            return toProcess;
+            return automatonIndex != -1;
         }
 
         public UnaryAutomataDB(int size, int maximumLongestAutomataCount)

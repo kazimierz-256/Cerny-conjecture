@@ -15,38 +15,31 @@ namespace CoreServer.Hubs
 
         public UnaryAutomataHub(UnaryAutomataDB database) => this.database = database;
 
-        private const int targetTimeout = 30;
         private const string solversGroup = "solvers";
         public async Task ReceiveSolvedUnaryAutomatonAndAskForMore(ClientServerRequestForMoreAutomata parameters)
         {
-            if (parameters.firstTimeConnect)
-                await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
-            else
-            {
-                // different answer size!
-                if (parameters.solutions[0].unaryArray.Length != database.Size)
-                    return;
-                
-                database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
+            // answer for different automaton size!
+            if (parameters.solution.unaryArray.Length != database.Size)
+                return;
 
-                if (changedMinimum)
-                    await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
-                await Clients.All.SendAsync("AlreadyComputed", database.GetAlreadyComputed());
-            }
+            database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
+
+            if (changedMinimum)
+                await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
+
+
             if (parameters.nextQuantity > 0)
             {
                 // no need to limit the quantity (in case of overflow automata are being recomputed)
-                var automataIndices = database.GetUnaryAutomataToProcessAndMarkAsProcessing(parameters.nextQuantity);
-                if (automataIndices.Count > 0)
+                var hasAutomata = database.GetUnaryAutomataToProcessAndMarkAsProcessing(out var automatonIndex);
+                if (hasAutomata)
                 {
                     var parameter = new ServerClientSentUnaryAutomataWithSettings()
                     {
                         automatonSize = database.Size,
                         serverMinimalLength = database.MinimalLength,
-                        unaryAutomataIndices = automataIndices,
-                        targetCollectionSize = database.MaximumLongestAutomataCount,
-                        targetTimeoutSeconds = targetTimeout,
-                        givenAsManyAsRequested = parameters.nextQuantity == automataIndices.Count
+                        unaryAutomatonIndex = automatonIndex,
+                        targetCollectionSize = database.MaximumLongestAutomataCount
                     };
                     await Clients.Caller.SendAsync("ComputeAutomata", parameter);
                 }
@@ -56,10 +49,30 @@ namespace CoreServer.Hubs
                 }
             }
 
-            if (parameters.solutions.Count > 0)
+            await SendStatisticsToAll();
+            await ProgressIO.ProgressIO.ExportStateAsync(database);
+        }
+
+        public async Task InitializeConnection()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, solversGroup);
+
+            // no need to limit the quantity (in case of overflow automata are being recomputed)
+            var hasAutomata = database.GetUnaryAutomataToProcessAndMarkAsProcessing(out var automatonIndex);
+            if (hasAutomata)
             {
-                await SendStatisticsToAll();
-                await ProgressIO.ProgressIO.ExportStateAsync(database);
+                var parameter = new ServerClientSentUnaryAutomataWithSettings()
+                {
+                    automatonSize = database.Size,
+                    serverMinimalLength = database.MinimalLength,
+                    unaryAutomatonIndex = automatonIndex,
+                    targetCollectionSize = database.MaximumLongestAutomataCount
+                };
+                await Clients.Caller.SendAsync("ComputeAutomata", parameter);
+            }
+            else
+            {
+                await Clients.Group(solversGroup).SendAsync("NoMoreAutomataThankYou");
             }
         }
 

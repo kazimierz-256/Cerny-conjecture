@@ -5,10 +5,9 @@ namespace CommunicationContracts
 {
     public class ClientServerRequestForMoreAutomata
     {
-        public List<SolvedAutomatonMessage> solutions;
+        public SolvedAutomatonMessage solution;
         public int nextQuantity;
         public int suggestedMinimumBound;
-        public bool firstTimeConnect;
     }
 
     public class SolvedAutomatonMessage

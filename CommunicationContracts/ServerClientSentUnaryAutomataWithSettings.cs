@@ -9,8 +9,6 @@ namespace CommunicationContracts
         public int targetCollectionSize;
         public int automatonSize;
         public int serverMinimalLength;
-        public List<int> unaryAutomataIndices;
-        public int targetTimeoutSeconds;
-        public bool givenAsManyAsRequested;
+        public int unaryAutomatonIndex;
     }
 }
