@@ -33,6 +33,7 @@ namespace CoreServer.UnaryAutomataDatabase
         public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum, string userIdentifier)
         {
             changedMinimum = false;
+            var ignoreThreshold = IgnoreThreshold(Size);
 
             lock (synchronizingObject)
             {
@@ -46,7 +47,6 @@ namespace CoreServer.UnaryAutomataDatabase
                     if (!finishedAutomata[parameters.solutions[i].unaryIndex].solved)
                     {
                         var count = 0;
-                        var ignoreThreshold = IgnoreThreshold(Size);
 
                         for (int j = 0; j < parameters.solutions[i].solvedB.Count; j++)
                         {
