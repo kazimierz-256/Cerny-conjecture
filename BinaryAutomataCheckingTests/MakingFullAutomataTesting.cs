@@ -13,27 +13,6 @@ namespace BinaryAutomataCheckingTests
         //[InlineData(9, 1549)]
         [InlineData(8, 849)]
         [InlineData(7, 263)]
-        public void CheckIfDifferentFullAutomataIncrementally(int size, int index)
-        {
-            IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolvedRecursively(size, index);
-            IEnumerable<byte[]> solvedOptionalAutomatons2 =
-                from a in solvedOptionalAutomatons
-                where a.SynchronizingWordLength.HasValue && a.SynchronizingWordLength.Value > 23
-                select CopyArray(a.TransitionFunctionsB);
-            byte[][] TabSolvedOptionalAutomatons = solvedOptionalAutomatons2.ToArray();
-            for(int i = 0; i < TabSolvedOptionalAutomatons.Length - 1; i++)
-            {
-                for (int j = i+1; j < TabSolvedOptionalAutomatons.Length; j++)
-                {
-                    Assert.NotEqual(TabSolvedOptionalAutomatons[i], TabSolvedOptionalAutomatons[j]);
-                }
-            }
-        }
-
-        [Theory]
-        //[InlineData(9, 1549)]
-        [InlineData(8, 849)]
-        [InlineData(7, 263)]
         public void CheckIfDifferentFullAutomataRecursively(int size, int index)
         {
             IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolvedRecursively(size, index);
@@ -72,29 +51,6 @@ namespace BinaryAutomataCheckingTests
                 }
             }
         }
-
-        [Theory]
-        [InlineData(new byte[] { 4, 5, 6, 0, 0, 7, 1, 2 }, new byte[] { 7, 2, 4, 255, 0, 1, 5, 6 })]
-        [InlineData(new byte[] { 4, 5, 6, 0, 0, 7, 1, 2 }, new byte[] { 7, 0, 2, 255, 1, 5, 4, 6 })]
-        public void CheckIfDifferentFullFromAcAutomataIncrementally(byte[] a_tab, byte[] b_tab)
-        {
-            IOptionalAutomaton Ac = new OptionalAutomaton(a_tab, b_tab);
-            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(Ac);
-
-            IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
-            IEnumerable<byte[]> fullAutomata2 =
-                from a in FullAutomata
-                select CopyArray(a.TransitionFunctionsB);
-            byte[][] bTransitions = fullAutomata2.ToArray();
-            for (int i = 0; i < bTransitions.Length - 1; i++)
-            {
-                for (int j = i + 1; j < bTransitions.Length; j++)
-                {
-                    Assert.NotEqual(bTransitions[i], bTransitions[j]);
-                }
-            }
-        }
-
         
         [Theory]
         //[InlineData(8, 849)] //wykomentowane gdy¿ trwa bardzo d³ugo, ale przechodzi

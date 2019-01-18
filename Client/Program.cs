@@ -178,9 +178,10 @@ namespace Client
                                                 for (int i = 0; i < uniqueAutomaton.Length; i++)
                                                     uniqueAutomatonBytes[i] = (byte)uniqueAutomaton[i];
 
+                                                var localMinimalLength = minimalSynchronizingLength;
                                                 foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(size, index))
                                                 {
-                                                    if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
+                                                    if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= localMinimalLength)
                                                         list.Add(automaton.DeepClone());
                                                 }
 

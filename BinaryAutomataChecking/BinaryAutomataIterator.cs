@@ -57,9 +57,9 @@ namespace BinaryAutomataChecking
                 AddingBTransition addingBTransition = new AddingBTransition(unaryAutomata, isVertInAcTab);
                 foreach (CoreDefinitions.IOptionalAutomaton acAutomata in addingBTransition.GenerateAc())
                 {
-                    DeepCopyArray(acAutomata.TransitionFunctionsB, MemoryB);
+                    //DeepCopyArray(acAutomata.TransitionFunctionsB, MemoryB);
                     yield return acAutomata;
-                    DeepCopyArray(MemoryB,acAutomata.TransitionFunctionsB);
+                    //DeepCopyArray(MemoryB,acAutomata.TransitionFunctionsB);
                 }
             }
 

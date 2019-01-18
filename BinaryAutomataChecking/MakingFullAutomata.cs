@@ -13,7 +13,10 @@ namespace BinaryAutomataChecking
 
         public MakingFullAutomata(CoreDefinitions.IOptionalAutomaton optionalAutomata)
         {
-            automata = optionalAutomata;
+            byte[] newBtransition = new byte[optionalAutomata.TransitionFunctionsB.Length];
+            Array.Copy(optionalAutomata.TransitionFunctionsB, newBtransition, newBtransition.Length);
+            automata = new CoreDefinitions.OptionalAutomaton(optionalAutomata.TransitionFunctionsA, newBtransition);
+            
             n = optionalAutomata.TransitionFunctionsA.Length;
             //List<byte>[] 
             TransitionsFromA = new List<byte>[n];
