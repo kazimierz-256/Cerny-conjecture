@@ -68,13 +68,11 @@ namespace Client
                 if (args.Length >= 2)
                 {
                     if (int.TryParse(args[1], out var enabled1))
-                        if (enabled1 != 0)
-                            useMessagePack = true;
+                        useMessagePack = enabled1 != 0;
                     if (args.Length >= 3)
                     {
                         if (int.TryParse(args[2], out var enabled2))
-                            if (enabled2 != 0)
-                                makeSound = true;
+                            makeSound = enabled2 != 0;
                     }
                 }
                 var maximumAutomatonCollectionSize = int.MaxValue;
