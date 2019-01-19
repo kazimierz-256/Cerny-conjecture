@@ -31,7 +31,7 @@ namespace CoreServer.UnaryAutomataDatabase
 
         private int IgnoreThreshold(int n) => (n - 1) * (n - 1);
 
-        public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, out bool changedMinimum, string userIdentifier)
+        public void ProcessInterestingAutomata(ClientServerRequestForMoreAutomata parameters, string userIdentifier, out bool changedMinimum, out bool changedAnything)
         {
             changedMinimum = false;
             var ignoreThreshold = IgnoreThreshold(Size);
@@ -68,60 +68,62 @@ namespace CoreServer.UnaryAutomataDatabase
                         clientID = userIdentifier,
                         solved = true
                     };
+                    changedAnything = true;
+
                     AllowedCount += count;
-                }
-
-
-
-                #region Update minimum bound
-                if (AllowedCount > MaximumLongestAutomataCount)
-                {
-                    var removeUpTo = -1;
-                    var toDeleteWordLength = new List<int>();
-                    foreach (var item in synchronizingWordLengthToCount)
+                    #region Update minimum bound
+                    if (AllowedCount > MaximumLongestAutomataCount)
                     {
-                        if (AllowedCount > MaximumLongestAutomataCount)
+                        var removeUpTo = -1;
+                        var toDeleteWordLength = new List<int>();
+                        foreach (var item in synchronizingWordLengthToCount)
                         {
-                            AllowedCount -= item.Value;
-                            removeUpTo = item.Key;
-                            toDeleteWordLength.Add(item.Key);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    if (removeUpTo + 1 > MinimalLength)
-                    {
-                        MinimalLength = removeUpTo + 1;
-                        changedMinimum = true;
-                    }
-
-                    foreach (var item in toDeleteWordLength)
-                        synchronizingWordLengthToCount.Remove(item);
-
-                    foreach (var item in finishedAutomata)
-                    {
-                        if (item.solved)
-                        {
-                            var leftoverSyncLengths = new List<ushort>();
-                            var leftoverBAutomata = new List<byte[]>();
-                            for (int i = 0; i < item.solution.solvedB.Count; i++)
+                            if (AllowedCount > MaximumLongestAutomataCount)
                             {
-                                if (item.solution.solvedSyncLength[i] >= MinimalLength)
-                                {
-                                    leftoverSyncLengths.Add(item.solution.solvedSyncLength[i]);
-                                    leftoverBAutomata.Add(item.solution.solvedB[i]);
-                                }
+                                AllowedCount -= item.Value;
+                                removeUpTo = item.Key;
+                                toDeleteWordLength.Add(item.Key);
                             }
-                            item.solution.solvedSyncLength = leftoverSyncLengths;
-                            item.solution.solvedB = leftoverBAutomata;
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        if (removeUpTo + 1 > MinimalLength)
+                        {
+                            MinimalLength = removeUpTo + 1;
+                            changedMinimum = true;
+                        }
+
+                        foreach (var item in toDeleteWordLength)
+                            synchronizingWordLengthToCount.Remove(item);
+
+                        foreach (var item in finishedAutomata)
+                        {
+                            if (item.solved)
+                            {
+                                var leftoverSyncLengths = new List<ushort>();
+                                var leftoverBAutomata = new List<byte[]>();
+                                for (int i = 0; i < item.solution.solvedB.Count; i++)
+                                {
+                                    if (item.solution.solvedSyncLength[i] >= MinimalLength)
+                                    {
+                                        leftoverSyncLengths.Add(item.solution.solvedSyncLength[i]);
+                                        leftoverBAutomata.Add(item.solution.solvedB[i]);
+                                    }
+                                }
+                                item.solution.solvedSyncLength = leftoverSyncLengths;
+                                item.solution.solvedB = leftoverBAutomata;
+                            }
                         }
                     }
+                    #endregion
                 }
-                #endregion
-
+                else
+                {
+                    changedAnything = false;
+                }
             }
         }
 
@@ -185,6 +187,8 @@ namespace CoreServer.UnaryAutomataDatabase
         public int Size { get; private set; }
         public int MinimalLength { get; private set; }
         public int Total { get; private set; }
+        public int Found => finishedAutomata.Count(automaton => automaton.solved);
+
         public int MaximumLongestAutomataCount = 0;
         private int AllowedCount;
 
@@ -195,11 +199,11 @@ namespace CoreServer.UnaryAutomataDatabase
 
         private readonly object synchronizingObject = new object();
 
-        public ProgressIO.ProgressIO Export()
+        public DBSerialized ExportAsXMLString()
         {
             lock (synchronizingObject)
             {
-                return new ProgressIO.ProgressIO()
+                return new DBSerialized()
                 {
                     finishedStatistics = finishedAutomata,
                     Size = Size,
@@ -209,7 +213,7 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        public void ImportShallow(ProgressIO.ProgressIO data)
+        public void ImportShallow(DBSerialized data)
         {
             Console.WriteLine("importing database from file...");
             var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size - 1]));

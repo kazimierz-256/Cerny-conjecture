@@ -11,17 +11,14 @@ using System.Xml.Serialization;
 
 namespace CoreServer.ProgressIO
 {
-    public class ProgressIO
+    public static class ProgressIO
     {
-        public FinishedStatistics[] finishedStatistics;
-        public int Size;
-        public int MaximumLongestAutomataCount;
-        public int AllowedCount;
-        private static string GetAddress(UnaryAutomataDB database) => $"computation-history-{database.Size}-{database.MaximumLongestAutomataCount}.xml";
+        private static string GetDetailedAddress(UnaryAutomataDB database) => $"all-history-{database.Size}-{database.MaximumLongestAutomataCount}-{database.Found}.xml";
+        private static string GetDetailedPreviousAddress(UnaryAutomataDB database) => $"all-history-{database.Size}-{database.MaximumLongestAutomataCount}-{database.Found - 1}.xml";
         private static Semaphore syncObject = new Semaphore(1, 1);
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
-            var exported = database.Export();
+            var exported = database.ExportAsXMLString();
             var serializer = new XmlSerializer(exported.GetType());
 
             using (var sw = new StringWriter())
@@ -29,29 +26,47 @@ namespace CoreServer.ProgressIO
                 using (var w = XmlWriter.Create(sw))
                 {
                     serializer.Serialize(w, exported);
-                    var address = GetAddress(database);
-                    syncObject.WaitOne();
-                    await File.WriteAllTextAsync(address, sw.ToString());
-                    syncObject.Release();
-                    Console.WriteLine($"Successfully exported database at {DateTime.Now} to a file {address}");
+                    var detailedAddress = GetDetailedAddress(database);
+                    var previousAddress = GetDetailedPreviousAddress(database);
+                    var swString = sw.ToString();
+                    try
+                    {
+                        syncObject.WaitOne();
+                        await File.WriteAllTextAsync(detailedAddress, swString);
+                        if (File.Exists(previousAddress))
+                            File.Delete(previousAddress);
+                        syncObject.Release();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    Console.WriteLine($"Successfully exported database having computed {database.Found} unary automata at {DateTime.Now} to a file {detailedAddress}.");
                 }
             }
         }
 
-        public static void ImportStateIfPossible(UnaryAutomataDB database)
+        public static void ImportStateIfPossible(UnaryAutomataDB database, string address)
         {
-            var address = GetAddress(database);
-            if (File.Exists(address))
+            if (address != null && address != string.Empty && File.Exists(address))
             {
-                var serializer = new XmlSerializer(typeof(ProgressIO));
-
-                using (var sr = new StreamReader(address))
+                try
                 {
-                    var obj = serializer.Deserialize(sr);
-                    var data = (ProgressIO)obj;
+                    var serializer = new XmlSerializer(typeof(DBSerialized));
 
-                    if (database.Size == data.Size)
-                        database.ImportShallow(data);
+                    using (var sr = new StreamReader(address))
+                    {
+                        var obj = serializer.Deserialize(sr);
+                        var data = (DBSerialized)obj;
+
+                        if (database.Size == data.Size)
+                            database.ImportShallow(data);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("error importing database!");
+                    Console.WriteLine(e.Message);
                 }
             }
             else
