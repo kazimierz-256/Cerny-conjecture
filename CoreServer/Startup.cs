@@ -60,8 +60,9 @@ namespace CoreServer
             }
 
             services.AddMvc();
-            services.AddSignalR(opts => opts.EnableDetailedErrors = true)
-                    .AddMessagePackProtocol();
+            var signalrbuilder = services.AddSignalR(opts => opts.EnableDetailedErrors = true);
+            if (useMessagePack)
+                signalrbuilder.AddMessagePackProtocol();
             Console.WriteLine($"Automata size: {AutomatonProblemSize}");
             Console.WriteLine($"Maximum count of interesting automata: {maximumCount}.");
             Console.WriteLine("Please note that some automata including those violating Cerny Conjecture are collected without limits.");
