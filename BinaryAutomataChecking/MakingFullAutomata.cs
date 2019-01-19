@@ -11,25 +11,26 @@ namespace BinaryAutomataChecking
         private List<byte>[] helpList;
         private CoreDefinitions.IOptionalAutomaton automata;
 
-        public MakingFullAutomata(CoreDefinitions.IOptionalAutomaton optionalAutomata)
+        public MakingFullAutomata(CoreDefinitions.IOptionalAutomaton optionalAutomata, List<byte>[] transFromA, List<byte>[] help)
         {
-            byte[] newBtransition = new byte[optionalAutomata.TransitionFunctionsB.Length];
-            Array.Copy(optionalAutomata.TransitionFunctionsB, newBtransition, newBtransition.Length);
-            automata = new CoreDefinitions.OptionalAutomaton(optionalAutomata.TransitionFunctionsA, newBtransition);
-            
+            //byte[] newBtransition = new byte[optionalAutomata.TransitionFunctionsB.Length];
+            //Array.Copy(optionalAutomata.TransitionFunctionsB, newBtransition, newBtransition.Length);
+            //automata = new CoreDefinitions.OptionalAutomaton(optionalAutomata.TransitionFunctionsA, newBtransition);
+            automata = optionalAutomata;
+
             n = optionalAutomata.TransitionFunctionsA.Length;
             //List<byte>[] 
-            TransitionsFromA = new List<byte>[n];
+            TransitionsFromA = transFromA;
             for (byte i = 0; i < n; i++)
             {
-                TransitionsFromA[i] = new List<byte>();
+                TransitionsFromA[i].Clear();
             }
             for (byte i = 0; i < n; i++)
             {
                 TransitionsFromA[automata.TransitionFunctionsA[i]].Add(i);
             }
 
-            helpList = new List<byte>[n];
+            helpList = help;
             for (int i = 0; i < n; i++)
             {
                 helpList[i] = automata.TransitionFunctionsB[i] == CoreDefinitions.OptionalAutomaton.MissingTransition ? null : TransitionsFromA[automata.TransitionFunctionsB[i]];
