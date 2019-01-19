@@ -58,10 +58,7 @@ namespace Client
 
         private static void DoWork(string[] args)
         {
-            using (
-                Semaphore questSemaphore = new Semaphore(0, int.MaxValue),
-                 solutionSemaphore = new Semaphore(0, int.MaxValue)
-                 )
+            using (var solutionSemaphore = new Semaphore(0, int.MaxValue))
             {
                 var makeSound = false;
                 if (args.Length >= 2)
@@ -101,7 +98,10 @@ namespace Client
                         shouldReconnect = false;
                         await connection.StopAsync();
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception: " + e.Message);
+                    }
                 }
                 );
 
@@ -111,21 +111,19 @@ namespace Client
                 };
                 connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
                             {
-                                //try
-                                //{
-
-                                maximumAutomatonCollectionSize = parameters.targetCollectionSize;
-
-                                if (parameters.serverMinimalLength != minimalSynchronizingLength)
-                                    SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
-
-                                // no need for pedantic synchronization, the server will ultimately handle everything synchronously
-                                if (minimalSynchronizingLength < parameters.serverMinimalLength)
-                                    minimalSynchronizingLength = parameters.serverMinimalLength;
-
-
                                 try
                                 {
+
+                                    maximumAutomatonCollectionSize = parameters.targetCollectionSize;
+
+                                    if (parameters.serverMinimalLength != minimalSynchronizingLength)
+                                        SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
+
+                                    // no need for pedantic synchronization, the server will ultimately handle everything synchronously
+                                    if (minimalSynchronizingLength < parameters.serverMinimalLength)
+                                        minimalSynchronizingLength = parameters.serverMinimalLength;
+
+
                                     var startTime = DateTime.Now;
                                     var list = new List<ISolvedOptionalAutomaton>();
                                     var uniqueAutomaton = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(parameters.automatonSize, parameters.unaryAutomatonIndex);
@@ -156,21 +154,19 @@ namespace Client
                                     };
                                     Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
                                     solutionSemaphore.Release();
-                                }
-                                catch (Exception)
-                                {
-                                }
 
-                                SayColoured(ConsoleColor.Green, $"Received a unary automata of size {parameters.automatonSize}");
+
+                                    SayColoured(ConsoleColor.Green, $"Received a unary automata of size {parameters.automatonSize}");
 #if DEBUG
-                                Console.Write($"{parameters.unaryAutomatonIndex}");
-                                Console.WriteLine();
+                                    Console.Write($"{parameters.unaryAutomatonIndex}");
+                                    Console.WriteLine();
 #endif
 
-
-                                //catch (Exception)
-                                //{
-                                //}
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Exception: " + e.Message);
+                                }
                             }
                         );
 
@@ -196,8 +192,9 @@ namespace Client
                             await Task.Delay((int)(Math.Exp(new Random().NextDouble() * 6)));
                             await connection.StartAsync();
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+                            Console.WriteLine("Exception: " + e.Message);
                         }
                     }
                     else
