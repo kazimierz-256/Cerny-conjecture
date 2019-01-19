@@ -65,7 +65,7 @@ namespace Presentation
             // 
             this.prompt.Depth = 0;
             this.prompt.Location = new System.Drawing.Point(43, 81);
-            this.prompt.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.prompt.Margin = new System.Windows.Forms.Padding(2);
             this.prompt.MouseState = MaterialSkin.MouseState.HOVER;
             this.prompt.Name = "prompt";
             this.prompt.Primary = true;
@@ -79,7 +79,7 @@ namespace Presentation
             // 
             this.close.Depth = 0;
             this.close.Location = new System.Drawing.Point(43, 157);
-            this.close.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.close.Margin = new System.Windows.Forms.Padding(2);
             this.close.MouseState = MaterialSkin.MouseState.HOVER;
             this.close.Name = "close";
             this.close.Primary = true;
@@ -97,7 +97,7 @@ namespace Presentation
             this.addressBox.Depth = 0;
             this.addressBox.Hint = "";
             this.addressBox.Location = new System.Drawing.Point(43, 37);
-            this.addressBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addressBox.Margin = new System.Windows.Forms.Padding(2);
             this.addressBox.MouseState = MaterialSkin.MouseState.HOVER;
             this.addressBox.Name = "addressBox";
             this.addressBox.PasswordChar = '\0';
@@ -160,8 +160,8 @@ namespace Presentation
             this.tabSettings.Controls.Add(this.close);
             this.tabSettings.Location = new System.Drawing.Point(4, 25);
             this.tabSettings.Name = "tabSettings";
-            this.tabSettings.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabSettings.Size = new System.Drawing.Size(649, 559);
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSettings.Size = new System.Drawing.Size(661, 551);
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "SETTINGS";
             // 
@@ -190,8 +190,8 @@ namespace Presentation
             this.tabStatistics.Controls.Add(this.materialLabel3);
             this.tabStatistics.Location = new System.Drawing.Point(4, 25);
             this.tabStatistics.Name = "tabStatistics";
-            this.tabStatistics.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabStatistics.Size = new System.Drawing.Size(649, 559);
+            this.tabStatistics.Padding = new System.Windows.Forms.Padding(3);
+            this.tabStatistics.Size = new System.Drawing.Size(661, 551);
             this.tabStatistics.TabIndex = 1;
             this.tabStatistics.Text = "STATISTICS";
             // 
@@ -256,7 +256,7 @@ namespace Presentation
             this.tabEXAMPLES.Controls.Add(this.listOfAutomata);
             this.tabEXAMPLES.Location = new System.Drawing.Point(4, 25);
             this.tabEXAMPLES.Name = "tabEXAMPLES";
-            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(3);
             this.tabEXAMPLES.Size = new System.Drawing.Size(661, 551);
             this.tabEXAMPLES.TabIndex = 2;
             this.tabEXAMPLES.Text = "EXAMPLES";
@@ -266,7 +266,7 @@ namespace Presentation
             // 
             this.materialRaisedButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.materialRaisedButton1.Depth = 0;
-            this.materialRaisedButton1.Location = new System.Drawing.Point(413, 488);
+            this.materialRaisedButton1.Location = new System.Drawing.Point(413, 476);
             this.materialRaisedButton1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialRaisedButton1.Name = "materialRaisedButton1";
             this.materialRaisedButton1.Primary = true;
@@ -294,7 +294,7 @@ namespace Presentation
             // 
             this.runVisualisationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.runVisualisationButton.Depth = 0;
-            this.runVisualisationButton.Location = new System.Drawing.Point(413, 411);
+            this.runVisualisationButton.Location = new System.Drawing.Point(413, 399);
             this.runVisualisationButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.runVisualisationButton.Name = "runVisualisationButton";
             this.runVisualisationButton.Primary = true;
@@ -314,7 +314,7 @@ namespace Presentation
             this.listOfAutomata.ItemHeight = 17;
             this.listOfAutomata.Location = new System.Drawing.Point(6, 6);
             this.listOfAutomata.Name = "listOfAutomata";
-            this.listOfAutomata.Size = new System.Drawing.Size(649, 344);
+            this.listOfAutomata.Size = new System.Drawing.Size(649, 378);
             this.listOfAutomata.TabIndex = 0;
             // 
             // materialTabSelector1
@@ -342,7 +342,7 @@ namespace Presentation
             this.ClientSize = new System.Drawing.Size(677, 704);
             this.Controls.Add(this.materialTabSelector1);
             this.Controls.Add(this.materialTabControl1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximumSize = new System.Drawing.Size(900, 1500);
             this.MinimumSize = new System.Drawing.Size(600, 600);
             this.Name = "Presentation";

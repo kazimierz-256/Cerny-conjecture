@@ -35,8 +35,15 @@ namespace BinaryAutomataCheckingTests
         [InlineData(new byte[] { 4, 5, 6, 0, 0, 7, 1, 2 }, new byte[] { 7, 0, 2, 255, 1, 5, 4, 6 })]
         public void CheckIfDifferentFullFromAcAutomataRecursively(byte[] a_tab, byte[] b_tab)
         {
+            int size = a_tab.Length;
+            List<byte>[] TransitionsFromA = new List<byte>[size];
+            List<byte>[] helpList = new List<byte>[size];
+            for (byte i = 0; i < size; i++)
+            {
+                TransitionsFromA[i] = new List<byte>();
+            }
             IOptionalAutomaton Ac = new OptionalAutomaton(a_tab, b_tab);
-            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(Ac);
+            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(Ac, TransitionsFromA,helpList);
 
             IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
             IEnumerable<byte[]> fullAutomata2 =
@@ -109,8 +116,14 @@ namespace BinaryAutomataCheckingTests
             {
                 expectedList[i] = new List<byte>(lists[i]);
             }
-
-            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
+            int size = tab_a.Length;
+            List<byte>[] TransitionsFromA = new List<byte>[size];
+            List<byte>[] helpList = new List<byte>[size];
+            for (byte i = 0; i < size; i++)
+            {
+                TransitionsFromA[i] = new List<byte>();
+            }
+            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a,TransitionsFromA,helpList);
 
             Assert.Equal(expectedList, makingFullAutomata.TransitionsFromA);
         }
@@ -211,9 +224,16 @@ namespace BinaryAutomataCheckingTests
             new byte[] { 2, 0, 0 })]
         public void MakeFullAutomata(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
+            int size = a_tab.Length;
+            List<byte>[] TransitionsFromA = new List<byte>[size];
+            List<byte>[] helpList = new List<byte>[size];
+            for (byte i = 0; i < size; i++)
+            {
+                TransitionsFromA[i] = new List<byte>();
+            }
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
 
-            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
+            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a,TransitionsFromA,helpList);
 
             IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
             IEnumerable<IOptionalAutomaton> FullAutomataIncremental = makingFullAutomata.Generate();
@@ -241,8 +261,14 @@ namespace BinaryAutomataCheckingTests
         public void VerifyMatchingIterativeGeneration(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
         {
             IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
-
-            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a);
+            int size = a_tab.Length;
+            List<byte>[] TransitionsFromA = new List<byte>[size];
+            List<byte>[] helpList = new List<byte>[size];
+            for (byte i = 0; i < size; i++)
+            {
+                TransitionsFromA[i] = new List<byte>();
+            }
+            MakingFullAutomata makingFullAutomata = new MakingFullAutomata(a,TransitionsFromA,helpList);
 
             IEnumerable<IOptionalAutomaton> FullAutomata = makingFullAutomata.Generate();
 
