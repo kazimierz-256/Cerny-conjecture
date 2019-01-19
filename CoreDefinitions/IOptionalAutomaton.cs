@@ -6,7 +6,7 @@ namespace CoreDefinitions
 {
     public interface IOptionalAutomaton
     {
-        byte[] TransitionFunctionsB { get; }
+        byte[] TransitionFunctionsB { get; set; }
         byte[] TransitionFunctionsA { get; }
 
         IOptionalAutomaton DeepClone();

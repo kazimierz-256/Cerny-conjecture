@@ -24,7 +24,7 @@ namespace BinaryAutomataChecking
 
         private IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllFullAutomataToCheckRecursively(int size, int index)
         {
-            byte[] MemoryB = new byte[size];
+            byte[] MemoryB = new byte[size], memoryHelp ;
             int maxLength = (size - 1) * (size - 1);
             List<byte>[] TransitionsFromA = new List<byte>[size];
             List<byte>[] helpList = new List<byte>[size];
@@ -37,15 +37,18 @@ namespace BinaryAutomataChecking
             {
                 if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength * 2) + 1 > maxLength)
                 {
-                    //DeepCopyArray(AcAutomaton.TransitionFunctionsB, MemoryB);
                     Array.Copy(AcAutomaton.TransitionFunctionsB, MemoryB, AcAutomaton.TransitionFunctionsB.Length);
                     MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton, TransitionsFromA, helpList);
                     foreach (var fullAutomaton in makingFullAutomata.Generate())
                     {
                         yield return fullAutomaton;
                     }
-                    Array.Copy(MemoryB, AcAutomaton.TransitionFunctionsB, AcAutomaton.TransitionFunctionsB.Length);
-                    //DeepCopyArray(MemoryB, AcAutomaton.TransitionFunctionsB);
+
+                    //spicy
+                    memoryHelp = AcAutomaton.TransitionFunctionsB;
+                    AcAutomaton.TransitionFunctionsB = MemoryB;
+                    MemoryB = memoryHelp;
+                    //Array.Copy(MemoryB, AcAutomaton.TransitionFunctionsB, AcAutomaton.TransitionFunctionsB.Length);
                 }
             }
         }

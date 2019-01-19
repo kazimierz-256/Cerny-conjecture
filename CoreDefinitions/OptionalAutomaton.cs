@@ -7,7 +7,7 @@ namespace CoreDefinitions
     public class OptionalAutomaton : IOptionalAutomaton
     {
         public const byte MissingTransition = byte.MaxValue;
-        public byte[] TransitionFunctionsB { get; protected set; }
+        public byte[] TransitionFunctionsB { get; set; }
         public byte[] TransitionFunctionsA { get; protected set; }
 
         /// <summary>
