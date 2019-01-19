@@ -22,7 +22,7 @@ namespace CoreServer.Hubs
             if (parameters.solution.unaryArray.Length != database.Size)
                 return;
 
-            database.ProcessInterestingAutomata(parameters, out var changedMinimum, Context.ConnectionId);
+            database.ProcessInterestingAutomata(parameters, Context.ConnectionId, out var changedMinimum, out var changedAnything);
 
             if (changedMinimum)
                 await Clients.Group(solversGroup).SendAsync("UpdateLength", database.MinimalLength);
@@ -49,8 +49,11 @@ namespace CoreServer.Hubs
                 }
             }
 
-            await SendStatisticsToAll();
-            await ProgressIO.ProgressIO.ExportStateAsync(database);
+            if (changedAnything)
+            {
+                await SendStatisticsToAll();
+                await ProgressIO.ProgressIO.ExportStateAsync(database);
+            }
         }
 
         public async Task InitializeConnection()

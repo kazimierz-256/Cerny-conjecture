@@ -18,7 +18,7 @@ namespace CoreServer
 {
     public class Startup
     {
-        #region Important parameter
+        #region Important parameters
         private int AutomatonProblemSize = 6;
         private int maximumCount = 20;
         #endregion
@@ -50,7 +50,7 @@ namespace CoreServer
             }
             Console.WriteLine($"Automata size: {AutomatonProblemSize}");
             Console.WriteLine($"Maximum count of interesting automata: {maximumCount}.");
-            Console.WriteLine("Please note that automata violating Cerny Conjecture are collected without limits.");
+            Console.WriteLine("Please note that some automata including those violating Cerny Conjecture are collected without limits.");
             var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);
             ProgressIO.ProgressIO.ImportStateIfPossible(database);
             services.AddSingleton(database);
@@ -72,7 +72,7 @@ namespace CoreServer
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            Console.WriteLine("To participate in distributed computing project just hook up to '/ua'");
+            Console.WriteLine("To participate in distributed computing project just hook up to 'http://address:port/ua' with two subsituted variables accordingly");
             app.UseSignalR(routes =>
             {
                 routes.MapHub<UnaryAutomataHub>("/ua", options =>

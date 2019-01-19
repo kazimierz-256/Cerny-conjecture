@@ -51,7 +51,10 @@ namespace Client
                     Console.WriteLine("Exception: " + e.Message);
                     Console.WriteLine("Reconnecting...");
                 }
-                Task.Delay((int)(Math.Exp(new Random().NextDouble() * 2 + 5))).Wait();
+
+                Console.WriteLine($"Leaving loop and waiting for a moment...");
+                Task.Delay((int)(Math.Exp(new Random().NextDouble() * 2 + 7))).Wait();
+                Console.WriteLine($"Continuing job!");
             }
 
         }
@@ -61,6 +64,13 @@ namespace Client
             using (var solutionSemaphore = new Semaphore(0, int.MaxValue))
             {
                 var makeSound = false;
+                if (args.Length >= 3)
+                {
+                    if (int.TryParse(args[2], out var makeIt))
+                        if (makeIt != 0)
+                            makeSound = true;
+                }
+                var useMessagePack = false;
                 if (args.Length >= 2)
                 {
                     if (int.TryParse(args[1], out var makeIt))
@@ -85,10 +95,11 @@ namespace Client
 
                 #region WebSocket connection
                 var shouldReconnect = true;
-                var connection = new HubConnectionBuilder()
-                    .WithUrl(address)
-                    .AddMessagePackProtocol()
-                    .Build();
+
+                var connectionBuild = new HubConnectionBuilder().WithUrl(address);
+                if (useMessagePack)
+                    connectionBuild = connectionBuild.AddMessagePackProtocol();
+                var connection = connectionBuild.Build();
 
                 connection.On("NoMoreAutomataThankYou", async () =>
                 {
@@ -105,10 +116,6 @@ namespace Client
                 }
                 );
 
-                var theory = new long[]
-                {
-                    1, 3, 7, 19, 47, 130, 343, 951, 2615, 7318, 20491, 57903, 163898, 466199, 1328993, 3799624, 10884049, 31241170
-                };
                 connection.On("ComputeAutomata", async (ServerClientSentUnaryAutomataWithSettings parameters) =>
                             {
                                 try
@@ -117,7 +124,7 @@ namespace Client
                                     maximumAutomatonCollectionSize = parameters.targetCollectionSize;
 
                                     if (parameters.serverMinimalLength != minimalSynchronizingLength)
-                                        SayColoured(ConsoleColor.Red, $"New minimal from server {parameters.serverMinimalLength} out of {(parameters.automatonSize - 1) * (parameters.automatonSize - 1)}");
+                                        SayColoured(ConsoleColor.Red, $"New lower bound on synchronizing word length from server {parameters.serverMinimalLength}");
 
                                     // no need for pedantic synchronization, the server will ultimately handle everything synchronously
                                     if (minimalSynchronizingLength < parameters.serverMinimalLength)
@@ -131,18 +138,19 @@ namespace Client
                                     for (int i = 0; i < uniqueAutomaton.Length; i++)
                                         uniqueAutomatonBytes[i] = (byte)uniqueAutomaton[i];
 
+                                    var localLength = minimalSynchronizingLength;
+                                    SayColoured(ConsoleColor.DarkGray, $"Preparing to compute {parameters.unaryAutomatonIndex} unary automaton of size {parameters.automatonSize} with minimum length of {parameters.serverMinimalLength}");
                                     foreach (var automaton in new BinaryAutomataIterator().GetAllSolved(parameters.automatonSize, parameters.unaryAutomatonIndex))
                                     {
-                                        if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= minimalSynchronizingLength)
+                                        if (automaton.SynchronizingWordLength.HasValue && automaton.SynchronizingWordLength.Value >= localLength)
                                             list.Add(automaton.DeepClone());
                                     }
 
                                     if (list.Count > 0)
                                         SayColoured(ConsoleColor.Blue, $"Completed unary {parameters.unaryAutomatonIndex} (found {list.Count})");
-#if DEBUG
                                     else
                                         SayColoured(ConsoleColor.DarkGray, $"Completed unary {parameters.unaryAutomatonIndex} (not found any)");
-#endif
+
                                     var finishedTime = DateTime.Now;
                                     results = new MicroSolution()
                                     {
@@ -152,16 +160,9 @@ namespace Client
                                         startTime = startTime,
                                         finishTime = finishedTime
                                     };
+                                    SayColoured(ConsoleColor.Gray, $"Notifying client about new solution {parameters.unaryAutomatonIndex}");
                                     Interlocked.Add(ref resultsMergedTotalAutomata, list.Count);
                                     solutionSemaphore.Release();
-
-
-                                    SayColoured(ConsoleColor.Green, $"Received a unary automata of size {parameters.automatonSize}");
-#if DEBUG
-                                    Console.Write($"{parameters.unaryAutomatonIndex}");
-                                    Console.WriteLine();
-#endif
-
                                 }
                                 catch (Exception e)
                                 {
@@ -175,8 +176,7 @@ namespace Client
                 {
                     SayColoured(ConsoleColor.DarkRed, $"Dynamically updated length to {serverMinimalLength}!");
                     minimalSynchronizingLength = serverMinimalLength;
-                }
-                        );
+                });
                 #endregion
 
                 #region on connection close
@@ -184,12 +184,10 @@ namespace Client
                 {
                     if (shouldReconnect)
                     {
-#if DEBUG
                         SayColoured(ConsoleColor.Red, "Closed connection. Reconnecting...");
-#endif
                         try
                         {
-                            await Task.Delay((int)(Math.Exp(new Random().NextDouble() * 6)));
+                            await Task.Delay((int)(Math.Exp(new Random().NextDouble() * 2 + 7)));
                             await connection.StartAsync();
                         }
                         catch (Exception e)
@@ -199,9 +197,7 @@ namespace Client
                     }
                     else
                     {
-#if DEBUG
                         SayColoured(ConsoleColor.Magenta, "Connection ended");
-#endif
                     }
                 };
                 #endregion
@@ -216,6 +212,7 @@ namespace Client
                     }
                     catch (Exception e)
                     {
+                        Console.WriteLine("Exception: " + e.Message);
                         Console.WriteLine("Could not connect. Retrying...");
                         repeat = true;
                     }
@@ -225,23 +222,29 @@ namespace Client
                 var solveBeginningTime = DateTime.Now;
                 var afterSentDate = DateTime.Now;
 
-                // TODO: check that server handles this
+
+                SayColoured(ConsoleColor.Gray, $"Initializing connection...");
                 connection.InvokeAsync("InitializeConnection").Wait();
+                SayColoured(ConsoleColor.Green, $"Registration sent!");
                 while (connection.State == HubConnectionState.Connected && shouldReconnect)
                 {
+                    SayColoured(ConsoleColor.Gray, $"Waiting for a task to complete...");
                     solutionSemaphore.WaitOne();
+                    SayColoured(ConsoleColor.Green, $"A task is completed! Preparing results...");
 
                     var previousMinimalSyncLength = minimalSynchronizingLength;
                     var preparedResult = PrepareNextRound(results, ref resultsMergedTotalAutomata, ref maximumAutomatonCollectionSize, ref minimalSynchronizingLength, out var toSendAutomataCount);
+                    SayColoured(ConsoleColor.Green, $"Results ready to send!");
                     if (minimalSynchronizingLength != previousMinimalSyncLength)
-                        SayColoured(ConsoleColor.Red, $"Self-changed the minimal sync length from {previousMinimalSyncLength} to {minimalSynchronizingLength}");
+                        SayColoured(ConsoleColor.Red, $"Changed locally the minimal sync length from {previousMinimalSyncLength} to {minimalSynchronizingLength}");
 
                     // might still throw an exception, we allow that
                     if (connection.State == HubConnectionState.Connected && shouldReconnect)
                     {
-
                         solvedUnaryAutomata += 1;
                         var automataPerSecond = solvedUnaryAutomata / (DateTime.Now - solveBeginningTime).TotalSeconds;
+
+                        SayColoured(ConsoleColor.Gray, $"Sending back a unary solution having {toSendAutomataCount.ToString()} total automata...");
                         var command = connection.InvokeAsync("ReceiveSolvedUnaryAutomatonAndAskForMore", new ClientServerRequestForMoreAutomata()
                         {
                             nextQuantity = 1,
@@ -253,25 +256,21 @@ namespace Client
                         command.Wait();
 
                         #region Sent back description
-                        Console.Write("Sent back a unary solution consisting of ");
-                        SayColoured(ConsoleColor.DarkGreen, toSendAutomataCount.ToString(), false);
-                        Console.WriteLine(" automata");
-
-                        SayColoured(ConsoleColor.DarkGray, $"Total speed including communication time gaps: {automataPerSecond:F2} unary automata per second");
+                        SayColoured(ConsoleColor.DarkGray, $"Sent back! Total speed including communication time gaps: {automataPerSecond:F2} unary automata per second");
                         #endregion
 
                         afterSentDate = DateTime.Now;
                     }
                     else
                     {
-                        Console.WriteLine("Bye!");
-                        return;
+                        Console.WriteLine("Connection ended! Exiting loop.");
+                        break;
                     }
 
-                    var elapsedTimeout = TimeSpan.Zero;
                     if (!shouldReconnect)
-                        return;
+                        break;
                 }
+                Console.WriteLine("Exited loop.");
             }
         }
 
