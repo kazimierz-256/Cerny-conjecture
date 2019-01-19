@@ -145,7 +145,7 @@ namespace Presentation
                             var cernyLength = (summary.n - 1) * (summary.n - 1);
                             var cernyConjectureViolated = resultingLengths.Length > 0 && resultingLengths[0] > cernyLength;
                             var cernyConjectureViolatedText = cernyConjectureViolated ? "VIOLATED!" : $"not violated for n={summary.n}.";
-                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata. Cerny conjecture is {cernyConjectureViolatedText}";
+                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.\nCerny conjecture is {cernyConjectureViolatedText}";
                         }));
                     }
                     );

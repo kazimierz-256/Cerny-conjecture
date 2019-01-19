@@ -37,13 +37,15 @@ namespace BinaryAutomataChecking
             {
                 if (AcAutomaton.SynchronizingWordLength == null || (AcAutomaton.SynchronizingWordLength * 2) + 1 > maxLength)
                 {
+                    //DeepCopyArray(AcAutomaton.TransitionFunctionsB, MemoryB);
                     Array.Copy(AcAutomaton.TransitionFunctionsB, MemoryB, AcAutomaton.TransitionFunctionsB.Length);
                     MakingFullAutomata makingFullAutomata = new MakingFullAutomata(AcAutomaton, TransitionsFromA, helpList);
                     foreach (var fullAutomaton in makingFullAutomata.Generate())
                     {
                         yield return fullAutomaton;
                     }
-                    Array.Copy(AcAutomaton.TransitionFunctionsB, MemoryB, AcAutomaton.TransitionFunctionsB.Length);
+                    Array.Copy(MemoryB, AcAutomaton.TransitionFunctionsB, AcAutomaton.TransitionFunctionsB.Length);
+                    //DeepCopyArray(MemoryB, AcAutomaton.TransitionFunctionsB);
                 }
             }
         }
