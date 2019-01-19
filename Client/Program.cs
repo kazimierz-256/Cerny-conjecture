@@ -64,18 +64,18 @@ namespace Client
             using (var solutionSemaphore = new Semaphore(0, int.MaxValue))
             {
                 var makeSound = false;
-                if (args.Length >= 3)
-                {
-                    if (int.TryParse(args[2], out var makeIt))
-                        if (makeIt != 0)
-                            makeSound = true;
-                }
                 var useMessagePack = false;
                 if (args.Length >= 2)
                 {
-                    if (int.TryParse(args[1], out var makeIt))
-                        if (makeIt != 0)
-                            makeSound = true;
+                    if (int.TryParse(args[1], out var enabled1))
+                        if (enabled1 != 0)
+                            useMessagePack = true;
+                    if (args.Length >= 3)
+                    {
+                        if (int.TryParse(args[2], out var enabled2))
+                            if (enabled2 != 0)
+                                makeSound = true;
+                    }
                 }
                 var maximumAutomatonCollectionSize = int.MaxValue;
 

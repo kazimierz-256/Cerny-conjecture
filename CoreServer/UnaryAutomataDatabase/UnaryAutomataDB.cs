@@ -199,11 +199,11 @@ namespace CoreServer.UnaryAutomataDatabase
 
         private readonly object synchronizingObject = new object();
 
-        public ProgressIO.ProgressIO Export()
+        public DBSerialized ExportAsXMLString()
         {
             lock (synchronizingObject)
             {
-                return new ProgressIO.ProgressIO()
+                return new DBSerialized()
                 {
                     finishedStatistics = finishedAutomata,
                     Size = Size,
@@ -213,7 +213,7 @@ namespace CoreServer.UnaryAutomataDatabase
             }
         }
 
-        public void ImportShallow(ProgressIO.ProgressIO data)
+        public void ImportShallow(DBSerialized data)
         {
             Console.WriteLine("importing database from file...");
             var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size - 1]));

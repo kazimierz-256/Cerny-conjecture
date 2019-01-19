@@ -51,8 +51,11 @@ namespace CoreServer.Hubs
 
             if (changedAnything)
             {
-                await SendStatisticsToAll();
+                Console.WriteLine("writing file...");
                 await ProgressIO.ProgressIO.ExportStateAsync(database);
+
+                Console.WriteLine("sending statistics...");
+                await SendStatisticsToAll();
             }
         }
 

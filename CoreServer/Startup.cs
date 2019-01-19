@@ -19,8 +19,10 @@ namespace CoreServer
     public class Startup
     {
         #region Important parameters
-        private int AutomatonProblemSize = 6;
+        private int AutomatonProblemSize = 7;
         private int maximumCount = 20;
+        private bool useMessagePack = true;
+        private string readAddress = $"./";
         #endregion
 
         public Startup(IConfiguration configuration)
@@ -33,10 +35,6 @@ namespace CoreServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-            services.AddSignalR(opts => opts.EnableDetailedErrors = true)
-                    .AddMessagePackProtocol();
-
             var cmdArgs = Environment.GetCommandLineArgs();
             if (cmdArgs.Length >= 2)
             {
@@ -46,13 +44,29 @@ namespace CoreServer
                 {
                     if (!int.TryParse(cmdArgs[2], out maximumCount))
                         throw new Exception("Incorrect maximal found automata.");
+
+                    if (cmdArgs.Length >= 5)
+                    {
+                        if (!int.TryParse(cmdArgs[4], out var useMessagePackNumber))
+                            throw new Exception("Incorrect message pack setting.");
+                        useMessagePack = useMessagePackNumber != 0;
+
+                        if (cmdArgs.Length >= 6)
+                        {
+                            readAddress = cmdArgs[5];
+                        }
+                    }
                 }
             }
+
+            services.AddMvc();
+            services.AddSignalR(opts => opts.EnableDetailedErrors = true)
+                    .AddMessagePackProtocol();
             Console.WriteLine($"Automata size: {AutomatonProblemSize}");
             Console.WriteLine($"Maximum count of interesting automata: {maximumCount}.");
             Console.WriteLine("Please note that some automata including those violating Cerny Conjecture are collected without limits.");
             var database = new UnaryAutomataDB(AutomatonProblemSize, maximumCount);
-            ProgressIO.ProgressIO.ImportStateIfPossible(database);
+            ProgressIO.ProgressIO.ImportStateIfPossible(database, readAddress);
             services.AddSingleton(database);
         }
 
