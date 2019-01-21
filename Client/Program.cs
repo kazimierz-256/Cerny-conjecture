@@ -64,16 +64,16 @@ namespace Client
             using (var solutionSemaphore = new Semaphore(0, int.MaxValue))
             {
                 var makeSound = false;
-                var useMessagePack = false;
+                //var useMessagePack = false;
                 if (args.Length >= 2)
                 {
-                    if (int.TryParse(args[1], out var enabled1))
-                        useMessagePack = enabled1 != 0;
-                    if (args.Length >= 3)
-                    {
-                        if (int.TryParse(args[2], out var enabled2))
-                            makeSound = enabled2 != 0;
-                    }
+                    //if (int.TryParse(args[1], out var enabled1))
+                    //    useMessagePack = enabled1 != 0;
+                    //if (args.Length >= 3)
+                    //{
+                    if (int.TryParse(args[1], out var enabled2))
+                        makeSound = enabled2 != 0;
+                    //}
                 }
                 var maximumAutomatonCollectionSize = int.MaxValue;
 
@@ -95,8 +95,8 @@ namespace Client
                 var shouldReconnect = true;
 
                 var connectionBuild = new HubConnectionBuilder().WithUrl(address);
-                if (useMessagePack)
-                    connectionBuild = connectionBuild.AddMessagePackProtocol();
+                //if (useMessagePack)
+                connectionBuild = connectionBuild.AddMessagePackProtocol();
                 var connection = connectionBuild.Build();
 
                 connection.On("NoMoreAutomataThankYou", async () =>

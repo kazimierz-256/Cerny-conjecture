@@ -57,10 +57,11 @@ namespace Presentation
                     await connection.StopAsync();
                 }
 
-                connection = new HubConnectionBuilder()
-                    .WithUrl(connectionText)
-                    .AddMessagePackProtocol()
-                    .Build();
+                var connectionBuilder = new HubConnectionBuilder()
+                    .WithUrl(connectionText);
+                //if (Environment.GetCommandLineArgs().Length >= 3 && int.Parse(Environment.GetCommandLineArgs()[2]) != 0)
+                connectionBuilder.AddMessagePackProtocol();
+                connection = connectionBuilder.Build();
                 connection.On(
                     "ShowSimpleTextStatistics",
                     (ServerPresentationComputationSummary summary) =>
