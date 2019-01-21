@@ -17,14 +17,41 @@ namespace Presentation
 {
     public partial class Presentation : MaterialForm
     {
+        private MaterialSkinManager materialSkinManager;
         public Presentation()
         {
             InitializeComponent();
 
-            var materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);
             materialSkinManager.Theme = MaterialSkinManager.Themes.DARK;
             materialSkinManager.ColorScheme = new ColorScheme(Primary.BlueGrey800, Primary.BlueGrey900, Primary.BlueGrey500, Accent.LightBlue200, TextShade.WHITE);
+            listOfAutomata.BackColor = materialSkinManager.ColorScheme.PrimaryColor;
+            listOfAutomata.ForeColor = materialSkinManager.ColorScheme.TextColor;
+            chart1.BackColor = materialSkinManager.ColorScheme.PrimaryColor;
+            chart1.BackSecondaryColor = materialSkinManager.ColorScheme.PrimaryColor;
+            chart1.BorderlineColor = materialSkinManager.ColorScheme.PrimaryColor;
+            chart1.ForeColor = materialSkinManager.ColorScheme.TextColor;
+            foreach (var area in chart1.ChartAreas)
+            {
+                area.BackColor = materialSkinManager.ColorScheme.PrimaryColor;
+                area.BackSecondaryColor = materialSkinManager.ColorScheme.PrimaryColor;
+                area.BorderColor = materialSkinManager.ColorScheme.TextColor;
+            }
+
+            foreach (var title in chart1.Titles)
+            {
+                title.ForeColor = materialSkinManager.ColorScheme.TextColor;
+            }
+
+            foreach (var series in chart1.Legends)
+            {
+                series.BackColor = materialSkinManager.ColorScheme.PrimaryColor;
+                series.ForeColor = materialSkinManager.ColorScheme.TextColor;
+            }
+
+            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
+            //chart1.PaletteCustomColors = new Color[] { materialSkinManager.ColorScheme.PrimaryColor, materialSkinManager.ColorScheme.PrimaryColor };
 
             addressBox.Text = Environment.GetCommandLineArgs().Length >= 2 ? Environment.GetCommandLineArgs()[1] : "http://localhost:62752";
         }
@@ -37,7 +64,7 @@ namespace Presentation
             await RefreshConnection();
             if (connection != null && connection.State == HubConnectionState.Connected)
             {
-                addressBox.BackColor = Color.YellowGreen;
+                addressBox.BackColor = materialSkinManager.ColorScheme.AccentColor;
                 await connection.InvokeAsync("SubscribeAndSendStatistics");
             }
         }
@@ -72,6 +99,9 @@ namespace Presentation
                             chart1.Series["UnaryFinishedSeries"].Points.Clear();
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
+
+                            chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
+                            chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
 
                             if (summary.finishedAutomata.Count > 0)
                             {
@@ -251,6 +281,7 @@ namespace Presentation
             {
                 await connection.StopAsync();
                 addressBox.BackColor = Color.Empty;
+                addressBox.ForeColor = Color.White;
             }
         }
 

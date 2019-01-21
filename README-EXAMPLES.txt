@@ -9,7 +9,7 @@ To launch the Server please provide the following parameters:
 
 *** CLIENT
 To launch an instance of a Client please provide the following parameters:
-  run-client.cmd http://192.168.145.184:62752 12 1
+  run-client.cmd http://192.168.145.184:62752 12
 * where http://192.168.145.184:62752 is the address and port of the Server
 * where 12 is the number of threads working concurrently withing the instance
 
