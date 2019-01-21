@@ -166,16 +166,17 @@ namespace Presentation
                             listOfAutomata.Items.Clear();
                             automataToLaunch.Clear();
                             var resultingArray = sortedResults.ToArray();
-                            var resultingLengths = sortedLengths.ToArray();
-                            Array.Sort(resultingLengths, resultingArray);
+                            var resultingLengthsNegated = sortedLengths.ToArray();
+                            Array.Sort(resultingLengthsNegated, resultingArray);
                             for (int i = 0; i < resultingArray.Length; i++)
                             {
                                 automataToLaunch.Add(resultingArray[i].Item2);
-                                listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-resultingLengths[i]}");
+                                listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-1 * resultingLengthsNegated[i]}");
                             }
                             var cernyLength = (summary.n - 1) * (summary.n - 1);
-                            var cernyConjectureViolated = resultingLengths.Length > 0 && resultingLengths[0] > cernyLength;
-                            var cernyConjectureViolatedText = cernyConjectureViolated ? "VIOLATED!" : $"not violated for n={summary.n}.";
+                            var cernyConjectureViolated = resultingLengthsNegated.Length > 0 && Math.Abs(resultingLengthsNegated[0]) > cernyLength;
+                            var yetText = summary.finishedAutomata.Count < summary.total ? "yet " : string.Empty;
+                            var cernyConjectureViolatedText = cernyConjectureViolated ? $"VIOLATED for n = {summary.n}!" : $"not {yetText}violated for n = {summary.n}";
                             labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.\nCerny conjecture is {cernyConjectureViolatedText}";
                         }));
                     }
