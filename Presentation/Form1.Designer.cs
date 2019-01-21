@@ -179,7 +179,7 @@ namespace Presentation
             this.materialLabelAdres.Name = "materialLabelAdres";
             this.materialLabelAdres.Size = new System.Drawing.Size(89, 32);
             this.materialLabelAdres.TabIndex = 7;
-            this.materialLabelAdres.Text = "Adres:";
+            this.materialLabelAdres.Text = "Address:";
             // 
             // tabStatistics
             // 

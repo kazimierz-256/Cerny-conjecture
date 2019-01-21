@@ -50,7 +50,7 @@ namespace Presentation
                 series.ForeColor = materialSkinManager.ColorScheme.TextColor;
             }
 
-            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
+            //chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
             //chart1.PaletteCustomColors = new Color[] { materialSkinManager.ColorScheme.PrimaryColor, materialSkinManager.ColorScheme.PrimaryColor };
 
             addressBox.Text = Environment.GetCommandLineArgs().Length >= 2 ? Environment.GetCommandLineArgs()[1] : "http://localhost:62752";
@@ -100,8 +100,8 @@ namespace Presentation
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
                             chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
 
-                            chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
-                            chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
+                            //chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
+                            //chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
 
                             if (summary.finishedAutomata.Count > 0)
                             {
@@ -297,7 +297,7 @@ namespace Presentation
             }
             else
             {
-                string message = "You did not selected any automaton. Would you like to see Cerny automaton?";
+                string message = "You did not selected an automaton. Would you like to see the Cerny automaton?";
                 string caption = "No automaton selected";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 DialogResult result;
