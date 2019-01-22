@@ -1,6 +1,7 @@
 ﻿using CommunicationContracts;
 using CoreServer.UnaryAutomataDatabase;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,9 +14,9 @@ namespace CoreServer.ProgressIO
 {
     public static class ProgressIO
     {
-        private static string GetDetailedAddress(UnaryAutomataDB database) => $"all-history-{database.Size}-{database.MaximumLongestAutomataCount}-{database.Found}.xml";
-        private static string GetDetailedPreviousAddress(UnaryAutomataDB database) => $"all-history-{database.Size}-{database.MaximumLongestAutomataCount}-{database.Found - 1}.xml";
+        private static string GetDetailedAddress(int size, int count, int found) => $"computation-summary-{size}-{count}-{found}.xml";
         private static Semaphore syncObject = new Semaphore(1, 1);
+        private static HashSet<string> stillAvailable = new HashSet<string>();
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
             var exported = database.ExportAsXMLString();
@@ -26,16 +27,24 @@ namespace CoreServer.ProgressIO
                 using (var w = XmlWriter.Create(sw))
                 {
                     serializer.Serialize(w, exported);
-                    var detailedAddress = GetDetailedAddress(database);
-                    var previousAddress = GetDetailedPreviousAddress(database);
+                    var found = exported.finishedStatistics.Count(finished => finished.solved);
+                    var detailedAddress = GetDetailedAddress(exported.Size, exported.MaximumLongestAutomataCount, found);
                     var swString = sw.ToString();
+                    var toDelete = new List<int>();
                     try
                     {
                         syncObject.WaitOne();
                         await File.WriteAllTextAsync(detailedAddress, swString);
-                        if (File.Exists(previousAddress))
-                            File.Delete(previousAddress);
+                        foreach (var address in stillAvailable)
+                        {
+                            if (File.Exists(address))
+                                File.Delete(address);
+                        }
+                        stillAvailable.Clear();
+                        if (found < database.Total)
+                            stillAvailable.Add(detailedAddress);
                         syncObject.Release();
+                        Console.WriteLine($"Successfully exported database having computed {database.Found} unary automata at {DateTime.Now} to a file {detailedAddress}. Deleted the rest");
                     }
                     catch (Exception e)
                     {
