@@ -56,7 +56,7 @@ namespace AutomataIterator
 
                 localProblemId += 1;
 
-                // that's unprobable since 2^32-1 is a very large number of problems
+                // that's improbable since 2^32-1 is a very large number of problems
                 if (localProblemId <= 0)
                 {
                     localProblemId = 1;

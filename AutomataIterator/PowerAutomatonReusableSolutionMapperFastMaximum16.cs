@@ -67,7 +67,7 @@ namespace AutomataIterator
 
                 localProblemId += 1;
 
-                // that's unprobable since 2^32-1 is a very large number of problems
+                // that's improbable since 2^32-1 is a very large number of problems
                 if (localProblemId <= 0)
                 {
                     localProblemId = 1;
@@ -88,11 +88,6 @@ namespace AutomataIterator
                         initialVertex += (ushort)(1 << i);
 
                         precomputedStateTransitioningMatrix[i] = (uint)((powerSetCount << transitionA[i]) + (1 << transitionB[i]));
-                    }
-                    else
-                    {
-                        // not sure if this is necessary?
-                        //precomputedStateTransitioningMatrix[i] = 0;
                     }
                 }
 
