@@ -215,7 +215,7 @@ namespace CoreServer.UnaryAutomataDatabase
 
         public void ImportShallow(DBSerialized data)
         {
-            Console.WriteLine("importing database from file...");
+            Console.WriteLine("Importing database from file...");
             var leftoverAutomataIndices = new HashSet<int>(Enumerable.Range(0, theory[Size - 1]));
             lock (synchronizingObject)
             {

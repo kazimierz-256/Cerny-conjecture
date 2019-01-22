@@ -381,37 +381,57 @@
     <div id="simulation-settings" class="modal modal-fixed-footer">
         <div class="modal-content">
 
+
             <div class="section">
-                <label>Reflection probability of a valid random vertex per frame</label>
+                <label>Daytime</label>
                 <p class="range-field">
-                    <input type="range" id="probability" min="0" max="1" value="0.03" step="0.01" />
+                    <input type="range" id="daytime" min="0" max="1" value="0.15" step="0.01" />
                 </p>
             </div>
 
             <div class="divider"></div>
 
             <div class="section">
-                <label>Toggle lights coming from vertices (requires automaton reconstruction)</label>
-                <br>
-                <br>
-                <label>
-                    <input type="checkbox" class="filled-in" id="automaton-lights" />
-                    <span>Enable lights</span>
-                </label>
+                <label>Target string length</label>
+                <p class="range-field">
+                    <input type="range" id="string-length" min="0" max="3" value="0.4" step="0.001" />
+                </p>
+            </div>
+
+            <div class="divider"></div>
+            
+            <div class="section">
+                <label>Repelling factor</label>
+                <p class="range-field">
+                    <input type="range" id="automaton-repel" min="-500" max="0" value="-200" step="10" />
+                </p>
             </div>
 
             <div class="divider"></div>
 
             <div class="section">
-                <label>Toggle experimental edge repelling force</label>
-                <br>
-                <br>
-                <label>
-                    <input type="checkbox" class="filled-in" id="repelling-edges" />
-                    <span>Enable Edge-Repelling force</span>
-                </label>
+                <label>String factor</label>
+                <p class="range-field">
+                    <input type="range" id="automaton-string" min="0" max="20" value="5" step="0.1" />
+                </p>
             </div>
 
+            <div class="divider"></div>
+            <div class="section">
+                <label>Unique string force amplification factor</label>
+                <p class="range-field">
+                    <input type="range" id="automaton-unique-string" min="0" max="20" value="2" step="0.1" />
+                </p>
+            </div>
+
+            <div class="divider"></div>
+            <div class="section">
+                <label>Friciton factor</label>
+                <p class="range-field">
+                    <input type="range" id="automaton-friction" min="0" max="20" value="0" step="0.1" />
+                </p>
+            </div>
+            
             <div class="divider"></div>
 
             <div class="section">
@@ -428,6 +448,27 @@
                     <label>Speedup</label>
                 </div>
             </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <label>Toggle lights coming from vertices (requires automaton reconstruction)</label>
+                <br>
+                <br>
+                <label>
+                    <input type="checkbox" class="filled-in" id="automaton-lights" />
+                    <span>Enable lights</span>
+                </label>
+            </div>
+
+            <!-- <div class="divider"></div>
+
+            <div class="section">
+                <label>Reflection probability of recalculating reflection of one vertex per frame</label>
+                <p class="range-field">
+                    <input type="range" id="probability" min="0" max="1" value="0.03" step="0.01" />
+                </p>
+            </div> -->
 
             <div class="divider"></div>
 
@@ -464,56 +505,6 @@
                 </p>
             </div>
 
-            <div class="divider"></div>
-
-            <div class="section">
-                <label>Daytime</label>
-                <p class="range-field">
-                    <input type="range" id="daytime" min="0" max="1" value="0.15" step="0.01" />
-                </p>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <label>Repelling factor</label>
-                <p class="range-field">
-                    <input type="range" id="automaton-repel" min="-500" max="0" value="-200" step="10" />
-                </p>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="section">
-                <label>String factor</label>
-                <p class="range-field">
-                    <input type="range" id="automaton-string" min="0" max="20" value="5" step="0.1" />
-                </p>
-            </div>
-
-            <div class="divider"></div>
-            <div class="section">
-                <label>Unique string amplification factor</label>
-                <p class="range-field">
-                    <input type="range" id="automaton-unique-string" min="0" max="20" value="2" step="0.1" />
-                </p>
-            </div>
-
-            <div class="divider"></div>
-            <div class="section">
-                <label>Friciton factor</label>
-                <p class="range-field">
-                    <input type="range" id="automaton-friction" min="0" max="20" value="0" step="0.1" />
-                </p>
-            </div>
-
-            <div class="divider"></div>
-            <div class="section">
-                <label>Target string length</label>
-                <p class="range-field">
-                    <input type="range" id="string-length" min="0" max="3" value="0.4" step="0.001" />
-                </p>
-            </div>
 
         </div>
         <div class="modal-footer">

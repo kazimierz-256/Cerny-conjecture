@@ -16,7 +16,7 @@ class settings {
         // parameters
         this.shineLights = false;
         this.daytime = 0.15;
-        this.probabilityOfUpdate = 0.05;
+        this.probabilityOfUpdate = 1.0;
         // animation
         this.animationStartTime = 0;
         this.creationStartTime = 0;

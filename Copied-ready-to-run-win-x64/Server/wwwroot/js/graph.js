@@ -262,7 +262,7 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
         let material = new THREE.MeshStandardMaterial({
             color: color,
-            roughness: 0.6,
+            roughness: 0.75,
             metalness: 0.5,
             envMap: cameraGroup[0].renderTarget
         });

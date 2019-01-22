@@ -716,48 +716,60 @@ let init = (createControlFromCamera) => {
     });
 
     $("#quality-smooth").on("click", () => {
-        appSettings.quality = 6;
+        appSettings.quality = 5;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         M.toast({ html: "Realistically smooth quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
     $("#quality-ultra").on("click", () => {
         appSettings.quality = 4;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         M.toast({ html: "Ultra quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
     $("#quality-standard").on("click", () => {
         appSettings.quality = 3;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         M.toast({ html: "Standard quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
     $("#quality-low").on("click", () => {
         appSettings.quality = 1;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         M.toast({ html: "Low quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
     $("#quality-minimum").on("click", () => {
         appSettings.quality = 0;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         M.toast({ html: "Minimum quality setting will be applied once a new automaton is created", displayLength: 4000 })
     });
 
     $("#automaton-lights").change((e) => {
         appSettings.shineLights = e.target.checked;
+        if (generateAction != undefined)
+            showGraph(generateAction());
         if (appSettings.shineLights)
             M.toast({ html: "Lights will be available once a new automaton is created", displayLength: 4000 })
     });
 
-    $("#repelling-edges").change((e) => {
-        appSettings.repelArrows = e.target.checked;
-        if (appSettings.repelArrows)
-            M.toast({ html: "Be careful! This feature is experimental. Your graph may blow up.", displayLength: 6000 })
-    });
+    // $("#repelling-edges").change((e) => {
+    //     appSettings.repelArrows = e.target.checked;
+    //     if (appSettings.repelArrows)
+    //         M.toast({ html: "Be careful! This feature is experimental. Your graph may blow up.", displayLength: 6000 })
+    // });
 
     $("#automaton-speedup").change((e) => {
         appSettings.speedup = parseFloat(e.target.options[e.target.selectedIndex].value);
     });
-    $("#probability").on("input", (e) => {
-        appSettings.probabilityOfUpdate = e.target.value;
-    });
+    // $("#probability").on("input", (e) => {
+    //     appSettings.probabilityOfUpdate = e.target.value;
+    // });
     $("#automaton-repel").on("input", (e) => {
         appSettings.repellingConstant = e.target.value * appSettings.forceStrength;
     });
