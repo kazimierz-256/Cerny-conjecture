@@ -31,10 +31,10 @@ namespace Presentation
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.prompt = new MaterialSkin.Controls.MaterialRaisedButton();
             this.close = new MaterialSkin.Controls.MaterialRaisedButton();
             this.addressBox = new MaterialSkin.Controls.MaterialSingleLineTextField();
@@ -143,7 +143,7 @@ namespace Presentation
             this.materialTabControl1.Controls.Add(this.tabEXAMPLES);
             this.materialTabControl1.Depth = 0;
             this.materialTabControl1.Location = new System.Drawing.Point(3, 188);
-            this.materialTabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialTabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.materialTabControl1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialTabControl1.Name = "materialTabControl1";
             this.materialTabControl1.SelectedIndex = 0;
@@ -158,9 +158,9 @@ namespace Presentation
             this.tabSettings.Controls.Add(this.addressBox);
             this.tabSettings.Controls.Add(this.close);
             this.tabSettings.Location = new System.Drawing.Point(4, 33);
-            this.tabSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabSettings.Margin = new System.Windows.Forms.Padding(4);
             this.tabSettings.Name = "tabSettings";
-            this.tabSettings.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(4);
             this.tabSettings.Size = new System.Drawing.Size(912, 833);
             this.tabSettings.TabIndex = 0;
             this.tabSettings.Text = "SETTINGS";
@@ -177,7 +177,7 @@ namespace Presentation
             this.materialLabelAdres.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.materialLabelAdres.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialLabelAdres.Name = "materialLabelAdres";
-            this.materialLabelAdres.Size = new System.Drawing.Size(89, 32);
+            this.materialLabelAdres.Size = new System.Drawing.Size(117, 32);
             this.materialLabelAdres.TabIndex = 7;
             this.materialLabelAdres.Text = "Address:";
             // 
@@ -189,9 +189,9 @@ namespace Presentation
             this.tabStatistics.Controls.Add(this.materialLabel1);
             this.tabStatistics.Controls.Add(this.materialLabel3);
             this.tabStatistics.Location = new System.Drawing.Point(4, 33);
-            this.tabStatistics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabStatistics.Margin = new System.Windows.Forms.Padding(4);
             this.tabStatistics.Name = "tabStatistics";
-            this.tabStatistics.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabStatistics.Padding = new System.Windows.Forms.Padding(4);
             this.tabStatistics.Size = new System.Drawing.Size(912, 833);
             this.tabStatistics.TabIndex = 1;
             this.tabStatistics.Text = "STATISTICS";
@@ -215,27 +215,27 @@ namespace Presentation
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chart1.Legends.Add(legend2);
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(29, 345);
-            this.chart1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chart1.Margin = new System.Windows.Forms.Padding(4);
             this.chart1.Name = "chart1";
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
-            series2.IsValueShownAsLabel = true;
-            series2.Legend = "Legend1";
-            series2.Name = "UnaryFinishedSeries";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
-            this.chart1.Series.Add(series2);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
+            series1.IsValueShownAsLabel = true;
+            series1.Legend = "Legend1";
+            series1.Name = "UnaryFinishedSeries";
+            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.String;
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(860, 458);
             this.chart1.TabIndex = 11;
             this.chart1.Text = "chart1";
-            title2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            title2.Name = "UnaryTitle";
-            title2.Text = "Unary automata";
-            this.chart1.Titles.Add(title2);
+            title1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            title1.Name = "UnaryTitle";
+            title1.Text = "Unary automata";
+            this.chart1.Titles.Add(title1);
             // 
             // tabEXAMPLES
             // 
@@ -244,9 +244,9 @@ namespace Presentation
             this.tabEXAMPLES.Controls.Add(this.runVisualisationButton);
             this.tabEXAMPLES.Controls.Add(this.listOfAutomata);
             this.tabEXAMPLES.Location = new System.Drawing.Point(4, 33);
-            this.tabEXAMPLES.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabEXAMPLES.Margin = new System.Windows.Forms.Padding(4);
             this.tabEXAMPLES.Name = "tabEXAMPLES";
-            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabEXAMPLES.Padding = new System.Windows.Forms.Padding(4);
             this.tabEXAMPLES.Size = new System.Drawing.Size(912, 833);
             this.tabEXAMPLES.TabIndex = 2;
             this.tabEXAMPLES.Text = "EXAMPLES";
@@ -257,7 +257,7 @@ namespace Presentation
             this.materialRaisedButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.materialRaisedButton1.Depth = 0;
             this.materialRaisedButton1.Location = new System.Drawing.Point(568, 714);
-            this.materialRaisedButton1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialRaisedButton1.Margin = new System.Windows.Forms.Padding(4);
             this.materialRaisedButton1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialRaisedButton1.Name = "materialRaisedButton1";
             this.materialRaisedButton1.Primary = true;
@@ -287,7 +287,7 @@ namespace Presentation
             this.runVisualisationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.runVisualisationButton.Depth = 0;
             this.runVisualisationButton.Location = new System.Drawing.Point(568, 598);
-            this.runVisualisationButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.runVisualisationButton.Margin = new System.Windows.Forms.Padding(4);
             this.runVisualisationButton.MouseState = MaterialSkin.MouseState.HOVER;
             this.runVisualisationButton.Name = "runVisualisationButton";
             this.runVisualisationButton.Primary = true;
@@ -307,7 +307,7 @@ namespace Presentation
             this.listOfAutomata.FormattingEnabled = true;
             this.listOfAutomata.ItemHeight = 25;
             this.listOfAutomata.Location = new System.Drawing.Point(8, 9);
-            this.listOfAutomata.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listOfAutomata.Margin = new System.Windows.Forms.Padding(4);
             this.listOfAutomata.Name = "listOfAutomata";
             this.listOfAutomata.Size = new System.Drawing.Size(891, 552);
             this.listOfAutomata.TabIndex = 0;
@@ -320,7 +320,7 @@ namespace Presentation
             this.materialTabSelector1.BaseTabControl = this.materialTabControl1;
             this.materialTabSelector1.Depth = 0;
             this.materialTabSelector1.Location = new System.Drawing.Point(-8, 94);
-            this.materialTabSelector1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.materialTabSelector1.Margin = new System.Windows.Forms.Padding(4);
             this.materialTabSelector1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialTabSelector1.Name = "materialTabSelector1";
             this.materialTabSelector1.Size = new System.Drawing.Size(943, 84);

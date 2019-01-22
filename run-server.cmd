@@ -1,3 +1,2 @@
-cd Copied-ready-to-run-win-x64/Server
-start CoreServer.exe %*
-cd ../../
+start Copied-ready-to-run-win-x64/Server/CoreServer.exe %*
+exit

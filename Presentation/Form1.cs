@@ -54,6 +54,7 @@ namespace Presentation
             //chart1.PaletteCustomColors = new Color[] { materialSkinManager.ColorScheme.PrimaryColor, materialSkinManager.ColorScheme.PrimaryColor };
 
             addressBox.Text = Environment.GetCommandLineArgs().Length >= 2 ? Environment.GetCommandLineArgs()[1] : "http://localhost:62752";
+
         }
 
         HubConnection connection = null;
@@ -77,119 +78,117 @@ namespace Presentation
         private async Task RefreshConnection()
         {
             var connectionText = $"{addressBox.Text}/ua";
+            //addressBox.BackColor = Color.OrangeRed;
+            if (connection != null && connection.State == HubConnectionState.Connected)
             {
-                //addressBox.BackColor = Color.OrangeRed;
-                if (connection != null && connection.State == HubConnectionState.Connected)
-                {
-                    await connection.StopAsync();
-                }
+                await connection.StopAsync();
+            }
 
-                var connectionBuilder = new HubConnectionBuilder()
-                    .WithUrl(connectionText);
-                //if (Environment.GetCommandLineArgs().Length >= 3 && int.Parse(Environment.GetCommandLineArgs()[2]) != 0)
-                connectionBuilder.AddMessagePackProtocol();
-                connection = connectionBuilder.Build();
-                connection.On(
-                    "ShowSimpleTextStatistics",
-                    (ServerPresentationComputationSummary summary) =>
+            var connectionBuilder = new HubConnectionBuilder()
+                .WithUrl(connectionText);
+            //if (Environment.GetCommandLineArgs().Length >= 3 && int.Parse(Environment.GetCommandLineArgs()[2]) != 0)
+            connectionBuilder.AddMessagePackProtocol();
+            connection = connectionBuilder.Build();
+            connection.On(
+                "ShowSimpleTextStatistics",
+                (ServerPresentationComputationSummary summary) =>
+                {
+                    Invoke(new Action(() =>
                     {
-                        Invoke(new Action(() =>
+                        int toCompute = summary.total - summary.finishedAutomata.Count;
+                        chart1.Series["UnaryFinishedSeries"].Points.Clear();
+                        chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
+                        chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
+
+                        //chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
+                        //chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
+
+                        if (summary.finishedAutomata.Count > 0)
                         {
-                            int toCompute = summary.total - summary.finishedAutomata.Count;
-                            chart1.Series["UnaryFinishedSeries"].Points.Clear();
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
-                            chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
-
-                            //chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
-                            //chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
-
-                            if (summary.finishedAutomata.Count > 0)
+                            chart1.Titles[0].Text = $"Unary Automata with n = {summary.n}";
+                            totalComputingTime = GetTotalComputationTime(summary.finishedAutomata);
+                            var totalSpeed = GetAverageSpeed(summary.finishedAutomata);
+                            double leftSeconds;
+                            if (totalSpeed == 0)
                             {
-                                chart1.Titles[0].Text = $"Unary Automata with n = {summary.n}";
-                                totalComputingTime = GetTotalComputationTime(summary.finishedAutomata);
-                                var totalSpeed = GetAverageSpeed(summary.finishedAutomata);
-                                double leftSeconds;
-                                if (totalSpeed == 0)
-                                {
-                                    if (toCompute == 0)
-                                        leftSeconds = 0;
-                                    else
-                                        leftSeconds = Double.MaxValue;
-                                }
+                                if (toCompute == 0)
+                                    leftSeconds = 0;
                                 else
-                                {
-                                    leftSeconds = toCompute / totalSpeed;
-                                }
-
-                                startCountingTime = DateTime.Now;
-                                if (!timerLaunched && summary.finishedAutomata.Count == summary.total)
-                                {
-                                    materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
-                                }
-                                else if (!timerLaunched && summary.finishedAutomata.Count < summary.total)
-                                {
-                                    timer1.Tick += (o, e) =>
-                                    {
-                                        materialLabel1.Text = "Total computation time: " + (totalComputingTime + (DateTime.Now - startCountingTime)).ToString();
-                                    };
-                                    timer1.Start();
-                                    timerLaunched = true;
-                                }
-                                else if (summary.finishedAutomata.Count == summary.total)
-                                {
-                                    timer1.Stop();
-                                    timerLaunched = false;
-                                }
-                                materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
-                                materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
+                                    leftSeconds = Double.MaxValue;
                             }
-
-                            var sortedLengths = new List<int>();
-                            var sortedResults = new List<Tuple<int, string>>();
-                            //var results = 
-                            foreach (var a in summary.finishedAutomata)
+                            else
                             {
-                                if (a.solution.solvedB.Count > 0)
+                                leftSeconds = toCompute / totalSpeed;
+                            }
+
+                            startCountingTime = DateTime.Now;
+                            if (!timerLaunched && summary.finishedAutomata.Count == summary.total)
+                            {
+                                materialLabel1.Text = "Total computation time: " + totalComputingTime.ToString();
+                            }
+                            else if (!timerLaunched && summary.finishedAutomata.Count < summary.total)
+                            {
+                                timer1.Tick += (o, e) =>
                                 {
-                                    string b_tab, a_tab = byteTabToString(a.solution.unaryArray);
-                                    for (int i = 0; i < a.solution.solvedB.Count; i++)
-                                    {
-                                        var b = a.solution.solvedB[i];
-                                        b_tab = byteTabToString(b);
-                                        sortedLengths.Add(-a.solution.solvedSyncLength[i]);
-                                        sortedResults.Add(new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
-                                        //sortedResults.Add($"[{a_tab},{b_tab}]");
-                                    }
+                                    materialLabel1.Text = "Total computation time: " + (totalComputingTime + (DateTime.Now - startCountingTime)).ToString();
+                                };
+                                timer1.Start();
+                                timerLaunched = true;
+                            }
+                            else if (summary.finishedAutomata.Count == summary.total)
+                            {
+                                timer1.Stop();
+                                timerLaunched = false;
+                            }
+                            materialLabel3.Text = $"Total speed: {totalSpeed:F2} automata per second.";
+                            materialLabel2.Text = "Expected end of computation at: " + DateTime.Now.AddSeconds(leftSeconds).ToString();
+                        }
+
+                        var sortedLengths = new List<int>();
+                        var sortedResults = new List<Tuple<int, string>>();
+                        //var results = 
+                        foreach (var a in summary.finishedAutomata)
+                        {
+                            if (a.solution.solvedB.Count > 0)
+                            {
+                                string b_tab, a_tab = byteTabToString(a.solution.unaryArray);
+                                for (int i = 0; i < a.solution.solvedB.Count; i++)
+                                {
+                                    var b = a.solution.solvedB[i];
+                                    b_tab = byteTabToString(b);
+                                    sortedLengths.Add(-a.solution.solvedSyncLength[i]);
+                                    sortedResults.Add(new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
+                                                                                                                            //sortedResults.Add($"[{a_tab},{b_tab}]");
                                 }
                             }
+                        }
 
-                            listOfAutomata.Items.Clear();
-                            automataToLaunch.Clear();
-                            var resultingArray = sortedResults.ToArray();
-                            var resultingLengthsNegated = sortedLengths.ToArray();
-                            Array.Sort(resultingLengthsNegated, resultingArray);
-                            for (int i = 0; i < resultingArray.Length; i++)
-                            {
-                                automataToLaunch.Add(resultingArray[i].Item2);
-                                listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-1 * resultingLengthsNegated[i]}");
-                            }
-                            var cernyLength = (summary.n - 1) * (summary.n - 1);
-                            var cernyConjectureViolated = resultingLengthsNegated.Length > 0 && Math.Abs(resultingLengthsNegated[0]) > cernyLength;
-                            var yetText = summary.finishedAutomata.Count < summary.total ? "yet " : string.Empty;
-                            var cernyConjectureViolatedText = cernyConjectureViolated ? $"VIOLATED for n = {summary.n}!" : $"not {yetText}violated for n = {summary.n}";
-                            labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.\nCerny conjecture is {cernyConjectureViolatedText}";
-                        }));
-                    }
-                    );
-                try
-                {
-                    await connection.StartAsync();
-                    connectionAddress = connectionText;
+                        listOfAutomata.Items.Clear();
+                        automataToLaunch.Clear();
+                        var resultingArray = sortedResults.ToArray();
+                        var resultingLengthsNegated = sortedLengths.ToArray();
+                        Array.Sort(resultingLengthsNegated, resultingArray);
+                        for (int i = 0; i < resultingArray.Length; i++)
+                        {
+                            automataToLaunch.Add(resultingArray[i].Item2);
+                            listOfAutomata.Items.Add($"{resultingArray[i].Item2}, index = {resultingArray[i].Item1} - synchronizing length {-1 * resultingLengthsNegated[i]}");
+                        }
+                        var cernyLength = (summary.n - 1) * (summary.n - 1);
+                        var cernyConjectureViolated = resultingLengthsNegated.Length > 0 && Math.Abs(resultingLengthsNegated[0]) > cernyLength;
+                        var yetText = summary.finishedAutomata.Count < summary.total ? "yet " : string.Empty;
+                        var cernyConjectureViolatedText = cernyConjectureViolated ? $"VIOLATED for n = {summary.n}!" : $"not {yetText}violated for n = {summary.n}";
+                        labelAutomataCount.Text = $"There are {listOfAutomata.Items.Count} interesting automata.\nCerny conjecture is {cernyConjectureViolatedText}";
+                    }));
                 }
-                catch (Exception e)
-                {
+                );
 
-                }
+            try
+            {
+                await connection.StartAsync();
+                connectionAddress = connectionText;
+            }
+            catch (Exception e)
+            {
             }
         }
 
@@ -318,5 +317,6 @@ namespace Presentation
         {
             Visualize(true);
         }
+       
     }
 }
