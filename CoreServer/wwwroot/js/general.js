@@ -1144,7 +1144,7 @@ let generatePosterShot = () => {
         ["Styczeń 2019, Politechnika Warszawska"],
         ["Promotor: dr Michał Dębski"],
         [""],
-        ["Obliczenia potwierdzają hipotezę Černego dla n < 10"],
+        ["Obliczenia potwierdzają hipotezę Černego dla n < 11"],
         [""],
         ["Projekt składa się z trzech modułów"],
         ["Klient, Serwer oraz Prezentacja"],
