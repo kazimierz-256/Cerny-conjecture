@@ -43,19 +43,17 @@ namespace BinaryAutomataChecking
                     {
                         yield return fullAutomaton;
                     }
-
-                    //spicy
+                    
                     memoryHelp = AcAutomaton.TransitionFunctionsB;
                     AcAutomaton.TransitionFunctionsB = MemoryB;
                     MemoryB = memoryHelp;
-                    //Array.Copy(MemoryB, AcAutomaton.TransitionFunctionsB, AcAutomaton.TransitionFunctionsB.Length);
                 }
             }
         }
 
         public IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomataToCheckWithMemory(int size, int index)
         {
-            byte[] TranA = new byte[size], TranB = new byte[size];//, MemoryB = new byte[size];
+            byte[] TranA = new byte[size], TranB = new byte[size];
             CoreDefinitions.IOptionalAutomaton unaryAutomata = new CoreDefinitions.OptionalAutomaton(TranA, TranB);
 
             var endoFunctor = UniqueUnaryAutomata.Generator.GetUniqueAutomatonFromCached(size, index);
@@ -71,15 +69,13 @@ namespace BinaryAutomataChecking
                 AddingBTransition addingBTransition = new AddingBTransition(unaryAutomata, isVertInAcTab);
                 foreach (CoreDefinitions.IOptionalAutomaton acAutomata in addingBTransition.GenerateAc())
                 {
-                    //Array.Copy(acAutomata.TransitionFunctionsB, MemoryB, acAutomata.TransitionFunctionsB.Length);
                     yield return acAutomata;
-                    //Array.Copy(MemoryB, acAutomata.TransitionFunctionsB, acAutomata.TransitionFunctionsB.Length);
                 }
             }
 
         }
 
-        //nadpisywanie tablicy której jescze potrzebujemy
+        //nadpisywanie tablicy której jeszcze potrzeba
         public IEnumerable<CoreDefinitions.IOptionalAutomaton> GetAllAcAutomataToCheck(int size, int index)
         {
             byte[] TranA = new byte[size], TranB = new byte[size];

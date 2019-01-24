@@ -192,7 +192,6 @@ namespace CoreServer.UnaryAutomataDatabase
         public int MaximumLongestAutomataCount = 0;
         private int AllowedCount;
 
-        // may contain already computed!
         private readonly Queue<int> leftoverAutomata = new Queue<int>();
         private FinishedStatistics[] finishedAutomata = new FinishedStatistics[0];
         private readonly SortedDictionary<int, int> synchronizingWordLengthToCount = new SortedDictionary<int, int>();

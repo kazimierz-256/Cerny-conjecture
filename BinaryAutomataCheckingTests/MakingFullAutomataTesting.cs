@@ -40,7 +40,7 @@ namespace BinaryAutomataCheckingTests
         }
         
         [Theory]
-        //[InlineData(8, 849)] //wykomentowane gdy¿ trwa bardzo d³ugo, ale przechodzi
+        //[InlineData(8, 849)] //wykomentowane z powodu trwania sporo czasu, ale przechodzi
         [InlineData(7, 263)]
 
         public void CheckIfDifferentAcAutomata(int size, int index)

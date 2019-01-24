@@ -66,30 +66,6 @@ let startProcessingSensorData = () => {
             ).normalize();
             let moveNow = false;
             let moveVector = new THREE.Vector3(accelerationVector.x, accelerationVector.y, 0);
-            // if (accelerationVector.length() >= ((Math.E * Math.exp(-Math.sqrt(window.performance.now() - latestActionTimestamp) / timeout))) ** 2) * lengthThreshold) {
-            //     if (accelerationVector.length() >= lengthThreshold) {
-            //         if (unitAcceleration.z > directionThreshold) {
-            //             $("#info").html("zoom in");
-            //             cameraDistance /= 1.5;
-            //             latestActionTimestamp = window.performance.now();
-            //         } else if (unitAcceleration.z < -directionThreshold) {
-            //             $("#info").html("zoom out");
-            //             cameraDistance *= 1.5;
-            //             latestActionTimestamp = window.performance.now();
-
-            //         } else {
-            //             // $("#info").html("movement");
-            //             // moveNow = true;
-            //         }
-            //     } else {
-            //         $("#info").html("too weak");
-
-            //     }
-            // }
-
-            // appSettings.accelX = accelerationVector.x;
-            // appSettings.accelY = accelerationVector.y;
-            // appSettings.accelZ = accelerationVector.z;
             accelerationVector.applyQuaternion(camera.quaternion);
 
             let ax = accelerationVector.x;
@@ -99,29 +75,8 @@ let startProcessingSensorData = () => {
             appSettings.accelX = ax;
             appSettings.accelY = ay;
             appSettings.accelZ = az;
-
-
-            // if (moveNow) {
-            // 	moveVector.applyQuaternion(camera.quaternion);
-            // 	px += moveVector.x;
-            // 	py += moveVector.y;
-            // 	pz += moveVector.z;
-            // }
-
-            // $("#info").html(
-            // 	"avgX: " + ax + "<br>" +
-            // 	"avgY: " + ay + "<br>" +
-            // 	"avgZ: " + az
-            // );
+            
             if (!firstRun) {
-
-                // vx += (ax) * elapsedTime;
-                // vy += (ay) * elapsedTime;
-                // vz += (az) * elapsedTime;
-
-                // px += vx * elapsedTime;
-                // py += vy * elapsedTime;
-                // pz += vz * elapsedTime;
 
                 let newCameraPosition =
                     new THREE.Vector3(0, 0, cameraDistance)
@@ -138,22 +93,9 @@ let startProcessingSensorData = () => {
                     newCameraPosition.y,
                     newCameraPosition.z
                 );
-
-                // helper.position.set(
-                //     ax,
-                //     ay,
-                //     az
-                // );
-
             } else {
                 firstRun = false;
             }
-            // pvx = vx;
-            // pvy = vy;
-            // pvz = vz;
-            // pax = ax;
-            // pay = ay;
-            // paz = az;
             previousTimestamp = acl.timestamp;
         }
 
@@ -207,16 +149,10 @@ let travelToVertex = (toVertex, easing, duration, onComplete) => {
     appSettings.currentVertexFocus = toVertex;
     $(focusAnimation).stop(true, false);
     focusAnimation.foo = appSettings.transitionFocusFraction = 0.0;
-    // let beforeFOV = camera.fov;
     $(focusAnimation).animate({ foo: 1.0 }, {
         duration: duration == undefined ? appSettings.moveFocusTimout : duration,
         easing: easing == undefined ? appSettings.smoothOutEasing : easing,
         step: (now) => {
-            // if (toVertex == -1) {
-            //     camera.fov = beforeFOV + (appSettings.exploratoryFOV - beforeFOV) * now;
-            // } else {
-            //     camera.fov = beforeFOV + (appSettings.focusingFOV - beforeFOV) * now;
-            // }
             appSettings.transitionFocusFraction = now;
         },
         complete: () => {
@@ -264,19 +200,9 @@ let init = (createControlFromCamera) => {
     createControlFromCamera(camera);
 
     scene = new THREE.Scene();
-
-    // scene.background = new THREE.Color().setHSL(0.6, 0, 1);
-    // scene.fog = new THREE.Fog(scene.background, 1, 1000);
+    
 
     sunLight = new THREE.DirectionalLight(0xffffff, 1);
-    // light.color.setHSL(0.1, 1, 0.5);//sunset
-    // light.castShadow = true;
-    // light.shadow.mapSize.width = 512;  // default
-    // light.shadow.mapSize.height = 512; // default
-    // light.shadow.camera.near = 0.5;       // default
-    // light.shadow.camera.far = 500   
-    // light.position.set(-1, 1.75, 1);
-    // light.position.multiplyScalar(30);
     scene.add(sunLight);
 
     let waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
@@ -300,15 +226,6 @@ let init = (createControlFromCamera) => {
     water.rotation.x = - Math.PI / 2;
     water.position.y = -5;
     scene.add(water);
-
-    // TODO: remove
-    // let groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
-    // let groundMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    // groundMat.color.setHSL(0.6, 1, 1);
-    // let ground = new THREE.Mesh(groundGeo, groundMat);
-    // ground.rotation.x = -Math.PI / 2;
-    // ground.position.y = -33;
-    // scene.add(ground);
 
     var sky = new THREE.Sky();
     sky.scale.setScalar(100000);
@@ -343,53 +260,7 @@ let init = (createControlFromCamera) => {
         water.material.uniforms.sunDirection.value.copy(sunLight.position).normalize();
     }
 
-
-    // let renderPass = new THREE.RenderPass(scene, camera);
-    // composer.addPass(renderPass);
-
-    // outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio), scene, camera);
-
-    // outlinePass.edgeStrength = 10.0;
-    // outlinePass.edgeGlow = 0.0;
-    // outlinePass.edgeThickness = 1.0;
-    // outlinePass.pulsePeriod = 0;
-    // outlinePass.rotate = false;
-    // outlinePass.usePatternTexture = false;
-    // outlinePass.selectedObjects = [];
-    // outlinePass.renderToScreen = true;
-    // outlinePass.visibleEdgeColor.set("#0x000000");
-
-    // composer.addPass(outlinePass);
-
-    // var gui = new dat.GUI();
-    // var folder = gui.addFolder('Sky');
-    // folder.add(parameters, 'inclination', 0, 0.5, 0.0001).onChange(updateSun);
-    // folder.add(parameters, 'azimuth', 0, 1, 0.0001).onChange(updateSun);
-    // folder.open();
-
-    // let vertexShader = document.getElementById('vertexShader').textContent;
-    // let fragmentShader = document.getElementById('fragmentShader').textContent;
-
-    // let plainSkUniforms = {
-    //     topColor: { value: new THREE.Color("hsl(210, 80%, 50%)") },
-    //     bottomColor: { value: groundMat.color },
-    //     offset: { value: 33 },
-    //     exponent: { value: 1 }
-    // };
-
-    // let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.2);
-    // hemiLight.color.copy(plainSkUniforms.topColor.value);
-    // hemiLight.groundColor.copy(groundMat.color);
-    // hemiLight.position.set(0, 50, 0);
-    // scene.add(hemiLight);
-
-    // plainSkUniforms.topColor.value.copy(hemiLight.color);
-    // scene.fog.color.copy(plainSkUniforms.bottomColor.value);
-    // let skyGeo = new THREE.SphereBufferGeometry(4000, 32, 15);
-    // let skyMat = new THREE.ShaderMaterial({ vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: plainSkUniforms, side: THREE.BackSide });
-    // let sky = new THREE.Mesh(skyGeo, skyMat);
-    // scene.add(sky);
-
+    
     animatables.forEach(animatable => animatable.init(scene, appSettings));
 
     // initialize material design
@@ -444,14 +315,6 @@ let init = (createControlFromCamera) => {
             }
         });
     }
-    // $("#zoomin").click((e) => {
-    //     dolly(cameraDistance / zoomFactor);
-    //     e.stopPropagation();
-    // });
-    // $("#zoomout").click((e) => {
-    //     dolly(cameraDistance * zoomFactor);
-    //     e.stopPropagation();
-    // });
     $("#showPowerGraph").click((e) => {
         appSettings.showPowerAutomaton = true;
         $("#showPowerGraph").hide();
@@ -671,8 +534,7 @@ let init = (createControlFromCamera) => {
             M.toast({ html: "The camera is now focusing at vertex " + (mouseDownConsideringVertex >>> 0).toString(2).padStart(appSettings.n, "0"), displayLength: 1000 })
         }
     });
-
-    //further part
+    
 
     stats.showPanel(0);
     $(stats.domElement).css("opacity", 0);
@@ -757,19 +619,10 @@ let init = (createControlFromCamera) => {
         if (appSettings.shineLights)
             M.toast({ html: "Lights will be available once a new automaton is created", displayLength: 4000 })
     });
-
-    // $("#repelling-edges").change((e) => {
-    //     appSettings.repelArrows = e.target.checked;
-    //     if (appSettings.repelArrows)
-    //         M.toast({ html: "Be careful! This feature is experimental. Your graph may blow up.", displayLength: 6000 })
-    // });
-
+    
     $("#automaton-speedup").change((e) => {
         appSettings.speedup = parseFloat(e.target.options[e.target.selectedIndex].value);
     });
-    // $("#probability").on("input", (e) => {
-    //     appSettings.probabilityOfUpdate = e.target.value;
-    // });
     $("#automaton-repel").on("input", (e) => {
         appSettings.repellingConstant = e.target.value * appSettings.forceStrength;
     });
@@ -839,37 +692,7 @@ let previouslyBlurred = true;
 let previousBlur = appSettings.maxBlur;
 let blurAnimation = { foo: previousBlur };
 let toggleCanvasBlur = (makeBlurred, timeout, blurAmount) => {
-
-    // if (blurClearTimeout != undefined)
-    //     clearTimeout(blurClearTimeout);
-
-    // let toBlur = appSettings.smallBlur;
-    // if (appSettings.quality <= 1) {
-    //     makeBlurred = false;
-    // }
-    // if (makeBlurred == undefined) {
-    //     makeBlurred = !previouslyBlurred;
-    // } else if (makeBlurred) {
-    //     toBlur = (blurAmount == undefined) ? appSettings.maxBlur : blurAmount;
-    // } else {
-    //     toBlur = 0;
-    // }
-
-    // $(blurAnimation).stop(true, true);
-    // $(blurAnimation).animate({ foo: toBlur }, {
-    //     duration: (timeout == undefined) ? appSettings.blurTimeout : timeout,
-    //     easing: appSettings.smoothOutEasing,
-    //     step: (now) => {
-    //         $("body > canvas").css({ "filter": "blur(" + now + "px)" });
-    //     },
-    //     complete: () => {
-    //         if (toBlur == 0) {
-    //             $("body > canvas").css("filter", "none");
-    //         }
-    //     }
-    // });
-
-    // previousBlur = toBlur;
+    
 };
 
 let parseGraph = (specification) => {
@@ -883,7 +706,7 @@ let animate = () => {
     stats.end();
     stats.begin();
     frameCount += 1;
-    let time = frameCount / appSettings.targetFPS; //window.performance.now() / 1000 - beginTime;
+    let time = frameCount / appSettings.targetFPS;
     water.material.uniforms.time.value = time / 3;
     animatables.forEach(animatable => animatable.update(time, appSettings, renderer, scene));
     controls.update();
@@ -988,32 +811,24 @@ $(document).ready(() => {
                     return;
                 }
                 init(camera => controls = new THREE.DeviceOrientationControls(camera));
-                // init(camera => {
-                //     controls = new THREE.OrbitControls(camera);
-                // });
                 // for mobile devices
                 if (!('ontouchstart' in window)) {
                     camera.position.setY(2);
                     camera.position.setX(4);
-                } else {
-                    // $(".btn-floating").addClass("btn-small");
                 }
                 showGraphFromRequest();
                 animate();
                 startProcessingSensorData();
             });
         } else {
-            // probably desktop
-            // document.title = "Your browser doesn't support sensors.";
             init(camera => {
                 controls = new THREE.OrbitControls(camera);
                 controls.enableDamping = true;
                 controls.dampingFactor = 0.3;
-                controls.maxPolarAngle = Math.PI * 0.7;//Math.PI * 4 / 5;
+                controls.maxPolarAngle = Math.PI * 0.7;
                 controls.minPolarAngle = Math.PI * 0.15;
                 controls.minDistance = 0.7;
                 controls.maxDistance = 100;
-                // controls.enablePan = false;
                 controls.zoomSpeed = 2;
             });
 
@@ -1023,26 +838,16 @@ $(document).ready(() => {
             } else {
                 camera.position.setY(2);
                 camera.position.setX(4);
-                // $(".btn-floating").addClass("btn-small");
             }
-
-            // $("#zoomin").remove();
-            // $("#zoomout").remove();
+            
             showGraphFromRequest();
             animate();
-            // $(window).blur(() => {
-            //     doAnimate = false;
-            //     document.title = "stopped";
-            // });
-            // for mobile devices
         }
 
         // for mobile devices
         if (!('ontouchstart' in window)) {
             camera.position.setY(2);
             camera.position.setX(4);
-        } else {
-            // $(".btn-floating").addClass("btn-small");
         }
     });
 });
@@ -1083,9 +888,6 @@ let showGraph = (graph) => {
         M.toast({ html: "Ha! You're out of luck. This automaton is not synchronizable!", displayLength: 3000 });
     if (flatTimeout != undefined)
         clearTimeout(flatTimeout);
-    // flatTimeout = setTimeout(() => {
-    //     M.toast({ html: "This graph is now entirely in three dimensions! Other coordinates are now zeroes.", displayLength: 3000 });
-    // }, appSettings.flatteningForceTimeout);
 
     if (stayFlat) {
         flatForce.foo = 0.0;
@@ -1236,40 +1038,7 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     return group;
 }
 $(document.body).css("opacity", 1);
-$(document.body).on("keydown", function (e) {
-    switch (String.fromCharCode(e.which).toLowerCase()) {
-        case "k":
-            // move upward
-            camera.position.y += 0.5;
-            break;
-        case "j":
-            // move downward
-            camera.position.y -= 0.5;
-            break;
-        case "o":
-            camera.fov -= 1;
-            break;
-        case "p":
-            camera.fov += 1;
-            break;
-        case "i":
-            generatePosterShot();
-            break;
-        case "y":
-            controls.reset();
-            camera.position.set(4, 2, 0);
-            break;
-        case "u":
-            controls.maxDistance = 100000;
-            break;
-        case "s":
-            takeScreenshot = true;
-            break;
-        case "h":
-            resizeToGoldenRatio();
-            break;
-    }
-});
+$(document.body).on("keydown", function (e) {});
 let takeScreenshot = false;
 let touchDist = undefined;
 let initialZoom;

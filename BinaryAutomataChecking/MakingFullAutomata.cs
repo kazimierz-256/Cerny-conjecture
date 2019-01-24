@@ -13,13 +13,9 @@ namespace BinaryAutomataChecking
 
         public MakingFullAutomata(CoreDefinitions.IOptionalAutomaton optionalAutomata, List<byte>[] transFromA, List<byte>[] help)
         {
-            //byte[] newBtransition = new byte[optionalAutomata.TransitionFunctionsB.Length];
-            //Array.Copy(optionalAutomata.TransitionFunctionsB, newBtransition, newBtransition.Length);
-            //automata = new CoreDefinitions.OptionalAutomaton(optionalAutomata.TransitionFunctionsA, newBtransition);
             automata = optionalAutomata;
 
             n = optionalAutomata.TransitionFunctionsA.Length;
-            //List<byte>[] 
             TransitionsFromA = transFromA;
             for (byte i = 0; i < n; i++)
             {
@@ -49,7 +45,7 @@ namespace BinaryAutomataChecking
             {
                 yield return automata;
             }
-            else if (helpList[place] == null)//(automata.TransitionFunctionsB[place] == CoreDefinitions.OptionalAutomaton.MissingTransition)//
+            else if (helpList[place] == null)
             {
                 for (byte i = 0; i < n; i++)
                 {
@@ -62,7 +58,7 @@ namespace BinaryAutomataChecking
             }
             else
             {
-                foreach (byte b in helpList[place])//TransitionsFromA[automata.TransitionFunctionsB[place]])
+                foreach (byte b in helpList[place])
                 {
                     automata.TransitionFunctionsB[place] = b;
                     foreach (var aut in Generate_rec(place + 1))
