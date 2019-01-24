@@ -50,9 +50,6 @@ namespace Presentation
                 series.ForeColor = materialSkinManager.ColorScheme.TextColor;
             }
 
-            //chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
-            //chart1.PaletteCustomColors = new Color[] { materialSkinManager.ColorScheme.PrimaryColor, materialSkinManager.ColorScheme.PrimaryColor };
-
             addressBox.Text = Environment.GetCommandLineArgs().Length >= 2 ? Environment.GetCommandLineArgs()[1] : "http://localhost:62752";
 
         }
@@ -78,7 +75,6 @@ namespace Presentation
         private async Task RefreshConnection()
         {
             var connectionText = $"{addressBox.Text}/ua";
-            //addressBox.BackColor = Color.OrangeRed;
             if (connection != null && connection.State == HubConnectionState.Connected)
             {
                 await connection.StopAsync();
@@ -86,7 +82,7 @@ namespace Presentation
 
             var connectionBuilder = new HubConnectionBuilder()
                 .WithUrl(connectionText);
-            //if (Environment.GetCommandLineArgs().Length >= 3 && int.Parse(Environment.GetCommandLineArgs()[2]) != 0)
+
             connectionBuilder.AddMessagePackProtocol();
             connection = connectionBuilder.Build();
             connection.On(
@@ -99,9 +95,6 @@ namespace Presentation
                         chart1.Series["UnaryFinishedSeries"].Points.Clear();
                         chart1.Series["UnaryFinishedSeries"].Points.AddXY("To compute", toCompute);
                         chart1.Series["UnaryFinishedSeries"].Points.AddXY("Computed", summary.finishedAutomata.Count);
-
-                        //chart1.Series[0].Points[0].Color = materialSkinManager.ColorScheme.LightPrimaryColor;
-                        //chart1.Series[0].Points[1].Color = materialSkinManager.ColorScheme.AccentColor;
 
                         if (summary.finishedAutomata.Count > 0)
                         {
@@ -146,7 +139,7 @@ namespace Presentation
 
                         var sortedLengths = new List<int>();
                         var sortedResults = new List<Tuple<int, string>>();
-                        //var results = 
+
                         foreach (var a in summary.finishedAutomata)
                         {
                             if (a.solution.solvedB.Count > 0)
@@ -157,8 +150,7 @@ namespace Presentation
                                     var b = a.solution.solvedB[i];
                                     b_tab = byteTabToString(b);
                                     sortedLengths.Add(-a.solution.solvedSyncLength[i]);
-                                    sortedResults.Add(new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]")); //do testów
-                                                                                                                            //sortedResults.Add($"[{a_tab},{b_tab}]");
+                                    sortedResults.Add(new Tuple<int, string>(a.solution.unaryIndex, $"[{a_tab},{b_tab}]"));
                                 }
                             }
                         }

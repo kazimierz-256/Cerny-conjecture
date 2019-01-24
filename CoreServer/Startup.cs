@@ -21,7 +21,6 @@ namespace CoreServer
         #region Important parameters
         private int AutomatonProblemSize = 7;
         private int maximumCount = 20;
-        //private bool useMessagePack = true;
         private string readAddress = $"./";
         #endregion
 
@@ -47,22 +46,13 @@ namespace CoreServer
 
                     if (cmdArgs.Length >= 5)
                     {
-                        //if (!int.TryParse(cmdArgs[4], out var useMessagePackNumber))
-                        //    throw new Exception("Incorrect message pack setting.");
-                        //useMessagePack = useMessagePackNumber != 0;
-
-                        //if (cmdArgs.Length >= 6)
-                        //{
                         readAddress = cmdArgs[4];
-                        //}
                     }
                 }
             }
 
             services.AddMvc();
-            var signalrbuilder = services.AddSignalR(opts => opts.EnableDetailedErrors = true);
-            //if (useMessagePack)
-            signalrbuilder.AddMessagePackProtocol();
+            services.AddSignalR(opts => opts.EnableDetailedErrors = true).AddMessagePackProtocol();
             Console.WriteLine($"Automata size: {AutomatonProblemSize}");
             Console.WriteLine($"Maximum count of interesting automata: {maximumCount}.");
             Console.WriteLine("Please note that some automata including those violating Cerny Conjecture are collected without limits.");
