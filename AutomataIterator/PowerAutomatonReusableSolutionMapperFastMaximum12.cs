@@ -72,8 +72,6 @@ namespace AutomataIterator
                 {
                     localProblemId = 1;
                     Array.Clear(isDiscovered, 0, isDiscovered.Length);
-                    //// should be faster than zeroing out an array
-                    //isDiscovered = new byte[powerSetCount];
                 }
                 readingIndex = 0;
                 writingIndex = 1;

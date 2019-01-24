@@ -80,8 +80,7 @@ namespace CoreDefinitions
                 return false;
             }
         }
-
-        // TODO: change multiplier to something elsie...
+        
         public override int GetHashCode()
         {
             var multiplier = TransitionFunctionsB.Length + 1;

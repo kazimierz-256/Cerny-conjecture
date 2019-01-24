@@ -17,8 +17,7 @@ namespace AutomataIteratorTests
 
                 var b = Enumerable.Range(0, n)
                 .Select(i => (i + 1) == n ? (byte)0 : (byte)(i + 1));
-
-                // tak nie należy używać :) lepiej zajżyj do randomGenerator, tutaj inaczej się nie za bardzo da
+                
                 yield return new OptionalAutomaton(a.ToArray(), b.ToArray());
             }
         }

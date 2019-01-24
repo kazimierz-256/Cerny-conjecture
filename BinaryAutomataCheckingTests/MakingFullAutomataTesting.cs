@@ -9,26 +9,6 @@ namespace BinaryAutomataCheckingTests
 {
     public class MakingFullAutomataTesting
     {
-        [Theory]
-        //[InlineData(9, 1549)]
-        [InlineData(8, 849)]
-        [InlineData(7, 263)]
-        public void CheckIfDifferentFullAutomataRecursively(int size, int index)
-        {
-            IEnumerable<ISolvedOptionalAutomaton> solvedOptionalAutomatons = new BinaryAutomataIterator().GetAllSolvedRecursively(size, index);
-            IEnumerable<byte[]> solvedOptionalAutomatons2 =
-                from a in solvedOptionalAutomatons
-                where a.SynchronizingWordLength.HasValue && a.SynchronizingWordLength.Value > 23
-                select CopyArray(a.TransitionFunctionsB);
-            byte[][] TabSolvedOptionalAutomatons = solvedOptionalAutomatons2.ToArray();
-            for (int i = 0; i < TabSolvedOptionalAutomatons.Length - 1; i++)
-            {
-                for (int j = i + 1; j < TabSolvedOptionalAutomatons.Length; j++)
-                {
-                    Assert.NotEqual(TabSolvedOptionalAutomatons[i], TabSolvedOptionalAutomatons[j]);
-                }
-            }
-        }
 
         [Theory]
         [InlineData(new byte[] { 4, 5, 6, 0, 0, 7, 1, 2 }, new byte[] { 7, 2, 4, 255, 0, 1, 5, 6 })]
@@ -174,44 +154,6 @@ namespace BinaryAutomataCheckingTests
                 select CopyArray(automata.TransitionFunctionsB);
 
             IsTheSame(expectedTabs, AcAutomataBTransform);
-        }
-
-
-        [Theory]
-        [InlineData(new byte[] { 0, 1 }, new byte[] { 0, 0 },
-            new byte[] { 0, 0 },
-            new byte[] { 0, 1 },
-            new byte[] { 1, 0 },
-            new byte[] { 1, 1 })]
-        [InlineData(new byte[] { 1, 2, 2 }, new byte[] { 0, 0, 0 },
-            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 1 },
-            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 1, 2 },
-            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 1 },
-            new byte[] { CoreDefinitions.OptionalAutomaton.MissingTransition, 2, 2 })]
-        public void GenerateAcSameAsFast(byte[] a_tab, byte[] b_tab, params byte[][] expectedTabs)
-        {
-            IOptionalAutomaton a = new OptionalAutomaton(a_tab, b_tab);
-
-            bool[] isVertTab;
-            AddingBTransition.MakeIsVertInAcTabAndGetAcSize(a_tab, out isVertTab);
-
-            AddingBTransition addingBTransition = new AddingBTransition(a, isVertTab);
-
-            IEnumerable<IOptionalAutomaton> AcAutomata = addingBTransition.GenerateAc();
-            IEnumerable<IOptionalAutomaton> AcAutomataIncremental = addingBTransition.GenerateAcIncrementally();
-
-            var acIterator = AcAutomata.GetEnumerator();
-            var acIncrementalIterator = AcAutomataIncremental.GetEnumerator();
-
-            while (acIterator.MoveNext())
-            {
-                acIncrementalIterator.MoveNext();
-                for (int i = 0; i < acIterator.Current.TransitionFunctionsB.Length; i++)
-                {
-                    Assert.Equal(acIterator.Current.TransitionFunctionsB[i], acIncrementalIterator.Current.TransitionFunctionsB[i]);
-                }
-            }
-            Assert.False(acIncrementalIterator.MoveNext());
         }
 
 

@@ -293,8 +293,7 @@ namespace UniqueUnaryAutomata
                         }
                         var temporary = new long[verticesIncludingNew];
                         var mailbox = SetupNewMailbox(verticesIncludingNew);
-
-                        //hashToGroup.TryRemove(kvp.Key, out SameHashCollisionGroup collisionGroup);
+                        
                         var collisionGroup = hashToGroup[key];
 
                         var queuedHashes = new Queue<long>();
@@ -358,15 +357,7 @@ namespace UniqueUnaryAutomata
                 extendedTransitionFunctions[newPosition] = newTransitionTarget;
 
                 yield return (int[])extendedTransitionFunctions.Clone();
-
-                //if (newTransitionTarget + 1 < max - newTransitionTarget)
-                //    for (int i = 0; i <= newTransitionTarget; i += 1)
-                //    {
-                //        var newTransition = (int[])extendedTransitionFunctions.Clone();
-                //        newTransition[i] = newPosition;
-                //        yield return newTransition;
-                //    }
-                //else
+                
                 for (int i = newTransitionTarget; i < newPosition; i += 1)
                 {
                     var newTransition = (int[])extendedTransitionFunctions.Clone();
@@ -375,58 +366,5 @@ namespace UniqueUnaryAutomata
                 }
             }
         }
-
-        //private static IEnumerable<int[]> GenerateNewMutableClonesFromALL(int[] transitionFunctions, int newPosition)
-        //{
-        //    var extendedTransitionFunctions = new int[newPosition + 1];
-        //    transitionFunctions.CopyTo(extendedTransitionFunctions, 0);
-
-        //    IEnumerable<int[]> chooseIndex(bool choose, int index)
-        //    {
-        //        int remembered = 0;
-        //        if (choose)
-        //        {
-        //            remembered = extendedTransitionFunctions[index];
-        //            extendedTransitionFunctions[index] = newPosition;
-        //        }
-
-        //        if (index + 1 < newPosition)
-        //        {
-        //            foreach (var item in chooseIndex(true, index + 1))
-        //            {
-        //                yield return item;
-        //            }
-        //            foreach (var item in chooseIndex(false, index + 1))
-        //            {
-        //                yield return item;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            yield return (int[])extendedTransitionFunctions.Clone();
-        //        }
-
-        //        if (choose)
-        //        {
-        //            extendedTransitionFunctions[index] = remembered;
-        //        }
-        //    }
-
-        //    for (int newTransitionTarget = 0, max = newPosition + 1; newTransitionTarget < max; newTransitionTarget += 1)
-        //    {
-        //        extendedTransitionFunctions[newPosition] = newTransitionTarget;
-
-        //        yield return (int[])extendedTransitionFunctions.Clone();
-
-        //        foreach (var item in chooseIndex(true, 0))
-        //        {
-        //            yield return item;
-        //        }
-        //        foreach (var item in chooseIndex(false, 0))
-        //        {
-        //            yield return item;
-        //        }
-        //    }
-        //}
     }
 }
