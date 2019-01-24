@@ -15,7 +15,7 @@ namespace CoreServer.ProgressIO
     public static class ProgressIO
     {
         private static string GetDetailedAddress(int size, int count, int found) => $"computation-summary-{size}-{count}-{found}.xml";
-        private static Semaphore syncObject = new Semaphore(1, 1);
+        private static object syncObject = new object();
         private static HashSet<string> stillAvailable = new HashSet<string>();
         public async static Task ExportStateAsync(UnaryAutomataDB database)
         {
@@ -33,24 +33,24 @@ namespace CoreServer.ProgressIO
                     var toDelete = new List<int>();
                     try
                     {
-                        syncObject.WaitOne();
-                        await File.WriteAllTextAsync(detailedAddress, swString);
-                        foreach (var address in stillAvailable)
+                        lock (syncObject)
                         {
-                            if (File.Exists(address))
-                                File.Delete(address);
+                            File.WriteAllTextAsync(detailedAddress, swString).Wait();
+                            foreach (var address in stillAvailable)
+                            {
+                                if (File.Exists(address))
+                                    File.Delete(address);
+                            }
+                            stillAvailable.Clear();
+                            if (found < database.Total)
+                                stillAvailable.Add(detailedAddress);
                         }
-                        stillAvailable.Clear();
-                        if (found < database.Total)
-                            stillAvailable.Add(detailedAddress);
-                        syncObject.Release();
                         Console.WriteLine($"Successfully exported database having computed {database.Found} unary automata at {DateTime.Now} to a file {detailedAddress}. Deleted the rest");
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
-                    Console.WriteLine($"Successfully exported database having computed {database.Found} unary automata at {DateTime.Now} to a file {detailedAddress}.");
                 }
             }
         }
