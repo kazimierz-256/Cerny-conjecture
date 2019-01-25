@@ -26,8 +26,8 @@ namespace AutomataIterator
         }
 
         public static IEnumerable<ISolvedOptionalAutomaton> SelectAsSolved(this IEnumerable<IOptionalAutomaton> problemsToSolve)
-            => SelectAsSolved<PowerAutomatonReusableSolutionMapperFastMaximum16>(problemsToSolve);
+            => SelectAsSolved<PowerAutomatonReusableSolutionMapperUltraMaximum12>(problemsToSolve);
 
-        public static ISolutionMapperReusable GetNewMapper() => new PowerAutomatonReusableSolutionMapperFastMaximum16();
+        public static ISolutionMapperReusable GetNewMapper() => new PowerAutomatonReusableSolutionMapperUltraMaximum12();
     }
 }

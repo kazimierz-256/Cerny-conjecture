@@ -18,19 +18,20 @@ namespace AutomataIteratorExperimentalBenchmark
             var factories = new Func<ISolutionMapperReusable>[]
             {
                 () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
-                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12()
+                () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12(),
+                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12()
             };
 
             #region Serial Benchmark
             Console.WriteLine("Single thread benchmarks:");
-            const int problems = 200_000;
-            for (int exercise = 0; exercise < 4; exercise++)
+            const int problems = 1_000_000;
+            for (int exercise = 0; exercise < 10; exercise++)
             {
                 Console.WriteLine();
 
                 foreach (var solver in factories.Select(generator => generator()))
                 {
-                    var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(problems);
+                    var problemGenerator = RandomProblemGenerator.Generate(12, 12345).Take(problems);//.Select(problem => problem.DeepClone()).ToArray();
 
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();
@@ -40,7 +41,7 @@ namespace AutomataIteratorExperimentalBenchmark
                         problemCount += 1;
                     }
                     stopWatch.Stop();
-                    Console.WriteLine($"solver {solver.GetType().Name} has speed {problemCount / stopWatch.Elapsed.TotalSeconds}");
+                    Console.WriteLine($"solver {solver.GetType().Name} has speed {problems / stopWatch.Elapsed.TotalSeconds}");
                 }
             }
             #endregion
@@ -52,7 +53,7 @@ namespace AutomataIteratorExperimentalBenchmark
             #region Parallel Benchmark
             Console.WriteLine("Multiple thread benchmarks:");
             var threadCount = Environment.ProcessorCount;
-            const int problemsPerThread = 200_000;
+            const int problemsPerThread = 1_000_000;
 
             for (int exercise = 0; exercise < 20; exercise++)
             {

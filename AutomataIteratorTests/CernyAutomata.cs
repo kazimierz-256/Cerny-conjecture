@@ -12,7 +12,8 @@ namespace AutomataIteratorTests
         private readonly ISolutionMapperReusable[] solvers = new ISolutionMapperReusable[]
         {
             new PowerAutomatonReusableSolutionMapperMaximum12(),
-            new PowerAutomatonReusableSolutionMapperFastMaximum12()
+            new PowerAutomatonReusableSolutionMapperFastMaximum12(),
+            new PowerAutomatonReusableSolutionMapperUltraMaximum12()
         };
 
         [Theory]
