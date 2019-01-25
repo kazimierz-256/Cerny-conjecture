@@ -278,6 +278,8 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
         }
 
         spheres[i] = new THREE.Mesh(geometry, material);
+        // spheres[i].castShadow = true;
+        // spheres[i].receiveShadow = true;
         spheres[i].automatonId = i;
         spheres[i].material.defaultColor = material.color;
         sphereGroup[i].add(spheres[i]);
@@ -347,6 +349,15 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
                 continue;
 
             let partOfShortestPath = !appSettings.showPowerAutomaton || (partOfShortestWord[i] && partOfShortestWord[j] && preceedingVertex[j] == i);
+            // let color = new THREE.Color(0x222222);
+            // let hue = index == 0 ? 0.6 : 0.0;
+            // let saturation = 0;
+            // let lighting = partOfShortestPath ? 0.5 : 0;
+            // color.setHSL(hue, saturation, lighting);
+            // if (partOfShortestPath) {
+            //     color = spheres[i].material.emissive;
+            //     // TODO: make it shinier???
+            // }
 
             let arrow = new THREE.ArrowHelper(
                 spheres[j].position.clone().sub(spheres[i].position).normalize(),
@@ -441,8 +452,12 @@ function getAnimatableGraph(problem, appSettings, graphDescription, outline) {
             }
             cameraGroup[i].position.copy(sphereGroup[i].position);
             sphereGroup[i].visible = false;
+            // if (firstUpdate)
+            // graph.visible = false;
             cameraGroup[i].update(renderer, scene);
             spheres[i].material.envMap = cameraGroup[i].renderTarget;
+            // if (firstUpdate)
+            // graph.visible = true;
             sphereGroup[i].visible = true;
             return true;
         }
