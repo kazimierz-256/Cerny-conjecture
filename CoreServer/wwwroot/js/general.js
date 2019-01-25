@@ -123,9 +123,11 @@ let updateAnimatingControls = () => {
         }
         $("#animateForward").show();
         $("#animateBack").show();
+        $("#animate-shortest-path").show();
     } else {
         $("#animateForward").hide();
         $("#animateBack").hide();
+        $("#animate-shortest-path").hide();
     }
 };
 
