@@ -1225,7 +1225,9 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     let planeMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(0xf4f1ed),
         emissive: new THREE.Color(0x777777),
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        metalness: 0,
+        roughness: 0.7
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.y -= fontHeight;
