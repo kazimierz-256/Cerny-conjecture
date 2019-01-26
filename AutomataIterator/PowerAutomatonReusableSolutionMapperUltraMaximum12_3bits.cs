@@ -7,14 +7,14 @@ namespace AutomataIterator
     /// <summary>
     /// This class is and should be reused whenever possible to avoid the cost of array reallocation
     /// </summary>
-    public class PowerAutomatonReusableSolutionMapperUltraMaximum12 : ISolutionMapperReusable
+    public class PowerAutomatonReusableSolutionMapperUltraMaximum12_3bits : ISolutionMapperReusable
     {
         private readonly SolvedOptionalAutomaton automatonToYield = new SolvedOptionalAutomaton();
         /// <summary>
         /// Purposefully this is a constant! The performance is greatly increased!
         /// </summary>
         private const byte maxAutomatonSize = 12;
-        private const byte bits = 4;
+        private const byte bits = 3;
 
         private readonly static byte n2 = maxAutomatonSize << 1;
         private readonly static byte n2m1 = (byte)(n2 - 1);
@@ -57,7 +57,6 @@ namespace AutomataIterator
             var transitionMatrixCombined2 = new uint[twoToPowerBits];
             var transitionMatrixCombined3 = new uint[twoToPowerBits];
             var transitionMatrixCombined4 = new uint[twoToPowerBits];
-            byte n, nm1nm1;
 
             foreach (var automaton in problemsToSolve)
             {
@@ -81,7 +80,6 @@ namespace AutomataIterator
                 writingIndex = 1;
 
                 initialVertex = 0;
-                n = 0;
 
 
                 for (i = 0; i < max; i += 1)
@@ -89,13 +87,9 @@ namespace AutomataIterator
                     if (transitionB[i] != OptionalAutomaton.MissingTransition)
                     {
                         initialVertex += (ushort)(1 << i);
-                        n += 1;
                         precomputedStateTransitioningMatrix[i] = (uint)((powerSetCount << transitionA[i]) + (1 << transitionB[i]));
                     }
                 }
-
-                nm1nm1 = (byte)(n - 1);
-                nm1nm1 *= nm1nm1;
 
                 if (0 == (initialVertex & (initialVertex - 1)))
                 {
@@ -109,10 +103,6 @@ namespace AutomataIterator
                   = transitionMatrixCombined1[0b0011]
                   = transitionMatrixCombined1[0b0101]
                   = transitionMatrixCombined1[0b0111]
-                  = transitionMatrixCombined1[0b1001]
-                  = transitionMatrixCombined1[0b1011]
-                  = transitionMatrixCombined1[0b1101]
-                  = transitionMatrixCombined1[0b1111]
                   = precomputedStateTransitioningMatrix[0];
                 if (bits < maxAutomatonSize)
                 {
@@ -120,10 +110,6 @@ namespace AutomataIterator
                   = transitionMatrixCombined2[0b0011]
                   = transitionMatrixCombined2[0b0101]
                   = transitionMatrixCombined2[0b0111]
-                  = transitionMatrixCombined2[0b1001]
-                  = transitionMatrixCombined2[0b1011]
-                  = transitionMatrixCombined2[0b1101]
-                  = transitionMatrixCombined2[0b1111]
                   = precomputedStateTransitioningMatrix[bits];
                     if (bits * 2 < maxAutomatonSize)
                     {
@@ -131,10 +117,6 @@ namespace AutomataIterator
                       = transitionMatrixCombined3[0b0011]
                       = transitionMatrixCombined3[0b0101]
                       = transitionMatrixCombined3[0b0111]
-                      = transitionMatrixCombined3[0b1001]
-                      = transitionMatrixCombined3[0b1011]
-                      = transitionMatrixCombined3[0b1101]
-                      = transitionMatrixCombined3[0b1111]
                       = precomputedStateTransitioningMatrix[bits * 2];
                         if (bits * 3 < maxAutomatonSize)
                         {
@@ -142,10 +124,6 @@ namespace AutomataIterator
                               = transitionMatrixCombined4[0b0011]
                               = transitionMatrixCombined4[0b0101]
                               = transitionMatrixCombined4[0b0111]
-                              = transitionMatrixCombined4[0b1001]
-                              = transitionMatrixCombined4[0b1011]
-                              = transitionMatrixCombined4[0b1101]
-                              = transitionMatrixCombined4[0b1111]
                               = precomputedStateTransitioningMatrix[bits * 3];
                         }
                     }
@@ -158,10 +136,6 @@ namespace AutomataIterator
                     transitionMatrixCombined1[0b0011] |= tmpTransition;
                     transitionMatrixCombined1[0b0110] = tmpTransition;
                     transitionMatrixCombined1[0b0111] |= tmpTransition;
-                    transitionMatrixCombined1[0b1010] = tmpTransition;
-                    transitionMatrixCombined1[0b1011] |= tmpTransition;
-                    transitionMatrixCombined1[0b1110] = tmpTransition;
-                    transitionMatrixCombined1[0b1111] |= tmpTransition;
                     if (bits + 1 < maxAutomatonSize)
                     {
                         tmpTransition = precomputedStateTransitioningMatrix[bits + 1];
@@ -169,10 +143,6 @@ namespace AutomataIterator
                         transitionMatrixCombined2[0b0011] |= tmpTransition;
                         transitionMatrixCombined2[0b0110] = tmpTransition;
                         transitionMatrixCombined2[0b0111] |= tmpTransition;
-                        transitionMatrixCombined2[0b1010] = tmpTransition;
-                        transitionMatrixCombined2[0b1011] |= tmpTransition;
-                        transitionMatrixCombined2[0b1110] = tmpTransition;
-                        transitionMatrixCombined2[0b1111] |= tmpTransition;
                         if (bits * 2 + 1 < maxAutomatonSize)
                         {
                             tmpTransition = precomputedStateTransitioningMatrix[bits * 2 + 1];
@@ -180,10 +150,6 @@ namespace AutomataIterator
                             transitionMatrixCombined3[0b0011] |= tmpTransition;
                             transitionMatrixCombined3[0b0110] = tmpTransition;
                             transitionMatrixCombined3[0b0111] |= tmpTransition;
-                            transitionMatrixCombined3[0b1010] = tmpTransition;
-                            transitionMatrixCombined3[0b1011] |= tmpTransition;
-                            transitionMatrixCombined3[0b1110] = tmpTransition;
-                            transitionMatrixCombined3[0b1111] |= tmpTransition;
                             if (bits * 3 + 1 < maxAutomatonSize)
                             {
                                 tmpTransition = precomputedStateTransitioningMatrix[bits * 3 + 1];
@@ -191,10 +157,6 @@ namespace AutomataIterator
                                 transitionMatrixCombined4[0b0011] |= tmpTransition;
                                 transitionMatrixCombined4[0b0110] = tmpTransition;
                                 transitionMatrixCombined4[0b0111] |= tmpTransition;
-                                transitionMatrixCombined4[0b1010] = tmpTransition;
-                                transitionMatrixCombined4[0b1011] |= tmpTransition;
-                                transitionMatrixCombined4[0b1110] = tmpTransition;
-                                transitionMatrixCombined4[0b1111] |= tmpTransition;
                             }
                         }
                     }
@@ -206,10 +168,6 @@ namespace AutomataIterator
                         transitionMatrixCombined1[0b0101] |= tmpTransition;
                         transitionMatrixCombined1[0b0110] |= tmpTransition;
                         transitionMatrixCombined1[0b0111] |= tmpTransition;
-                        transitionMatrixCombined1[0b1100] = tmpTransition;
-                        transitionMatrixCombined1[0b1101] |= tmpTransition;
-                        transitionMatrixCombined1[0b1110] |= tmpTransition;
-                        transitionMatrixCombined1[0b1111] |= tmpTransition;
                         if (bits + 2 < maxAutomatonSize)
                         {
                             tmpTransition = precomputedStateTransitioningMatrix[bits + 2];
@@ -217,10 +175,6 @@ namespace AutomataIterator
                             transitionMatrixCombined2[0b0101] |= tmpTransition;
                             transitionMatrixCombined2[0b0110] |= tmpTransition;
                             transitionMatrixCombined2[0b0111] |= tmpTransition;
-                            transitionMatrixCombined2[0b1100] = tmpTransition;
-                            transitionMatrixCombined2[0b1101] |= tmpTransition;
-                            transitionMatrixCombined2[0b1110] |= tmpTransition;
-                            transitionMatrixCombined2[0b1111] |= tmpTransition;
                             if (bits * 2 + 2 < maxAutomatonSize)
                             {
                                 tmpTransition = precomputedStateTransitioningMatrix[bits * 2 + 2];
@@ -228,10 +182,6 @@ namespace AutomataIterator
                                 transitionMatrixCombined3[0b0101] |= tmpTransition;
                                 transitionMatrixCombined3[0b0110] |= tmpTransition;
                                 transitionMatrixCombined3[0b0111] |= tmpTransition;
-                                transitionMatrixCombined3[0b1100] = tmpTransition;
-                                transitionMatrixCombined3[0b1101] |= tmpTransition;
-                                transitionMatrixCombined3[0b1110] |= tmpTransition;
-                                transitionMatrixCombined3[0b1111] |= tmpTransition;
                                 if (bits * 3 + 2 < maxAutomatonSize)
                                 {
                                     tmpTransition = precomputedStateTransitioningMatrix[bits * 3 + 2];
@@ -239,59 +189,6 @@ namespace AutomataIterator
                                     transitionMatrixCombined4[0b0101] |= tmpTransition;
                                     transitionMatrixCombined4[0b0110] |= tmpTransition;
                                     transitionMatrixCombined4[0b0111] |= tmpTransition;
-                                    transitionMatrixCombined4[0b1100] = tmpTransition;
-                                    transitionMatrixCombined4[0b1101] |= tmpTransition;
-                                    transitionMatrixCombined4[0b1110] |= tmpTransition;
-                                    transitionMatrixCombined4[0b1111] |= tmpTransition;
-                                }
-                            }
-                        }
-
-                        if (3 < maxAutomatonSize)
-                        {
-                            tmpTransition = precomputedStateTransitioningMatrix[0 + 3];
-                            transitionMatrixCombined1[0b1000] = tmpTransition;
-                            transitionMatrixCombined1[0b1001] |= tmpTransition;
-                            transitionMatrixCombined1[0b1010] |= tmpTransition;
-                            transitionMatrixCombined1[0b1011] |= tmpTransition;
-                            transitionMatrixCombined1[0b1100] |= tmpTransition;
-                            transitionMatrixCombined1[0b1101] |= tmpTransition;
-                            transitionMatrixCombined1[0b1110] |= tmpTransition;
-                            transitionMatrixCombined1[0b1111] |= tmpTransition;
-                            if (bits + 3 < maxAutomatonSize)
-                            {
-                                tmpTransition = precomputedStateTransitioningMatrix[bits + 3];
-                                transitionMatrixCombined2[0b1000] = tmpTransition;
-                                transitionMatrixCombined2[0b1001] |= tmpTransition;
-                                transitionMatrixCombined2[0b1010] |= tmpTransition;
-                                transitionMatrixCombined2[0b1011] |= tmpTransition;
-                                transitionMatrixCombined2[0b1100] |= tmpTransition;
-                                transitionMatrixCombined2[0b1101] |= tmpTransition;
-                                transitionMatrixCombined2[0b1110] |= tmpTransition;
-                                transitionMatrixCombined2[0b1111] |= tmpTransition;
-                                if (bits * 2 + 3 < maxAutomatonSize)
-                                {
-                                    tmpTransition = precomputedStateTransitioningMatrix[bits * 2 + 3];
-                                    transitionMatrixCombined3[0b1000] = tmpTransition;
-                                    transitionMatrixCombined3[0b1001] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1010] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1011] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1100] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1101] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1110] |= tmpTransition;
-                                    transitionMatrixCombined3[0b1111] |= tmpTransition;
-                                    if (bits * 3 + 3 < maxAutomatonSize)
-                                    {
-                                        tmpTransition = precomputedStateTransitioningMatrix[bits * 3 + 3];
-                                        transitionMatrixCombined4[0b1000] = tmpTransition;
-                                        transitionMatrixCombined4[0b1001] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1010] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1011] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1100] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1101] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1110] |= tmpTransition;
-                                        transitionMatrixCombined4[0b1111] |= tmpTransition;
-                                    }
                                 }
                             }
                         }
@@ -319,21 +216,11 @@ namespace AutomataIterator
                         seekingFirstNext = true;
                     }
 
-                    if (maxAutomatonSize > 12)
-                    {
-                        vertexAfterTransition =
-                          transitionMatrixCombined1[twoToPowerBitsM1 & consideringVertex]
-                        | transitionMatrixCombined2[twoToPowerBitsM1 & (consideringVertex >> bits)]
-                        | transitionMatrixCombined3[twoToPowerBitsM1 & (consideringVertex >> (2 * bits))]
-                        | transitionMatrixCombined4[twoToPowerBitsM1 & (consideringVertex >> (3 * bits))];
-                    }
-                    else
-                    {
-                        vertexAfterTransition =
-                          transitionMatrixCombined1[twoToPowerBitsM1 & consideringVertex]
-                        | transitionMatrixCombined2[twoToPowerBitsM1 & (consideringVertex >> bits)]
-                        | transitionMatrixCombined3[twoToPowerBitsM1 & (consideringVertex >> (2 * bits))];
-                    }
+                    vertexAfterTransition =
+                      transitionMatrixCombined1[twoToPowerBitsM1 & consideringVertex]
+                    | transitionMatrixCombined2[twoToPowerBitsM1 & (consideringVertex >> bits)]
+                    | transitionMatrixCombined3[twoToPowerBitsM1 & (consideringVertex >> (2 * bits))]
+                    | transitionMatrixCombined4[twoToPowerBitsM1 & (consideringVertex >> (3 * bits))];
 
                     vertexAfterTransitionA = (ushort)(vertexAfterTransition >> maxAutomatonSize);
                     vertexAfterTransitionB = (ushort)(vertexAfterTransition & initialVertex);

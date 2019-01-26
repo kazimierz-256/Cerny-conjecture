@@ -19,12 +19,13 @@ namespace AutomataIteratorExperimentalBenchmark
             {
                 () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
                 () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12(),
-                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12()
+                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12(),
+                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12_3bits()
             };
 
             #region Serial Benchmark
             Console.WriteLine("Single thread benchmarks:");
-            const int problems = 1_000_000;
+            const int problems = 500_000;
             for (int exercise = 0; exercise < 10; exercise++)
             {
                 Console.WriteLine();
