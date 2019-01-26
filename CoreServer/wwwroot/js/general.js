@@ -1134,8 +1134,7 @@ let generatePosterShot = () => {
     if (generatedAlready)
         return;
     generatedAlready = true;
-    let far = 450;
-    let height = water.position.y + 2;
+    let height = water.position.y;
 
     const description = [
         ["Wysoko wydajne obliczanie słów synchronizujących dla automatów skończonych"],
@@ -1147,25 +1146,18 @@ let generatePosterShot = () => {
         ["Obliczenia potwierdzają hipotezę Černego dla n < 11"],
         [""],
         ["Projekt składa się z trzech modułów"],
-        ["Klient, Serwer oraz Prezentacja"],
+        ["Klienta, Serwera oraz Prezentacji"],
         [""],
-        [""],
-        [""],
-        [""],
-        [""],
-        [""],
-        [""],
-        [""],
-        [""],
-        [""],
+        ["Najważniejsze użyte technologie"],
+        ["ASP.NET Core"],
         ["SignalR"],
         ["Three.js"],
-        ["Materialize"]
+        ["Materialize"],
     ];
 
     const size = 14;
     const angle = Math.atan(camera.position.x / camera.position.z);
-    let textDistance = 15.5;
+    let textDistance = 17;
     for (let i = 0; i < description.length; i++) {
         const descriptor = description[i];
         if (descriptor == "") {
@@ -1182,7 +1174,7 @@ let generatePosterShot = () => {
         }
     }
 
-    water.position.y -= 13;
+    water.position.y -= 0.5;
     height = water.position.y + 1;
 
     var img = new THREE.MeshBasicMaterial({
@@ -1190,7 +1182,8 @@ let generatePosterShot = () => {
     });
     img.transparent = true;
     // plane
-    const logoSize = 34;
+    const logoSize = 12;
+    let far = 150;
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(logoSize, logoSize), img);
     plane.position.set(camera.position.x + Math.sin(angle) * far, height, camera.position.z + Math.cos(angle) * far);
     plane.position.y = water.position.y + logoSize / 2 + 2;
@@ -1201,10 +1194,10 @@ let generatePosterShot = () => {
 }
 let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     const fontMaterial = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(0x666666),
-        emissive: new THREE.Color(0x000000),
+        color: new THREE.Color(0x444444),
+        emissive: new THREE.Color(0x111111),
         roughness: 0.8,
-        metalness: 0.5
+        metalness: 0.3
     });
     const fontHeight = 0.02;
     let fakeFontGeometry = new THREE.TextGeometry(text, {
@@ -1223,16 +1216,30 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     });
     fontGeometry.computeBoundingBox();
     let textWidth = fontGeometry.boundingBox.max.x - fontGeometry.boundingBox.min.x;
+    let textHeight = fontGeometry.boundingBox.max.y - fontGeometry.boundingBox.min.y;
     let group = new THREE.Group();
     let mesh = new THREE.Mesh(fontGeometry, fontMaterial);
 
+    let extendedHeight = textHeight * 2.6;
+    let planeGeometry = new THREE.PlaneGeometry(textWidth * 1.03, extendedHeight, 32);
+    let planeMaterial = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0xf4f1ed),
+        emissive: new THREE.Color(0x777777),
+        side: THREE.DoubleSide
+    });
+    let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.position.y -= fontHeight;
     if (align === 1)
         mesh.position.x -= textWidth;
     else if (align !== -1)
         mesh.position.x -= textWidth / 2;
-    if (rotate)
+    if (rotate) {
         mesh.rotation.x = -Math.PI / 2;
+        plane.rotation.x = -Math.PI / 2;
+    }
+    plane.position.z -= (textHeight) / 2;
     group.add(mesh);
+    group.add(plane);
     return group;
 }
 $(document.body).css("opacity", 1);
