@@ -19,7 +19,7 @@ namespace AutomataIteratorExperimentalBenchmark
             {
                 () =>  new PowerAutomatonReusableSolutionMapperMaximum12(),
                 () =>  new PowerAutomatonReusableSolutionMapperFastMaximum12(),
-                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12(),
+                () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12_4bits(),
                 () =>  new PowerAutomatonReusableSolutionMapperUltraMaximum12_3bits()
             };
 

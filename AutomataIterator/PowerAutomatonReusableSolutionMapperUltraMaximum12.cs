@@ -7,7 +7,7 @@ namespace AutomataIterator
     /// <summary>
     /// This class is and should be reused whenever possible to avoid the cost of array reallocation
     /// </summary>
-    public class PowerAutomatonReusableSolutionMapperUltraMaximum12 : ISolutionMapperReusable
+    public class PowerAutomatonReusableSolutionMapperUltraMaximum12_4bits : ISolutionMapperReusable
     {
         private readonly SolvedOptionalAutomaton automatonToYield = new SolvedOptionalAutomaton();
         /// <summary>
