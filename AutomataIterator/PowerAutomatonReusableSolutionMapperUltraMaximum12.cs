@@ -44,12 +44,10 @@ namespace AutomataIterator
             bool seekingFirstNext;
             bool discoveredSingleton;
             byte i;
-            byte iPower;
             byte max;
 
-            var twoToPowerBits = (byte)(1 << bits);
-            var twoToPowerBitsM1 = (byte)((1 << bits) - 1);
-            byte iMax = ((maxAutomatonSize + bits - 1) / bits);
+            const byte twoToPowerBits = 1 << bits;
+            const byte twoToPowerBitsM1 = (1 << bits) - 1;
             uint tmpTransition;
             uint vertexAfterTransition;
             var precomputedStateTransitioningMatrix = new uint[maxAutomatonSize];
