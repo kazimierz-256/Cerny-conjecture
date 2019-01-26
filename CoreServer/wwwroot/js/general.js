@@ -292,7 +292,7 @@ let init = (createControlFromCamera) => {
             sunDirection: sunLight.position.clone().normalize(),
             sunColor: sunLight.color,
             waterColor: 0x001e0f,
-            distortionScale: 1,
+            distortionScale: 1.1,
             fog: scene.fog !== undefined
         }
     );
@@ -931,7 +931,7 @@ let resizeToGoldenRatio = () => {
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
 
-    M.toast({ html: "The canvas proportions are now 1 to square root of 2. A3, A2 poster format. Press 's' to make a screenshot.", displayLength: 3000 });
+    // M.toast({ html: "The canvas proportions are now 1 to square root of 2. A3, A2 poster format. Press 's' to make a screenshot.", displayLength: 3000 });
 }
 
 let resizeToInverseGoldenRatio = () => {
@@ -1182,11 +1182,11 @@ let generatePosterShot = () => {
     });
     img.transparent = true;
     // plane
-    const logoSize = 12;
-    let far = 150;
+    const logoSize = 14;
+    let far = 170;
     var plane = new THREE.Mesh(new THREE.PlaneGeometry(logoSize, logoSize), img);
     plane.position.set(camera.position.x + Math.sin(angle) * far, height, camera.position.z + Math.cos(angle) * far);
-    plane.position.y = water.position.y + logoSize / 2 + 2;
+    plane.position.y = water.position.y + logoSize / 2 + 1;
     plane.overdraw = true;
     plane.renderOrder = 1;
     plane.lookAt(camera.position);
