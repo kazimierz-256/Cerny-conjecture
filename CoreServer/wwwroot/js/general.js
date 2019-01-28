@@ -1163,7 +1163,7 @@ let generatePosterShot = () => {
         if (descriptor == "") {
             textDistance += 0.04 * textDistance;
         } else {
-            let text = getTextObjectMatchingWidth(descriptor[0], size, 4, -1);
+            let text = getTextObjectMatchingWidth(descriptor[0], size);
             text.position.set(camera.position.x + Math.sin(angle) * textDistance, height, camera.position.z + Math.cos(angle) * textDistance);
             textDistance += 0.04 * textDistance + (text.children[0].geometry.boundingBox.max.y - text.children[0].geometry.boundingBox.min.y);
             text.position.y = camera.position.y;
@@ -1192,7 +1192,7 @@ let generatePosterShot = () => {
     plane.lookAt(camera.position);
     scene.add(plane);
 }
-let getTextObjectMatchingWidth = (text, size, align, rotate) => {
+let getTextObjectMatchingWidth = (text, size) => {
     const fontMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(0x444444),
         emissive: new THREE.Color(0x111111),
@@ -1221,7 +1221,8 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     let mesh = new THREE.Mesh(fontGeometry, fontMaterial);
 
     let extendedHeight = textHeight * 2.6;
-    let planeGeometry = new THREE.PlaneGeometry(textWidth * 1.03, extendedHeight, 32);
+    let extendedWidth = textWidth * 1.03;
+    let planeGeometry = new THREE.PlaneGeometry(extendedWidth, extendedHeight, 32);
     let planeMaterial = new THREE.MeshStandardMaterial({
         color: new THREE.Color(0xf4f1ed),
         emissive: new THREE.Color(0x777777),
@@ -1231,15 +1232,11 @@ let getTextObjectMatchingWidth = (text, size, align, rotate) => {
     });
     let plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.y -= fontHeight;
-    if (align === 1)
-        mesh.position.x -= textWidth;
-    else if (align !== -1)
-        mesh.position.x -= textWidth / 2;
-    if (rotate) {
-        mesh.rotation.x = -Math.PI / 2;
-        plane.rotation.x = -Math.PI / 2;
-    }
+    mesh.position.x -= textWidth / 2;
+    mesh.rotation.x = -Math.PI / 2;
     plane.position.z -= (textHeight) / 2;
+    plane.rotation.x = -Math.PI / 2;
+
     group.add(mesh);
     group.add(plane);
     return group;
